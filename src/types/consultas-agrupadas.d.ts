@@ -1,0 +1,1 @@
+type ConsultasAgrupadas = Record<string, ConsultaReposta[]>;

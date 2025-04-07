@@ -1,0 +1,1 @@
+type ProcedureTimeContainer = Record<string, ProcedureTimeResponse[]>

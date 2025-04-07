@@ -1,0 +1,20 @@
+type Plano = {
+  id_plano_pla?: number | null;
+  des_nome_pla?: string | null;
+  des_nome_impressao_pla?: string | null;
+  vlr_multa_atraso_pla?: number | null;
+  vlr_juros_porcetagem_pla?: number | null;
+  is_adesao_pla?: number | null;
+  des_descricao_pla?: string | null;
+  is_ativo_pla?: number | null;
+  vlr_adesao_pla?: number | null;
+  id_conta_bancaria_ctb?: number | null;
+  dth_cadastro_pla?: string | null;
+  dth_alteracao_pla?: string | null;
+  vlr_dependente_adicional_pla? : string | null;
+  vlr_exclusao_dependente_pla? : string | null;
+  qtd_clientes_pla? : string | null;
+  qtd_max_dependentes_pla? : string | null;
+  vlr_dependente_adicional_pla? : string | null;
+  vlr_exclusao_dependente_pla? : string | null;
+};

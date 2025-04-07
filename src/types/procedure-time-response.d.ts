@@ -1,0 +1,20 @@
+type ProcedureTimeResponse = {
+  cod_agenda: string;
+  cod_horarioagenda: string;
+  cod_profissional: string;
+  nome_profissional: string;
+  conselho_profissional: string;
+  sigla_conselho: string;
+  fachada_profissional: string;
+  tempo_agenda: string;
+  cod_empresa: string;
+  cod_sala: string;
+  observacao: string;
+  cod_procedimento_assinatura: string;
+  cod_procedimento_particular: string;
+  vlr_procedimento_assinatura: string;
+  vlr_procedimento_particular: string;
+  horarios_list: string[];
+  selected_time?: string | null;
+  selected_date?: string | null;
+};
