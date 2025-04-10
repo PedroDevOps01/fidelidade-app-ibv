@@ -1,22 +1,20 @@
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useTheme } from "react-native-paper";
-import UserSchedulesScreen from "../pages/user-schedules-screen";
-import UserConsultasScreen from "../pages/user-consultas-screen";
-import UserProcedureDetailsScreen from "../pages/user-procedure-details-screen";
-import UserProcedureTime from "../pages/user-procedure-time";
-import UserProceduresByMedico from "../pages/user-procedures-by-medico";
-import UserSelectPaymentMethod from "../pages/user-select-payment-method";
-import UserPaymentScheduleScreen from "../pages/user-payment-schedule-screen";
-import UserPaymentCreditCardScheduleScreen from "../pages/user-payment-creditcard-schedule-screen";
-import UserPaymentSuccessfull from "../pages/user-payment-successfull";
-import UserExamsCheckLocal from "../pages/user-exams-check-local";
-import UserExamsSelectDate from "../pages/user-exams-select-date";
-import UserSchedulesHistoryScreen from "../pages/user-schedules-history-screen";
-import UserCreateCreditCard from "../pages/user-create-credit-card";
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useTheme } from 'react-native-paper';
+import UserSchedulesScreen from '../pages/user-schedules-screen';
+import UserConsultasScreen from '../pages/user-consultas-screen';
+import UserProcedureDetailsScreen from '../pages/user-procedure-details-screen';
+import UserProcedureTime from '../pages/user-procedure-time';
+import UserProceduresByMedico from '../pages/user-procedures-by-medico';
+import UserSelectPaymentMethod from '../pages/user-select-payment-method';
+import UserPaymentScheduleScreen from '../pages/user-payment-schedule-screen';
+import UserPaymentCreditCardScheduleScreen from '../pages/user-payment-creditcard-schedule-screen';
+import UserPaymentSuccessfull from '../pages/user-payment-successfull';
+import UserExamsCheckLocal from '../pages/user-exams-check-local';
+import UserExamsSelectDate from '../pages/user-exams-select-date';
+import UserSchedulesHistoryScreen from '../pages/user-schedules-history-screen';
+import UserCreateCreditCard from '../pages/user-create-credit-card';
 
 const SchedulesStack = createNativeStackNavigator();
-
-
 
 const SchedulesStackNavigator = () => {
   const { colors } = useTheme();
@@ -30,15 +28,14 @@ const SchedulesStackNavigator = () => {
           backgroundColor: colors.background,
         },
         headerShadowVisible: false,
-        headerBackTitle: "Voltar",
-      }}
-    >
+        headerBackTitle: 'Voltar',
+      }}>
       <SchedulesStack.Screen
         name="user-schedules-screen"
         component={UserSchedulesScreen}
         options={{
           headerShown: true,
-          title: "Meus Agendamentos",
+          title: 'Meus Agendamentos',
           headerShadowVisible: false,
         }}
       />
@@ -48,7 +45,7 @@ const SchedulesStackNavigator = () => {
         component={UserConsultasScreen}
         options={{
           headerShown: true,
-          title: "Consultas",
+          title: 'Consultas',
           headerShadowVisible: false,
         }}
       />
@@ -57,7 +54,7 @@ const SchedulesStackNavigator = () => {
         component={UserProcedureDetailsScreen}
         options={{
           headerShown: true,
-          title: "Detalhes do Procedimento",
+          title: 'Detalhes do Procedimento',
         }}
       />
       <SchedulesStack.Screen
@@ -65,7 +62,7 @@ const SchedulesStackNavigator = () => {
         component={UserProcedureTime}
         options={{
           headerShown: true,
-          title: "Horários",
+          title: 'Horários',
         }}
       />
 
@@ -74,7 +71,7 @@ const SchedulesStackNavigator = () => {
         component={UserProceduresByMedico}
         options={{
           headerShown: true,
-          title: "Consultas",
+          title: 'Consultas',
         }}
       />
 
@@ -83,7 +80,7 @@ const SchedulesStackNavigator = () => {
         component={UserSelectPaymentMethod}
         options={{
           headerShown: true,
-          title: "Forma de pagamento",
+          title: 'Forma de pagamento',
         }}
       />
       <SchedulesStack.Screen
@@ -91,7 +88,7 @@ const SchedulesStackNavigator = () => {
         component={UserPaymentScheduleScreen}
         options={{
           headerShown: true,
-          title: "Pagamento",
+          title: 'Pagamento',
         }}
       />
 
@@ -100,38 +97,18 @@ const SchedulesStackNavigator = () => {
         component={UserPaymentCreditCardScheduleScreen}
         options={{
           headerShown: true,
-          title: "Pagamento",
+          title: 'Pagamento',
         }}
       />
 
-      <SchedulesStack.Screen
-        name="user-payment-successfull-screen"
-        component={UserPaymentSuccessfull}
-      />
-      <SchedulesStack.Screen
-        name="user-exams-check-local-screen"
-        component={UserExamsCheckLocal}
-        options={{ headerShown: true, title: "Locais disponíveis" }}
-      />
-      <SchedulesStack.Screen
-        name="user-exams-select-date"
-        component={UserExamsSelectDate}
-        options={{ headerShown: true, title: "Datas disponíveis" }}
-      />
-      <SchedulesStack.Screen
-        name="user-shcdules-history-screen"
-        component={UserSchedulesHistoryScreen}
-        options={{ headerShown: true, title: "Meus agendamentos" }}
-      />
-      <SchedulesStack.Screen
-        name="user-create-credit-card-screen"
-        component={UserCreateCreditCard}
-        options={{ headerShown: true, title: "Cadastrar Cartão" }}
-      />
+      <SchedulesStack.Screen name="user-payment-successfull-screen" component={UserPaymentSuccessfull} />
+      <SchedulesStack.Screen name="user-exams-check-local-screen" component={UserExamsCheckLocal} options={{ headerShown: true, title: 'Locais disponíveis' }} />
+      <SchedulesStack.Screen name="user-exams-select-date" component={UserExamsSelectDate} options={{ headerShown: true, title: 'Datas disponíveis' }} />
+      <SchedulesStack.Screen name="user-shcdules-history-screen" component={UserSchedulesHistoryScreen} options={{ headerShown: true, title: 'Meus agendamentos' }} />
+      <SchedulesStack.Screen name="user-create-credit-card-screen" component={UserCreateCreditCard} options={{ headerShown: true, title: 'Cadastrar Cartão' }} />
       {/* <SchedulesStack.Screen name="user-payment-attempt-screen" component={UserPaymentAttemptScreen} options={{ headerShown: false, title: 'Cadastrar Cartão' }} /> */}
     </SchedulesStack.Navigator>
   );
 };
 
-
-export default SchedulesStackNavigator
+export default SchedulesStackNavigator;

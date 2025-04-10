@@ -45,7 +45,7 @@ const UserSchedulesHistoryScreen = () => {
   }, []);
 
   const NoSchedulesComponent = () => (
-    <View style={[styles.containerErrorComponent, { backgroundColor: colors.background}]}>
+    <View style={[styles.containerErrorComponent, { backgroundColor: colors.background }]}>
       <IconButton icon="calendar-remove-outline" size={64} iconColor={colors.primary} style={styles.icon} />
       <Text variant="headlineMedium" style={styles.text}>
         Você não possui agendamentos marcados
@@ -63,9 +63,10 @@ const UserSchedulesHistoryScreen = () => {
       {loading ? (
         <LoadingFull />
       ) : (
-        <View>
+        <View style={{flex: 1, flexDirection: 'row'}}>
           {userSchedules.length > 0 ? (
             <FlatList
+            style={{ width: '100%' }}
               data={userSchedules}
               renderItem={({ item, index }) => <UserScheduleCard index={index} appointment={item} onPress={e => showModal(e)} />}
               refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchSchedules} />}

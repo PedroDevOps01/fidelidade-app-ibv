@@ -20,8 +20,12 @@ const UserScheduleCard = ({ index, appointment, onPress }: { index: number; appo
           </View>
 
           <View style={{ flex: 5, justifyContent: 'center', alignItems: 'flex-end' }}>
-            <Text variant='bodyLarge'>Ver Detalhes</Text>
+            <Text variant='bodyLarge' style={{fontWeight: 'bold'}}>Ver mais</Text>
           </View>
+
+
+
+          
         </View>
       </Card.Content>
     </Card>
