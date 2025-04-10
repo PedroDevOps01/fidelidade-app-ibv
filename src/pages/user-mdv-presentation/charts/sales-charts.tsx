@@ -7,13 +7,9 @@ import {
 import { LineChart } from "react-native-gifted-charts";
 import {
   ActivityIndicator,
-  Button,
-  Divider,
-  Icon,
-  IconButton,
-  Menu,
+  Button, Icon, Menu,
   Text,
-  useTheme,
+  useTheme
 } from "react-native-paper";
 import { navigate } from "../../../router/navigationRef";
 import { useState } from "react";
@@ -28,7 +24,7 @@ const SalesChart = ({
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
 
-  const [menuVisible, setMenuVisible] = useState(false);
+
 
   // Se `salesData` estiver vazio, mostrar um gráfico com valores padrão
   const isEmpty = salesData.length === 0;
@@ -86,10 +82,10 @@ const SalesChart = ({
             >
               {isEmpty
                 ? "Sem vendas registradas!"
-                : `Vendas no último mês: ${salesData.length}`}
+                : `Total de vendas: ${salesData.length}`}
             </Text>
 
-            <Menu
+            {/* <Menu
               visible={menuVisible}
               onDismiss={() => setMenuVisible(false)}
               anchor={
@@ -98,8 +94,10 @@ const SalesChart = ({
                 </TouchableOpacity>
               }
             >
-              <Menu.Item onPress={() => {}} title="Período" />
-            </Menu>
+              <Menu.Item onPress={() => {
+                setMenuVisible(false)
+              }} title="Período" />
+            </Menu> */}
           </View>
 
           {/* 📌 ScrollView para evitar que o gráfico estoure o limite da View */}

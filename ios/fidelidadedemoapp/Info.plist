@@ -30,7 +30,7 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Permitir acesso à câmera para que você possa usar a telemedicina</string>
+	<string>Este app precisa de acesso à câmera para permitir que você participe de consultas por vídeo com médicos e outros profissionais de saúde. A câmera será usada apenas durante a chamada para capturar sua imagem em tempo real.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Este aplicativo precisa acessar sua localização</string>
 	<key>NSMicrophoneUsageDescription</key>

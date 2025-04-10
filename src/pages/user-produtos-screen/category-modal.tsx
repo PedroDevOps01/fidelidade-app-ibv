@@ -17,6 +17,7 @@ import { MD3Colors } from 'react-native-paper/lib/typescript/types';
 import { NewListItem } from '../../types/new__list_item';
 import { useEffect, useState } from 'react';
 import { api } from '../../network/api';
+import CustomToast from '../../components/custom-toast';
 
 const MAX_MODAL_HEIGHT = Dimensions.get('window').height * 0.7;
 
@@ -59,12 +60,8 @@ export default function CategoryModal({
         setCategories(mapped);
       }
     } catch (err) {
-      Alert.alert('Aviso', 'Erro ao carregar categorias', [
-        {
-          text: 'ok',
-          onPress: onDismiss,
-        },
-      ]);
+      onDismiss()
+      CustomToast('Erro ao carregar categorias', colors)
     } finally {
       setLoading(false);
     }

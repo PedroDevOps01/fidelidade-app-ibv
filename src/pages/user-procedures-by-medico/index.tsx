@@ -6,6 +6,7 @@ import {agruparConsultasPorGrupo} from '../../utils/app-utils';
 import {List, Searchbar, useTheme} from 'react-native-paper';
 import GroupedList from '../user-consultas-screen/grouped-list';
 import LoadingFull from '../../components/loading-full';
+import CustomToast from '../../components/custom-toast';
 
 interface UserProceduresByMedicoProps {
   navigation: any;
@@ -38,12 +39,9 @@ export default function UserProceduresByMedico({navigation, route}: UserProcedur
         setConsultasAgrupadasData(ag);
       }
     } catch (err: any) {
-      Alert.alert('Aviso', 'Erro ao carregar horários', [
-        {
-          text: 'ok',
-          onPress: () => navigation.goBack(),
-        },
-      ]);
+      navigation.goBack();
+      CustomToast('Erro ao carregar horários', colors)
+
     } finally {
       setLoading(false);
     }

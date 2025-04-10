@@ -26,12 +26,12 @@ export const ModalContent: React.FC<ModalContextProps> = ({
       <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 12 }}>{title}</Text>
       <Text style={{ fontSize: 16, marginBottom: 24 }}>{description}</Text>
 
-      <View style={{ flexDirection: 'row', justifyContent: isBackButtonVisible ? 'space-between' : 'center' }}>
+      <View style={{ minWidth: '90%', flexDirection: 'row', justifyContent: isBackButtonVisible ? 'space-between' : 'center' }}>
         {isBackButtonVisible && (
           <Button
             mode="outlined"
             onPress={backButtonAction}
-            style={{ flex: 1, marginRight: 8 }}
+            style={{ flex: 1, marginRight: 0 }}
             contentStyle={{ justifyContent: 'center' }}
           >
             {backButtonText}

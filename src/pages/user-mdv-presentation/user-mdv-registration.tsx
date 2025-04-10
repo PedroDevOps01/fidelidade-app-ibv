@@ -121,6 +121,8 @@ export default function UserMdvRegistration() {
             <Dropdown
               disable={loadingBanks}
               search
+              inputSearchStyle={{backgroundColor: colors.background}}
+              containerStyle={{ backgroundColor: colors.background }}
               style={[styles.dropdown, { borderRadius: 4, borderWidth: 2, borderColor: errors.codBancoPdb ? colors.error : 'black' }]}
               placeholderStyle={styles.placeholderStyle}
               itemContainerStyle={{ backgroundColor: colors.background }}

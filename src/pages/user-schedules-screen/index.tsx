@@ -13,6 +13,7 @@ import LoadingFull from '../../components/loading-full';
 import { ProcedureMethodTypes, useConsultas } from '../../context/consultas-context';
 import { useExames } from '../../context/exames-context';
 import ScheduleDataModal from './schedule-data-modal';
+import CustomToast from '../../components/custom-toast';
 
 export default function UserSchedulesScreen({ navigation }: { navigation: any }) {
   const { dadosUsuarioData } = useDadosUsuario();
@@ -89,15 +90,7 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
       }
     } catch (err: any) {
       //console.log(err);
-
-      Alert.alert('Erro', 'Erro ao carregar agendamentos. Tente novamente mais tarde', [
-        {
-          text: 'Ok',
-          onPress: () => {
-            //navigate('Home');
-          },
-        },
-      ]);
+      CustomToast('Erro ao carregar agendamentos. Tente novamente mais tarde', colors);
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,4 @@
-import { useNavigation } from '@react-navigation/native';
-import axios, { AxiosResponse } from 'axios';
-import { Alert } from 'react-native';
-import { reset } from '../router/navigationRef';
+import axios from 'axios';
 import { log } from '../utils/app-utils';
 
 export const api = axios.create({

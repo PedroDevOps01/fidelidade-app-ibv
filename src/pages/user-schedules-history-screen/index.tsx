@@ -9,6 +9,7 @@ import { generateRequestHeader } from '../../utils/app-utils';
 import { useFocusEffect } from '@react-navigation/native';
 import UserScheduleCard from '../user-schedules-screen/user-schedule-card';
 import ScheduleDataModal from '../user-schedules-screen/schedule-data-modal';
+import CustomToast from '../../components/custom-toast';
 
 const UserSchedulesHistoryScreen = () => {
   const { colors } = useTheme();
@@ -31,7 +32,7 @@ const UserSchedulesHistoryScreen = () => {
         setUserSchedules(data);
       }
     } catch {
-      Alert.alert('Aviso', 'Erro ao carregar os dados. Tente novamente mais tarde!');
+      CustomToast('Erro ao carregar os dados. Tente novamente mais tarde!', colors);
     } finally {
       setLoading(false);
     }

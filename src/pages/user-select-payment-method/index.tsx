@@ -10,6 +10,7 @@ import { useExames } from '../../context/exames-context';
 import { useConsultas } from '../../context/consultas-context';
 import { log } from '../../utils/app-utils';
 import LoadingFull from '../../components/loading-full';
+import CustomToast from '../../components/custom-toast';
 
 const UserSelectPaymentMethod = () => {
   const { colors } = useTheme();
@@ -35,7 +36,7 @@ const UserSelectPaymentMethod = () => {
   const handleSubmit = (selectedFormasPagamento: string) => {
 
     if(selectedFormasPagamento == '') {
-      Alert.alert('Aviso', 'Selecione uma forma de pagamento.')
+      CustomToast('Selecione uma forma de pagamento.', colors);
       return
     }
 

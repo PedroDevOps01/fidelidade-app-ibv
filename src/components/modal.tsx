@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     padding: 20,
     marginHorizontal: 16,
     borderRadius: 8,
-    width: '90%', // Controla a largura do conteúdo
+    minWidth: '90%', // Controla a largura do conteúdo
   },
 });
 

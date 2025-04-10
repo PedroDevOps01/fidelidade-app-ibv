@@ -1,13 +1,14 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {StyleSheet, View, Image, Clipboard, Alert, ScrollView} from 'react-native';
-import {Text, Card, Button, useTheme, ActivityIndicator} from 'react-native-paper';
-import {useRoute} from '@react-navigation/native';
-import {generateRequestHeader, getCurrentDate, maskBrazilianCurrency} from '../../utils/app-utils';
-import {api} from '../../network/api';
-import {useAuth} from '../../context/AuthContext';
+import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, View, Image, Clipboard, Alert, ScrollView } from 'react-native';
+import { Text, Card, Button, useTheme, ActivityIndicator } from 'react-native-paper';
+import { useRoute } from '@react-navigation/native';
+import { generateRequestHeader, getCurrentDate, maskBrazilianCurrency } from '../../utils/app-utils';
+import { api } from '../../network/api';
+import { useAuth } from '../../context/AuthContext';
 import LoadingFull from '../../components/loading-full';
-import {goBack, navigate} from '../../router/navigationRef';
+import { goBack, navigate } from '../../router/navigationRef';
 import { useConsultas } from '../../context/consultas-context';
+import CustomToast from '../../components/custom-toast';
 
 interface PixScheduleResponse {
   message: string;
@@ -21,9 +22,9 @@ interface PixScheduleResponse {
 
 export default function UserPaymentScheduleScreen() {
   const route = useRoute();
-  const {colors} = useTheme();
-  const {authData} = useAuth();
-  const { currentProcedureMethod } = useConsultas()
+  const { colors } = useTheme();
+  const { authData } = useAuth();
+  const { currentProcedureMethod } = useConsultas();
   const [loading, setLoading] = useState<boolean>(true);
   const [pixResponse, setPixResponse] = useState<PixScheduleResponse>();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -41,18 +42,16 @@ export default function UserPaymentScheduleScreen() {
         generateRequestHeader(authData.access_token),
       );
 
-      if(response.data.error) {
-        Alert.alert("Aviso", response.data.error, [
-          {text:"continuar", onPress: () => goBack()}
-        ])
-        return
+      if (response.data.error) {
+        goBack();
+        CustomToast(response.data.error, colors);
+        return;
       }
 
       setPixResponse(response.data);
     } catch (err: any) {
-      Alert.alert('Aviso', 'Erro ao realizar pagamento. Tente novamente mais tarde');
-      console.log(JSON.stringify(err.response.data, null, 2))
       goBack();
+      CustomToast('Erro ao realizar pagamento. Tente novamente mais tarde', colors);
     } finally {
       setLoading(false);
     }
@@ -76,7 +75,7 @@ export default function UserPaymentScheduleScreen() {
 
         if (response.data.response[0].des_status_pgm === 'paid') {
           if (intervalRef.current) clearInterval(intervalRef.current);
-          navigate('user-payment-successfull-screen', {reset: true, name: 'user-schedules-screen'});
+          navigate('user-payment-successfull-screen', { reset: true, name: 'user-schedules-screen' });
         }
       }
     } catch (err: any) {}
@@ -92,8 +91,7 @@ export default function UserPaymentScheduleScreen() {
 
   useEffect(() => {
     (async () => {
-
-      console.log(JSON.stringify(route.params, null, 2))
+      console.log(JSON.stringify(route.params, null, 2));
       await fetchPayment(route.params!);
     })();
   }, [route]);
@@ -105,43 +103,37 @@ export default function UserPaymentScheduleScreen() {
   });
 
   return (
-    <View style={[styles.container, {backgroundColor: colors.background}]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {loading ? (
         <LoadingFull />
       ) : (
         <ScrollView>
           <Card mode="contained" style={styles.card}>
-            <Card.Title
-              title="Pagamento via Pix"
-              titleStyle={{textAlign: 'center', fontWeight: 'bold'}}
-              titleVariant="headlineMedium"
-            />
+            <Card.Title title="Pagamento via Pix" titleStyle={{ textAlign: 'center', fontWeight: 'bold' }} titleVariant="headlineMedium" />
             <Card.Content>
               <Text style={styles.text}>Valor:</Text>
               <Text style={styles.value}>R$: {maskBrazilianCurrency(route.params!.vlr_total ?? 0)}</Text>
 
-  
               <View style={styles.qrContainer}>
                 <Text style={styles.text}>Escaneie o QR Code:</Text>
-                <Image source={{uri: pixResponse?.data.qrcode_url}} style={styles.qrCode} resizeMode="contain" />
+                <Image source={{ uri: pixResponse?.data.qrcode_url }} style={styles.qrCode} resizeMode="contain" />
               </View>
-              <Button mode="contained" style={{marginTop: 10}} onPress={() => copyToClipboard(pixResponse!.data.qrcode!)}>
+              <Button mode="contained" style={{ marginTop: 10 }} onPress={() => copyToClipboard(pixResponse!.data.qrcode!)}>
                 Copiar código
               </Button>
             </Card.Content>
           </Card>
 
           <Text variant="bodyLarge">
-            O pagamento via Pix gerado para esta transação possui um prazo de validade de 30 minutos. Após esse período,
-            o QR Code expira e não poderá ser utilizado para concluir o pagamento.
+            O pagamento via Pix gerado para esta transação possui um prazo de validade de 30 minutos. Após esse período, o QR Code expira e não poderá ser utilizado para concluir o
+            pagamento.
           </Text>
           <Text> </Text>
           <Text variant="bodyLarge">
-            Assim que o pagamento via Pix for realizado, a tela será atualizada automaticamente para refletir o status
-            da transação. Por favor, aguarde alguns instantes após a conclusão do pagamento. Caso o status não seja
-            atualizado, verifique sua conexão com a internet ou entre em contato com o suporte.
+            Assim que o pagamento via Pix for realizado, a tela será atualizada automaticamente para refletir o status da transação. Por favor, aguarde alguns instantes após a
+            conclusão do pagamento. Caso o status não seja atualizado, verifique sua conexão com a internet ou entre em contato com o suporte.
           </Text>
-          <ActivityIndicator style={{marginTop: 10}} />
+          <ActivityIndicator style={{ marginTop: 10 }} />
         </ScrollView>
       )}
     </View>

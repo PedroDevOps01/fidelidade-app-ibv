@@ -13,6 +13,7 @@ import { useDadosUsuario } from '../../context/pessoa-dados-context';
 import { useAuth } from '../../context/AuthContext';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { reset } from '../../router/navigationRef';
+import CustomToast from '../../components/custom-toast';
 
 export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigation: any; routeAfterLogin: string }) {
   const { colors } = useTheme();
@@ -61,12 +62,12 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
 
     try {
       if (dataToSent.cpf.length == 11 && !isValidCPF(dataToSent.cpf)) {
-        Alert.alert('Aviso', 'CPF inválido!');
+        CustomToast('CPF inválido!', colors);
         return;
       }
 
       if (dataToSent.cpf.length > 11 && dataToSent.cpf.length < 14) {
-        Alert.alert('Aviso', 'CNPJ inválido!');
+        CustomToast('CNPJ inválido!', colors);
         return;
       }
 
@@ -87,7 +88,7 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
       reset([{ name: routeAfterLogin }]);
     } catch (err) {
       console.log(err);
-      Alert.alert('Aviso', `Erro ao consultar dados. Tente novamente mais tarde.`);
+      CustomToast('Erro ao consultar dados. Tente novamente mais tarde.', colors);
     } finally {
       setLoading(false);
     }

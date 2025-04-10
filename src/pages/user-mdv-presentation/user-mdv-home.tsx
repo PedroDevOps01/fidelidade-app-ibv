@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
-import { Alert, SafeAreaView, StyleSheet, View } from 'react-native';
-import { Button, Text, useTheme } from 'react-native-paper';
+import { Alert, SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Button, Icon, Menu, Text, useTheme } from 'react-native-paper';
 import { navigate } from '../../router/navigationRef';
 import { Dropdown } from 'react-native-element-dropdown';
 import SalesChart from './charts/sales-charts';
@@ -11,7 +11,15 @@ import { useAuth } from '../../context/AuthContext';
 import TotalSalesValue from './charts/total-sales-value';
 import CopyMdvLink from './charts/copy-mdv-link';
 import { ScrollView } from 'react-native-gesture-handler';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import ModalContainer from '../../components/modal';
+import CustomDatePicker from '../../components/custom-date-picker';
+import dayjs from 'dayjs';
+
+type DashboardDates = {
+  startDate: Date | null;
+  endDate: Date | null;
+};
 
 export default function UserMdvHome() {
   const { colors } = useTheme();
@@ -19,6 +27,13 @@ export default function UserMdvHome() {
   const { authData } = useAuth();
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [periodModalVisible, setPeriodModalVisible] = useState<boolean>(false);
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const [dates, setDates] = useState<DashboardDates>({
+    startDate: null,
+    endDate: null,
+  });
 
   const [totalSales, setTotalSales] = useState<Sale[]>([
     {
@@ -433,13 +448,18 @@ export default function UserMdvHome() {
   const fetchMonthlySales = async () => {
     setLoading(true);
 
-    // const id_pessoa = dadosUsuarioData.pessoaMdv?.filter(e => e.id_tipo_cargo_umv == 3)[0].id_usuario_mdv_umv;
     const id_pessoa = value;
-    const response = await api.get(`usuario-mdv/relatorio/vendas/${id_pessoa}`, generateRequestHeader(authData.access_token));
+    let qry = `usuario-mdv/relatorio/vendas?id_usuario=${id_pessoa}`;
+
+    if (dates.startDate && dates.endDate) {
+      qry += `&first_date=${dayjs(dates.startDate).format('YYYY-MM-DD')}&second_date=${dayjs(dates.endDate).format('YYYY-MM-DD')}`;
+    }
+
+    const response = await api.get(qry, generateRequestHeader(authData.access_token));
     if (response.status == 200) {
       const { data } = response;
-      log(`usuario-mdv/relatorio/vendas/${id_pessoa}`, data);
-      //setTotalSales(data.response);
+      //log(`usuario-mdv/relatorio/vendas/${id_pessoa}`, data);
+      setTotalSales(data.response);
       setLoading(false);
     } else {
       Alert.alert('Aviso', 'Erro ao carregar vendas! Tente novamente mais tarde.');
@@ -447,19 +467,38 @@ export default function UserMdvHome() {
   };
 
   //log('dadosUsuarioData', dadosUsuarioData);
+  const handleFocusEffect = useCallback(() => {
+    fetchMonthlySales();
+  }, [value]);
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchMonthlySales();
-    }, [value]),
-  );
+  useFocusEffect(handleFocusEffect);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView style={styles.container}>
-        <Text variant="titleLarge" style={{ fontWeight: 'bold', marginTop: 10 }}>
-          Minhas vendas
-        </Text>
+        <View style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Text variant="titleLarge" style={{ fontWeight: 'bold' }}>
+            Minhas vendas
+          </Text>
+
+          <Menu
+            visible={menuVisible}
+            onDismiss={() => setMenuVisible(false)}
+            anchor={
+              <TouchableOpacity onPress={() => setMenuVisible(true)}>
+                <Icon source={'menu'} size={30} />
+              </TouchableOpacity>
+            }>
+            <Menu.Item
+              onPress={() => {
+                setMenuVisible(false);
+                setPeriodModalVisible(true);
+              }}
+              title="Período"
+            />
+          </Menu>
+        </View>
+
         <View style={[styles.cardContainer, { backgroundColor: colors.surfaceVariant, marginVertical: 10 }]}>
           <Text style={[styles.textCard, { color: colors.onSurface, marginBottom: 10 }]}>Nível de vendedor:</Text>
           <Dropdown
@@ -501,6 +540,51 @@ export default function UserMdvHome() {
           </View>
         </View>
       </ScrollView>
+
+      <ModalContainer visible={periodModalVisible} handleVisible={() => setPeriodModalVisible(false)}>
+        <View>
+          <Text variant="labelLarge">Data inicial</Text>
+          <CustomDatePicker
+            value={dates.startDate}
+            onChange={(e, date) => {
+              if (date) setDates(prev => ({ ...prev, startDate: date }));
+            }}
+            mode="date"
+            label="Data de nascimento"
+          />
+        </View>
+        <View>
+          <Text variant="labelLarge">Data final</Text>
+          <CustomDatePicker
+            value={dates.endDate}
+            onChange={(e, date) => {
+              if (date) setDates(prev => ({ ...prev, endDate: date }));
+            }}
+            mode="date"
+            label="Data de nascimento"
+          />
+        </View>
+
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
+          <Button
+            style={{ width: '45%' }}
+            mode="outlined"
+            onPress={() => {
+              setPeriodModalVisible(false);
+            }}>
+            Voltar
+          </Button>
+          <Button
+            style={{ width: '45%' }}
+            mode="contained"
+            onPress={() => {
+              setPeriodModalVisible(false);
+              fetchMonthlySales();
+            }}>
+            Consultar
+          </Button>
+        </View>
+      </ModalContainer>
     </SafeAreaView>
   );
 }
@@ -544,5 +628,8 @@ const styles = StyleSheet.create({
   inputSearchStyle: {
     height: 40,
     fontSize: 16,
+  },
+  iconContainer: {
+    position: 'relative',
   },
 });

@@ -2,9 +2,10 @@ import { Alert, PermissionsAndroid, Platform, StatusBar, View } from "react-nati
 import { WebView } from "react-native-webview";
 import { useDadosUsuario } from "../../context/pessoa-dados-context";
 import { useEffect, useState } from "react";
-import { ActivityIndicator } from "react-native-paper";
+import { ActivityIndicator, useTheme } from "react-native-paper";
 import { RouteProp, useFocusEffect, useRoute } from "@react-navigation/native";
 import { goBack } from "../../router/navigationRef";
+import CustomToast from "../../components/custom-toast";
 
 
 
@@ -22,7 +23,7 @@ export default function UserTelemedMeetScreen() {
   const { dadosUsuarioData } = useDadosUsuario();
   const username = dadosUsuarioData.pessoa?.des_nome_pes?.split(" ")[0];
   const disableDeepLink = "config.disableDeepLinking=true";
-
+  const { colors } = useTheme();
   const [permissionsGranted, setPermissionsGranted] = useState(false);
 
   const route =
@@ -66,7 +67,7 @@ export default function UserTelemedMeetScreen() {
           console.log(cameraGranted, micGranted)
 
           if (!cameraGranted || !micGranted) {
-            Alert.alert('Permissões necessárias', 'É necessário permitir câmera e microfone para a videoconferência.');
+            CustomToast('É necessário permitir câmera e microfone para a videoconferência.', colors);
           } else {
             setPermissionsGranted(true);
           }
