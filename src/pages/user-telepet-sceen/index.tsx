@@ -1,18 +1,19 @@
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { Button, Text, useTheme } from 'react-native-paper';
 import { checkMultiple, PERMISSIONS, requestMultiple, RESULTS } from 'react-native-permissions';
-import { arePermissionsGranted, requestPermissions } from '../../utils/permissions';
-import { navigate } from '../../router/navigationRef';
+import { goBack, navigate } from '../../router/navigationRef';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
+import ModalContainer from '../../components/modal';
 
 const UserTelepetScreen = () => {
   const { colors } = useTheme();
 
   const [permissionsGranted, setPermissionsGranted] = useState<boolean>(false);
   const { dadosUsuarioData } = useDadosUsuario();
+  const [pendentModalVisible, setPendentModalVisible] = useState(false);
   const isLogged = !dadosUsuarioData.user.id_usuario_usr ? false : true;
+  const hasPendent = dadosUsuarioData.pessoaAssinatura?.inadimplencia
 
   const permissions =
     Platform.select({
@@ -32,6 +33,12 @@ const UserTelepetScreen = () => {
     };
   
     const handlePress = async () => {
+
+      if (hasPendent) {
+        setPendentModalVisible(true);
+        return;
+      }
+
       if (!permissionsGranted) {
         await requestPermissions();
         return;
@@ -59,6 +66,28 @@ const UserTelepetScreen = () => {
 
   return (
     <View style={styles.container}>
+      <ModalContainer visible={pendentModalVisible} handleVisible={() => setPendentModalVisible(false)}>
+        <Text style={{ fontFamily: 'Roboto-Bold', fontSize: 20, marginBottom: 20 }}>
+          Você possui pendências a serem resolvidas
+        </Text>
+        <Text style={{ fontFamily: 'Roboto', fontSize: 18, marginBottom: 8 }}>
+          Para acessar o atendimento, é necessário regularizar sua situação.
+        </Text>
+        {/* <Text style={{ fontFamily: 'Roboto', fontSize: 18, marginBottom: 8 }}>
+          Acesse a aba "Contratos" e regularize sua situação!
+        </Text> */}
+        <Button
+          onPress={() => {
+            setPendentModalVisible(false);
+            goBack()
+          }}
+          mode="contained"
+          contentStyle={{ flexDirection: 'row-reverse' }}
+          icon={'arrow-right'}
+          style={{ marginTop: 20 }}>
+          Regularizar
+        </Button>
+      </ModalContainer>
       <ScrollView contentContainerStyle={styles.contentContainer} style={[styles.scrollView, { backgroundColor: colors.background }]}>
         <Text style={styles.title}>Bem-vindo(a) ao TelePet! 🐾</Text>
         <Text style={styles.label}>
@@ -82,13 +111,7 @@ const UserTelepetScreen = () => {
           style={styles.button}
           icon={'arrow-right'}
           contentStyle={{ flexDirection: 'row-reverse' }}
-          onPress={() => {
-            if (!isLogged) {
-              navigate('user-login-screen-telepet');
-              return;
-            }
-            navigate('user-telepet-queue-screen');
-          }}>
+          onPress={handlePress}>
           {permissionsGranted ? 'Continuar' : 'Permita a camera e o microfone'}
         </Button>
       </View>

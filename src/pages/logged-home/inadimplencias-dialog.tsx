@@ -13,13 +13,11 @@ interface InadimplenciaDialogProps {
 
 const InadimplenciaDialog = ({ errors, visible, navigation, handlePress }: InadimplenciaDialogProps) => {
   const { colors } = useTheme();
-
-  console.log('errors', errors)
   return (
     <Dialog visible={visible} style={[styles.dialog, { backgroundColor: colors.background }]} dismissable onDismiss={() => handlePress(false)}>
       <Dialog.Title style={styles.title}>
         <View style={styles.titleContainer}>
-          <Text style={styles.titleText}>Você possui {errors?.length} inadimplências a serem resolvidas</Text>
+          <Text style={styles.titleText}>Você possui {errors?.length} parcelas em aberto!</Text>
         </View>
       </Dialog.Title>
       <Dialog.Content>
@@ -32,7 +30,7 @@ const InadimplenciaDialog = ({ errors, visible, navigation, handlePress }: Inadi
           ))}
         </View>
         <Text variant="bodyMedium" style={{ marginTop: 4, fontWeight: 'bold' }}>
-          Acesse a aba "Contratos" e regularize sua situação!
+          Acesse "Meu plano" e regularize sua situação!
         </Text>
       </Dialog.Content>
       <Dialog.Actions style={styles.actions}>

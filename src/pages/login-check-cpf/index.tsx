@@ -19,12 +19,9 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
   const { colors } = useTheme();
   const [loading, setLoading] = useState<boolean>(false);
   const [secureTextEntry, setSecureTextEntry] = useState<boolean>(true);
-
   const toggleSecureEntry = () => setSecureTextEntry(!secureTextEntry);
-
   const { setAuthData, clearAuthData } = useAuth();
   const { setDadosUsuarioData, clearDadosUsuarioData } = useDadosUsuario();
-
   const {
     netInfo: { isConnected },
   } = useNetInfoInstance();
@@ -96,62 +93,62 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
 
   return (
     <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.container}>
-        <View style={[styles.innerContainer, { backgroundColor: colors.background }]}>
-          <Image source={require('../../assets/images/fidelidade_logo.png')} style={styles.logo} />
-          <Card mode="outlined" style={[styles.card, {borderColor: colors.primary}]}>
-            <Card.Content>
-              <Text variant="headlineMedium" style={styles.title}>
-                Bem-vindo!
-              </Text>
-              <Text variant="bodyMedium" style={styles.subtitle}>
-                Entre com seus dados para continuar.
-              </Text>
+      <View style={[styles.innerContainer, { backgroundColor: colors.background }]}>
+        <Image source={require('../../assets/images/fidelidade_logo.png')} style={styles.logo} />
+        <View style={[styles.card, { borderColor: colors.primary }]}>
+          <View>
+            <Text variant="headlineMedium" style={styles.title}>
+              Bem-vindo!
+            </Text>
+            <Text variant="bodyMedium" style={styles.subtitle}>
+              Entre com seus dados para continuar.
+            </Text>
 
-              <Controller
-                control={control}
-                name="cpf"
-                render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    label="CPF ou CNPJ"
-                    mode="outlined"
-                    onChangeText={e => onChange(e.length > 14 ? applyCnpjMask(e) : applyCpfMask(e))}
-                    value={value}
-                    keyboardType="number-pad"
-                    style={styles.input}
-                    error={!!errors.cpf}
-                  />
-                )}
-              />
+            <Controller
+              control={control}
+              name="cpf"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  label="CPF ou CNPJ"
+                  mode="outlined"
+                  onChangeText={e => onChange(e.length > 14 ? applyCnpjMask(e) : applyCpfMask(e))}
+                  value={value}
+                  keyboardType="number-pad"
+                  style={styles.input}
+                  error={!!errors.cpf}
+                />
+              )}
+            />
 
-              <Controller
-                control={control}
-                name="password"
-                render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    label="Senha"
-                    mode="outlined"
-                    onChangeText={onChange}
-                    value={value}
-                    style={styles.input}
-                    error={!!errors.password}
-                    secureTextEntry={secureTextEntry}
-                    right={<TextInput.Icon icon={secureTextEntry ? 'eye-off' : 'eye'} onPress={toggleSecureEntry} />}
-                  />
-                )}
-              />
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  label="Senha"
+                  mode="outlined"
+                  onChangeText={onChange}
+                  value={value}
+                  style={styles.input}
+                  error={!!errors.password}
+                  secureTextEntry={secureTextEntry}
+                  right={<TextInput.Icon icon={secureTextEntry ? 'eye-off' : 'eye'} onPress={toggleSecureEntry} />}
+                />
+              )}
+            />
 
-              <Button mode="contained" onPress={handleSubmit(handleLogin)} loading={loading} style={styles.button}>
-                {loading ? 'Aguarde' : 'Continuar'}
-              </Button>
+            <Button disabled={!isConnected} mode="contained" onPress={handleSubmit(handleLogin)} loading={loading} style={styles.button}>
+              {loading ? 'Aguarde' : 'Continuar'}
+            </Button>
 
-              <Button mode="text" onPress={() => navigation.navigate('register-step-one', { tipo: 'NEW_USER' })} style={styles.registerButton}>
-                Criar minha conta
-              </Button>
-            </Card.Content>
-          </Card>
-
-          {!isConnected && <Text style={styles.errorText}>É necessário uma conexão com a internet para continuar</Text>}
+            <Button disabled={!isConnected} mode="text" onPress={() => navigation.navigate('register-step-one', { tipo: 'NEW_USER' })} style={styles.registerButton}>
+              Criar minha conta
+            </Button>
+          </View>
         </View>
+
+        {!isConnected && <Text style={styles.errorText}>É necessário uma conexão com a internet para continuar</Text>}
+      </View>
     </KeyboardAwareScrollView>
   );
 }
@@ -191,7 +188,6 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 10,
-    borderRadius: 5,
   },
   registerButton: {
     marginTop: 10,

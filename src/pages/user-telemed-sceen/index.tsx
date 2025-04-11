@@ -4,14 +4,18 @@ import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { Button, Text, useTheme } from 'react-native-paper';
 import { checkMultiple, PERMISSIONS, requestMultiple, RESULTS } from 'react-native-permissions';
 import { arePermissionsGranted, requestPermissions } from '../../utils/permissions';
-import { navigate } from '../../router/navigationRef';
+import { goBack, navigate } from '../../router/navigationRef';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
+import ModalContainer from '../../components/modal';
 
 const UserTelemedScreen = () => {
   const { colors } = useTheme();
   const { dadosUsuarioData } = useDadosUsuario();
   const [permissionsGranted, setPermissionsGranted] = useState<boolean>(false);
+  const [pendentModalVisible, setPendentModalVisible] = useState(false);
   const isLogged = !dadosUsuarioData.user.id_usuario_usr ? false : true;
+  const hasPendent = dadosUsuarioData.pessoaAssinatura?.inadimplencia
+  
 
   const permissions = Platform.select({
     android: [PERMISSIONS.ANDROID.CAMERA, PERMISSIONS.ANDROID.RECORD_AUDIO],
@@ -32,6 +36,12 @@ const UserTelemedScreen = () => {
   };
 
   const handlePress = async () => {
+    
+    if (hasPendent) {
+      setPendentModalVisible(true);
+      return;
+    }
+
     if (!permissionsGranted) {
       await requestPermissions();
       return;
@@ -55,6 +65,28 @@ const UserTelemedScreen = () => {
 
   return (
     <View style={styles.container}>
+      <ModalContainer visible={pendentModalVisible} handleVisible={() => setPendentModalVisible(false)}>
+        <Text style={{ fontFamily: 'Roboto-Bold', fontSize: 20, marginBottom: 20 }}>
+          Você possui pendências a serem resolvidas
+        </Text>
+        <Text style={{ fontFamily: 'Roboto', fontSize: 18, marginBottom: 8 }}>
+          Para acessar o atendimento, é necessário regularizar sua situação.
+        </Text>
+        {/* <Text style={{ fontFamily: 'Roboto', fontSize: 18, marginBottom: 8 }}>
+          Acesse a aba "Contratos" e regularize sua situação!
+        </Text> */}
+        <Button
+          onPress={() => {
+            setPendentModalVisible(false);
+            goBack()
+          }}
+          mode="contained"
+          contentStyle={{ flexDirection: 'row-reverse' }}
+          icon={'arrow-right'}
+          style={{ marginTop: 20 }}>
+          Regularizar
+        </Button>
+      </ModalContainer>
       <ScrollView contentContainerStyle={styles.contentContainer} style={[styles.scrollView, { backgroundColor: colors.background }]}>
         <Text style={styles.title}>Bem-vindo(a)! 🏥</Text>
         <Text style={styles.label}>
