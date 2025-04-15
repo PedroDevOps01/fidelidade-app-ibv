@@ -86,12 +86,10 @@ export default function UserExamsCheckLocal() {
 
   function onTypeSelect(vlr_total: number, typeProcedure: 'particular' | 'assinante') {
 
-
-    if(!dadosUsuarioData.pessoaAssinatura?.assinatura_liberada) {
-      navigate('user-payment-attempt-screen')
-      return
-    }
-
+    // if (!dadosUsuarioData.pessoaAssinatura?.assinatura_liberada) {
+    //   navigate('user-payment-attempt-screen');
+    //   return;
+    // }
 
     if (currentItem) {
       let convertedData: ScheduleRequest = convertExamsLocalsToScheduleRequest(
@@ -161,7 +159,12 @@ export default function UserExamsCheckLocal() {
             <BottomSheetView style={[styles.bottomSheetContainer, { backgroundColor: colors.surfaceVariant }]}>
               {prices ? (
                 <View style={{ flex: 1, justifyContent: 'center' }}>
-                  <Button key={'1'} style={{ marginBottom: 20 }} mode="contained" onPress={() => onTypeSelect(prices?.vlr_assinante as number, 'assinante')}>
+                  <Button
+                    disabled={!dadosUsuarioData.pessoaAssinatura?.assinatura_liberada}
+                    key={'1'}
+                    style={{ marginBottom: 20 }}
+                    mode="contained"
+                    onPress={() => onTypeSelect(prices?.vlr_assinante as number, 'assinante')}>
                     {`Continuar como assinante: ${maskBrazilianCurrency(prices?.vlr_assinante as number)}`}
                   </Button>
 

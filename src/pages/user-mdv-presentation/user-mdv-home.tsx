@@ -550,7 +550,7 @@ export default function UserMdvHome() {
               if (date) setDates(prev => ({ ...prev, startDate: date }));
             }}
             mode="date"
-            label="Data de nascimento"
+            label="Data"
           />
         </View>
         <View>

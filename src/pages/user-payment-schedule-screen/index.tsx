@@ -50,6 +50,7 @@ export default function UserPaymentScheduleScreen() {
 
       setPixResponse(response.data);
     } catch (err: any) {
+      console.log(err)
       goBack();
       CustomToast('Erro ao realizar pagamento. Tente novamente mais tarde', colors);
     } finally {

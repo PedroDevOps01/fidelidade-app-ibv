@@ -155,7 +155,7 @@ export default function UserConsultasScreen({ navigation }: { navigation: any })
         onChangeIndex={index => {
           setCurrentMethod(index === 0 ? 'consulta' : 'medico');
         }}>
-        <Tabs theme={colors} disableSwipe>
+        <Tabs style={{backgroundColor: colors.background}} theme={colors} disableSwipe>
           <TabScreen label="Procedimento" icon={'stethoscope'}>
             <GroupedList list={filteredData() as ConsultasAgrupadas} loading={loading} />
           </TabScreen>

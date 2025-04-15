@@ -3,8 +3,8 @@ import { CardData } from './card_data';
 import { Card } from 'react-native-paper';
 import { navigate } from '../../router/navigationRef';
 import { MD3Colors } from 'react-native-paper/lib/typescript/types';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const MinimalCardComponent = ({ item, colors }: { item: CardData; colors: MD3Colors }) => {
   const { dadosUsuarioData } = useDadosUsuario();
@@ -14,8 +14,6 @@ const MinimalCardComponent = ({ item, colors }: { item: CardData; colors: MD3Col
       style={[styles.card]}
       mode="contained"
       onPress={() => {
-
-
         if ((item.route == 'user-telepet-screen' || item.route == 'user-telemed-screen') && !dadosUsuarioData.pessoaAssinatura?.assinatura_liberada) {
           navigate('new-contract-stack');
           return;

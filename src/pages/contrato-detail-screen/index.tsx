@@ -112,6 +112,13 @@ const ContratosDetailScreen = ({ contrato, title }: ContratosDetailScreenProps) 
             }}
             style={styles.listItem}
           />
+
+          
+
+
+
+
+
         </List.Section>
       </View>
     </ScrollView>

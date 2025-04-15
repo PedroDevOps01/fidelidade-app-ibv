@@ -15,13 +15,13 @@ export const card_data: CardData[] = [
     route: 'user-telemed-stack',
     icon: 'doctor',
   },
-  {
-    id: '2',
-    title: 'Telepet',
-    description: 'Telepet para assinantes!',
-    route: 'user-telepet-stack',
-    icon: 'dog',
-  },
+  // {
+  //   id: '2',
+  //   title: 'Telepet',
+  //   description: 'Telepet para assinantes!',
+  //   route: 'user-telepet-stack',
+  //   icon: 'dog',
+  // },
   {
     id: '3',
     title: 'Consultas e exames',

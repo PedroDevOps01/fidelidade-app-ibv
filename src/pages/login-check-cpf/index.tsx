@@ -14,10 +14,13 @@ import { useAuth } from '../../context/AuthContext';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { reset } from '../../router/navigationRef';
 import CustomToast from '../../components/custom-toast';
+import ModalContainer from '../../components/modal';
+import EsqueceuSenhaForm from './esqueceu-senha-form';
 
 export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigation: any; routeAfterLogin: string }) {
   const { colors } = useTheme();
   const [loading, setLoading] = useState<boolean>(false);
+  const [isRecoverPassworrdModalVisible, setIsRecoverPassworrdModalVisible] = useState<boolean>(false);
   const [secureTextEntry, setSecureTextEntry] = useState<boolean>(true);
   const toggleSecureEntry = () => setSecureTextEntry(!secureTextEntry);
   const { setAuthData, clearAuthData } = useAuth();
@@ -93,6 +96,10 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
 
   return (
     <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.container}>
+      <ModalContainer visible={isRecoverPassworrdModalVisible} handleVisible={() => setIsRecoverPassworrdModalVisible(false)}>
+        <EsqueceuSenhaForm />
+      </ModalContainer>
+
       <View style={[styles.innerContainer, { backgroundColor: colors.background }]}>
         <Image source={require('../../assets/images/fidelidade_logo.png')} style={styles.logo} />
         <View style={[styles.card, { borderColor: colors.primary }]}>
@@ -144,6 +151,10 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
             <Button disabled={!isConnected} mode="text" onPress={() => navigation.navigate('register-step-one', { tipo: 'NEW_USER' })} style={styles.registerButton}>
               Criar minha conta
             </Button>
+
+            <Button disabled={!isConnected} mode="text" onPress={() => setIsRecoverPassworrdModalVisible(true)}>
+              Esqueci minha senha
+            </Button>
           </View>
         </View>
 
@@ -167,7 +178,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 250,
     marginBottom: 0,
-    resizeMode: 'cover',
+    resizeMode: 'contain',
   },
   card: {
     width: '100%',

@@ -51,7 +51,7 @@ const RegisterStepFour = ({ route, navigation }: { route: any; navigation: any }
       ...pessoaCreateData,
       num_whatsapp_pes: Number(data.num_whatsapp_pes),
       num_celular_pes: Number(data.num_celular_pes),
-      num_telefone_pes: data.num_telefone_pes !== '' ? Number(data.num_telefone_pes) : undefined,
+      num_telefone_pes: data.num_telefone_pes !== '' ? data.num_telefone_pes : undefined,
     };
 
     setPessoaCreateData(localData);
@@ -170,6 +170,7 @@ const RegisterStepFour = ({ route, navigation }: { route: any; navigation: any }
         render={({ field: { onChange, value } }) => (
           <TextInput
             label="WhatsApp"
+            keyboardType='number-pad'
             value={value}
             onChangeText={e => {
               onChange(applyPhoneMask(e));
@@ -188,6 +189,7 @@ const RegisterStepFour = ({ route, navigation }: { route: any; navigation: any }
         render={({ field: { onChange, value } }) => (
           <TextInput
             label="Número do telefone celular"
+            keyboardType='number-pad'
             value={value}
             onChangeText={e => {
               onChange(applyPhoneMask(e));
@@ -205,9 +207,10 @@ const RegisterStepFour = ({ route, navigation }: { route: any; navigation: any }
         render={({ field: { onChange, value } }) => (
           <TextInput
             label="Número de telefone"
+            keyboardType='number-pad'
             value={value!}
             onChangeText={e => {
-              onChange(applyPhoneMask(e));
+              onChange(applyPhoneMask(e, 10));
             }}
             mode="outlined"
             style={styles.input}

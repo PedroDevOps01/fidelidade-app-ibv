@@ -72,7 +72,8 @@ export const applyCnpjMask = (value: string): string => {
     .replace(/(\d{4})(\d{2})$/, '$1-$2'); // Adiciona hífen antes dos últimos dois dígitos
 };
 
-export const applyPhoneMask = (value: string | number): string => {
+
+export const applyPhoneMask = (value: string | number, qtd: number = 11): string => {
   if (!value) {
     return '';
   }
@@ -82,7 +83,7 @@ export const applyPhoneMask = (value: string | number): string => {
   if (stringValue) {
     return stringValue
       .replace(/\D/g, '') // Remove all non-digit characters
-      .slice(0, 11) // Ensure the value has at most 11 digits (which corresponds to 15 characters with the mask)
+      .slice(0, qtd) // Ensure the value has at most 11 digits (which corresponds to 15 characters with the mask)
       .replace(/(\d{2})(\d)/, '($1) $2') // Add parentheses around the area code
       .replace(/(\d{4,5})(\d{4})$/, '$1-$2'); // Add hyphen before the last four digits
   } else {
