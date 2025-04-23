@@ -7,6 +7,7 @@ import { arePermissionsGranted, requestPermissions } from '../../utils/permissio
 import { goBack, navigate } from '../../router/navigationRef';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
 import ModalContainer from '../../components/modal';
+import { log } from '../../utils/app-utils';
 
 const UserTelemedScreen = () => {
   const { colors } = useTheme();
@@ -14,7 +15,7 @@ const UserTelemedScreen = () => {
   const [permissionsGranted, setPermissionsGranted] = useState<boolean>(false);
   const [pendentModalVisible, setPendentModalVisible] = useState(false);
   const isLogged = !dadosUsuarioData.user.id_usuario_usr ? false : true;
-  const hasPendent = dadosUsuarioData.pessoaAssinatura?.inadimplencia
+  const hasPendent = dadosUsuarioData.pessoaAssinatura?.inadimplencia.length || dadosUsuarioData.pessoaAssinatura?.inadimplencia.length! >  0
   
 
   const permissions = Platform.select({
@@ -36,7 +37,6 @@ const UserTelemedScreen = () => {
   };
 
   const handlePress = async () => {
-    
     if (hasPendent) {
       setPendentModalVisible(true);
       return;

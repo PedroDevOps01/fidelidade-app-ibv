@@ -209,6 +209,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                 </Card>
               ) : (
                 <Card
+                  onPress={() => navigate('user-schedules')}
                   mode="contained"
                   style={{
                     marginRight: 16,

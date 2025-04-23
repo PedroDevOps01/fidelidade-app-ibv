@@ -7,8 +7,8 @@ const LightTheme = {
     primary: '#2754a2',
     surfaceTint: '#266A49',
     onPrimary: '#FFFFFF',
-    primaryContainer: '#d8e2ff',
-    onPrimaryContainer: '#025233',
+    primaryContainer: '#2754a2',
+    onPrimaryContainer: '#FFF',
     secondary: '#000',
     onSecondary: '#FFFFFF',
     secondaryContainer: '#c1d3f0', //searchbar
