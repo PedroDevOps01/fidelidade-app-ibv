@@ -27,7 +27,6 @@ const ModalContainer = ({ children, handleVisible, visible }: ModalContainerProp
 
 const styles = StyleSheet.create({
   modalContainer: {
-    alignSelf: 'center',
   },
   modalContent: {
     padding: 20,

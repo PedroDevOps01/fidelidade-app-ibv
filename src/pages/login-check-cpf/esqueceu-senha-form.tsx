@@ -51,9 +51,6 @@ const EsqueceuSenhaForm = () => {
     console.log('error', error);
   };
 
-  useEffect(() => {
-    // CustomToast("Teste", colors, "error")
-  }, []);
 
   return (
     <View style={[{ backgroundColor: colors.background }]}>

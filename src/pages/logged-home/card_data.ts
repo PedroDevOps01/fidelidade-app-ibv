@@ -5,6 +5,7 @@ export interface CardData {
   description: string;
   route?: string;
   icon: string;
+  imageUrl: string;
 }
 
 export const card_data: CardData[] = [
@@ -14,6 +15,7 @@ export const card_data: CardData[] = [
     description: 'Telemedicina para assinantes!',
     route: 'user-telemed-stack',
     icon: 'doctor',
+    imageUrl: require('../../assets/images/teleconsulta.jpg'),
   },
   // {
   //   id: '2',
@@ -22,11 +24,11 @@ export const card_data: CardData[] = [
   //   route: 'user-telepet-stack',
   //   icon: 'dog',
   // },
-  {
-    id: '3',
-    title: 'Consultas e exames',
-    description: 'Confira os agendamentos e veja seus exames',
-    route: 'user-schedules',
-    icon: 'stethoscope',
-  },
+  // {
+  //   id: '3',
+  //   title: 'Consultas e exames',
+  //   description: 'Confira os agendamentos e veja seus exames',
+  //   route: 'user-schedules',
+  //   icon: 'stethoscope',
+  // },
 ];

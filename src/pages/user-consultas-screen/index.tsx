@@ -168,7 +168,7 @@ export default function UserConsultasScreen({ navigation }: { navigation: any })
 
       {selectedExams.length > 0 ? (
         <Fab 
-          icon='check'
+          icon='cart'
           onPress={openBottomSheet}
         />
       ) : (

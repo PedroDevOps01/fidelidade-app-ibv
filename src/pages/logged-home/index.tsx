@@ -162,7 +162,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
       {loading ? (
         <LoadingFull title="Carregando..." />
       ) : (
-        <ScrollView style={[styles.container]}>
+        <ScrollView style={[styles.container]} contentContainerStyle={{ paddingBottom: 10 }} showsVerticalScrollIndicator={false}>
           <Text variant="titleLarge" style={{ fontWeight: 'bold', marginTop: 10 }}>
             {isLogged ? `Bem vind${dadosUsuarioData.pessoaDados?.des_sexo_biologico_pes == 'M' ? 'o' : 'a'}, ${dadosUsuarioData.pessoaDados?.des_genero_pes}!` : `Bem vindo!`}
           </Text>
@@ -173,11 +173,12 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             keyExtractor={item => item.id}
             horizontal
             showsHorizontalScrollIndicator={false}
-            ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
+            // ItemSeparatorComponent={() => <View style={{ width: '5%' }} />}
             contentContainerStyle={{
               marginTop: 16,
               paddingVertical: 8,
               paddingHorizontal: 2,
+              width: '100%',
             }}
           />
 
@@ -189,9 +190,10 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{
-              marginTop: 20,
+              marginTop: 10,
               paddingVertical: 8,
               paddingHorizontal: 2,
+              width: '100%',
             }}
           />
 
@@ -204,7 +206,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
           ) : (
             <>
               {userSchedules.length === 0 ? (
-                <Card mode="contained" style={{ marginRight: 16, marginTop: 16 }} onPress={() => navigate('user-schedules')}>
+                <Card mode="contained" style={{ marginRight: 0, marginTop: 16, borderWidth: 0.3, borderColor: colors.primary }} onPress={() => navigate('user-schedules')}>
                   <Card.Title title="Nenhum agendamento próximo!" subtitle="Agendar uma nova consulta ou exame!" />
                 </Card>
               ) : (
@@ -238,11 +240,12 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             }}
             mode="contained"
             style={{
-              marginRight: 16,
+              marginRight: 0,
               marginTop: 16,
               padding: 4,
               paddingLeft: 0,
               marginBottom: 10,
+              borderWidth: 0.3, borderColor: colors.primary
             }}>
             <Card.Title
               title="Veja seus agendamentos realizados"
@@ -283,7 +286,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1, // Garante que a ScrollView ocupe todo o espaço disponível
-    paddingLeft: 16,
+    padding: 16,
   },
   card: {
     maxWidth: 200,

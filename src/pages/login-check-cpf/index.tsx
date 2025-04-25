@@ -123,6 +123,7 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
                   keyboardType="number-pad"
                   style={styles.input}
                   error={!!errors.cpf}
+                  returnKeyType='next'
                 />
               )}
             />
@@ -148,11 +149,11 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
               {loading ? 'Aguarde' : 'Continuar'}
             </Button>
 
-            <Button disabled={!isConnected} mode="text" onPress={() => navigation.navigate('register-step-one', { tipo: 'NEW_USER' })} style={styles.registerButton}>
+            <Button disabled={!isConnected} mode="outlined" onPress={() => navigation.navigate('register-step-one', { tipo: 'NEW_USER' })} style={styles.registerButton}>
               Criar minha conta
             </Button>
 
-            <Button disabled={!isConnected} mode="text" onPress={() => setIsRecoverPassworrdModalVisible(true)}>
+            <Button disabled={!isConnected} mode="text" onPress={() => setIsRecoverPassworrdModalVisible(true)} style={{marginTop: 10, width: '100%'}}>
               Esqueci minha senha
             </Button>
           </View>
@@ -176,9 +177,9 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: '100%',
-    height: 250,
+    height: 350,
     marginBottom: 0,
-    resizeMode: 'contain',
+    resizeMode: 'center',
   },
   card: {
     width: '100%',
@@ -202,7 +203,7 @@ const styles = StyleSheet.create({
   },
   registerButton: {
     marginTop: 10,
-    paddingBottom: 10,
+    width: '100%',
     alignSelf: 'center',
   },
   errorText: {

@@ -18,7 +18,7 @@ export const promotion_data: PromotionCard[] = [
     id: '2',
     title: 'Consultas',
     description: 'Consultas disponíveis',
-    imageUrl: require('../../assets/images/discount2.png'),
+    imageUrl: require('../../assets/images/discount2.jpg'),
     route: 'user-schedules',
   },
   // {

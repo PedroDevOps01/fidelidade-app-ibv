@@ -54,13 +54,13 @@ const UserExamsBottomSheet = forwardRef<UserExamsBottomSheetRef>((_, ref) => {
             ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
             style={{ paddingHorizontal: 10 }}
             renderItem={({ item }) => (
-              <Card style={[styles.card, { backgroundColor: 'transparent' }]}>
+              <Card style={[styles.card, { backgroundColor: colors.surface }]}>
                 <Card.Content style={{ flexDirection: 'row' }}>
                   <View style={{ flex: 8, justifyContent: 'center' }}>
                     <Text style={[styles.title, { color: colors.onBackground }]}>{item.nome}</Text>
                   </View>
                   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <IconButton icon="trash-can-outline" size={20} iconColor={colors.onErrorContainer} onPress={() => removeSelectedExam(item.cod_procedimento)} />
+                    <IconButton icon="trash-can-outline" size={25} iconColor={colors.onErrorContainer} onPress={() => removeSelectedExam(item.cod_procedimento)} />
                   </View>
                 </Card.Content>
               </Card>
