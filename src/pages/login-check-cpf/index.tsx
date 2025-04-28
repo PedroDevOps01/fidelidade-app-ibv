@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { View, StyleSheet, Alert, Image, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, StyleSheet, Alert, Image, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
 import { TextInput, Button, Card, Text, useTheme } from 'react-native-paper';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '../../network/api';
-import { applyCnpjMask, applyCpfMask, isValidCPF, log, removeAccents } from '../../utils/app-utils';
+import { applyCnpjMask, applyCpfMask, generateRequestHeader, isValidCPF, log, removeAccents } from '../../utils/app-utils';
 import { requestPermissions } from '../../utils/permissions';
 import { useNetInfoInstance } from '@react-native-community/netinfo';
 import { LoginSchema } from '../../form-objects/login-form-object';
@@ -16,6 +16,7 @@ import { reset } from '../../router/navigationRef';
 import CustomToast from '../../components/custom-toast';
 import ModalContainer from '../../components/modal';
 import EsqueceuSenhaForm from './esqueceu-senha-form';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigation: any; routeAfterLogin: string }) {
   const { colors } = useTheme();
@@ -55,6 +56,8 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
     clearAuthData();
     clearDadosUsuarioData();
 
+    const token = await AsyncStorage.getItem('device_token_id');
+
     let dataToSent = {
       cpf: removeAccents(form.cpf),
       hash_senha_usr: form.password,
@@ -84,6 +87,16 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
         user: loginData.user,
       });
 
+      const deviceData = {
+        id_pessoa_tdu: loginData.dados?.id_pessoa_pda,
+        dispositivo_token_tdu: token,
+        platforma_tdu: Platform.OS,
+      };
+
+      if (token) {
+        //enviar dados do device
+        await api.post('/usuarioDevice', deviceData, generateRequestHeader(loginData.authorization.access_token));
+      }
       //navigation.navigate('logged-home-screen');
       reset([{ name: routeAfterLogin }]);
     } catch (err) {
@@ -123,7 +136,7 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
                   keyboardType="number-pad"
                   style={styles.input}
                   error={!!errors.cpf}
-                  returnKeyType='next'
+                  returnKeyType="next"
                 />
               )}
             />
@@ -153,7 +166,7 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
               Criar minha conta
             </Button>
 
-            <Button disabled={!isConnected} mode="text" onPress={() => setIsRecoverPassworrdModalVisible(true)} style={{marginTop: 10, width: '100%'}}>
+            <Button disabled={!isConnected} mode="text" onPress={() => setIsRecoverPassworrdModalVisible(true)} style={{ marginTop: 10, width: '100%' }}>
               Esqueci minha senha
             </Button>
           </View>

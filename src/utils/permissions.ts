@@ -1,13 +1,20 @@
-import {Platform} from 'react-native';
-import {PERMISSIONS, RESULTS, checkMultiple, requestMultiple, Permission} from 'react-native-permissions';
+import { Platform } from 'react-native';
+import { PERMISSIONS, RESULTS, checkMultiple, requestMultiple, Permission } from 'react-native-permissions';
 
 export async function requestPermissions(): Promise<string> {
   return new Promise(async (resolve, reject) => {
     // Define permissões de acordo com a plataforma
     const permissions: Permission[] =
       Platform.select({
-        android: [PERMISSIONS.ANDROID.CAMERA, PERMISSIONS.ANDROID.RECORD_AUDIO, PERMISSIONS.ANDROID.READ_MEDIA_IMAGES],
-        ios: [PERMISSIONS.IOS.CAMERA, PERMISSIONS.IOS.MICROPHONE, PERMISSIONS.IOS.PHOTO_LIBRARY],
+        android: [
+          PERMISSIONS.ANDROID.CAMERA,
+          PERMISSIONS.ANDROID.RECORD_AUDIO,
+          PERMISSIONS.ANDROID.POST_NOTIFICATIONS
+          // PERMISSIONS.ANDROID.READ_MEDIA_IMAGES
+        ],
+        ios: [PERMISSIONS.IOS.CAMERA, PERMISSIONS.IOS.MICROPHONE, 
+          // PERMISSIONS.IOS.PHOTO_LIBRARY
+        ],
       }) || [];
 
     if (!permissions) {
@@ -45,10 +52,7 @@ export async function requestPermissions(): Promise<string> {
   });
 }
 
-export async function arePermissionsGranted(platformPermissions: {
-  android?: Permission[];
-  ios?: Permission[];
-}): Promise<boolean> {
+export async function arePermissionsGranted(platformPermissions: { android?: Permission[]; ios?: Permission[] }): Promise<boolean> {
   return new Promise(async (resolve, reject) => {
     try {
       // Filtra permissões de acordo com a plataforma

@@ -1,14 +1,6 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import { useColorScheme } from 'react-native';
+import React, { useEffect } from 'react';
+import { Platform } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
-
 import AppRouter from './src/router/app-router';
 import { LightTheme } from './src/themes/app-theme';
 import { AuthProvider } from './src/context/AuthContext';
@@ -18,9 +10,69 @@ import { UserCartProvider } from './src/context/user-cart-context';
 import { ConsultasProvider } from './src/context/consultas-context';
 import { ExamesProvider } from './src/context/exames-context';
 import { Toaster } from 'sonner-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { initializeApp } from '@react-native-firebase/app';
+import messaging from '@react-native-firebase/messaging';
+import notifee, { AndroidImportance } from '@notifee/react-native';
 
-function App(): React.JSX.Element {
-  const scheme = useColorScheme();
+// Firebase config
+const firebaseConfig = {
+  apiKey: 'AIzaSyDiibmSVa96Ax88mkcO89ps1tGb0FfIq28',
+  projectId: 'fidelidade-demo-app',
+  messagingSenderId: '114934414936',
+  appId: 'com.stg.ajudda',
+};
+
+initializeApp(firebaseConfig);
+
+async function createNotificationChannel() {
+  if (Platform.OS === 'android') {
+    await notifee.requestPermission();
+
+    await notifee.createChannel({
+      id: 'default-id-channel',
+      name: 'Default Channel',
+      importance: AndroidImportance.HIGH,
+    });
+  } else {
+    await notifee.requestPermission();
+  }
+}
+
+async function requestUserPermission() {
+  try {
+    //await messaging().registerDeviceForRemoteMessages();
+    const token = await messaging().getToken();
+    await AsyncStorage.setItem('device_token_id', token);
+  } catch (error) {
+    console.log('Erro ao solicitar permissão de notificação:', error);
+  }
+}
+
+function App() {
+  useEffect(() => {
+    // Solicitar permissão e token após a inicialização
+    requestUserPermission();
+    createNotificationChannel();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      console.log('🔔 Notificação recebida no foreground:', remoteMessage.notification);
+
+      await notifee.displayNotification({
+        title: remoteMessage!.notification!.title,
+        body: remoteMessage!.notification!.body,
+        android: {
+          channelId: 'default-id-channel',
+          smallIcon: 'ic_launcher',
+          pressAction: { id: 'default' },
+        },
+      });
+    });
+
+    return unsubscribe;
+  }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

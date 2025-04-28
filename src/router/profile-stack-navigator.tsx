@@ -24,7 +24,7 @@ const ProfileStackNavigator = () => {
       }}>
         
       <ProfileStack.Screen name="user-login-screen_profile" options={{ headerShown: false, headerTitle: 'Login' }}>
-        {props => <AuthenticationStackNavigator {...props} initialRouteName="user-login-screen" routeAfterLogin="user-data-screen" />}
+        {props => <AuthenticationStackNavigator {...props} initialRouteName="user-login-screen" routeAfterLogin="Home" />}
       </ProfileStack.Screen>
 
       <ProfileStack.Screen name="user-data-screen" component={UserDataScreen} options={{ headerShown: true, headerTitle: 'Login' }} />

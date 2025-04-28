@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "114934414936",
+    "project_id": "fidelidade-demo-app",
+    "storage_bucket": "fidelidade-demo-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:114934414936:android:9bf3007b7dab6c9c8e942d",
+        "android_client_info": {
+          "package_name": "br.com.henriquelabs.fidelidadeappajudda"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnqxu1UfyDUAD9q34NjqLZFgT7IPRcQlw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

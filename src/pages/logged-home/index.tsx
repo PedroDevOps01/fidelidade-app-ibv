@@ -206,7 +206,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
           ) : (
             <>
               {userSchedules.length === 0 ? (
-                <Card mode="contained" style={{ marginRight: 0, marginTop: 16, borderWidth: 0.3, borderColor: colors.primary }} onPress={() => navigate('user-schedules')}>
+                <Card mode="contained" style={{ marginRight: 0, marginTop: 16, borderWidth: 0.3, borderColor: colors.onSurfaceVariant }} onPress={() => navigate('user-schedules')}>
                   <Card.Title title="Nenhum agendamento próximo!" subtitle="Agendar uma nova consulta ou exame!" />
                 </Card>
               ) : (
@@ -245,7 +245,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
               padding: 4,
               paddingLeft: 0,
               marginBottom: 10,
-              borderWidth: 0.3, borderColor: colors.primary
+              borderWidth: 0.3, borderColor: colors.onSurfaceVariant
             }}>
             <Card.Title
               title="Veja seus agendamentos realizados"

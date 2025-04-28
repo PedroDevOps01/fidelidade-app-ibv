@@ -28,7 +28,6 @@ const AppRouter = () => {
       try {
 
         const userData = await getAsyncStorageData('user_data');
-        log('userData', userData)
 
         if (userData.user.id_usuario_usr == 0) throw new NoUserdataFoundException('Sem usuário');
 

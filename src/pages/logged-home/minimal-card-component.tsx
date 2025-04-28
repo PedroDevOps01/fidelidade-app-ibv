@@ -11,7 +11,7 @@ const MinimalCardComponent = ({ item, colors }: { item: CardData; colors: MD3Col
 
   return (
     <Card
-      style={[styles.card, { borderColor: colors.primary }]}
+      style={[styles.card, { borderColor: colors.onSurfaceVariant }]}
       mode="contained"
       onPress={() => {
         if ((item.route == 'user-telepet-screen' || item.route == 'user-telemed-screen') && !dadosUsuarioData.pessoaAssinatura?.assinatura_liberada) {

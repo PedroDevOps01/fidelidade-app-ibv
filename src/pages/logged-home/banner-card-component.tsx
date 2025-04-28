@@ -7,7 +7,7 @@ import { MD3Colors } from 'react-native-paper/lib/typescript/types';
 const BannerHorizontalItem = ({ item, colors }: { item: PromotionCard; colors: MD3Colors }) => (
   <Card
     mode="contained"
-    style={[styles.cardVertical, { borderColor: colors.primary }]}
+    style={[styles.cardVertical, { borderColor: colors.onSurfaceVariant }]}
     onPress={() => {
       navigate(item.route);
     }}>
