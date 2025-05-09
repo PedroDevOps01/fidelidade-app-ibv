@@ -23,7 +23,7 @@ const UserPersonalDataScreen = ({ navigation }: { navigation: any }) => {
   const { colors } = useTheme();
   const { dadosUsuarioData, clearLoginDadosUsuarioData, clearDadosUsuarioData, setDadosUsuarioData } = useDadosUsuario();
 
-  const { authData,clearAuthData } = useAuth();
+  const { authData, clearAuthData } = useAuth();
   const { pessoaDados } = dadosUsuarioData;
 
   const {
@@ -219,7 +219,7 @@ const UserPersonalDataScreen = ({ navigation }: { navigation: any }) => {
           clearLoginDadosUsuarioData();
           clearAuthData();
           logout(authData.access_token);
-          resetNavigation([{name: 'logged-home-screen'}])
+          resetNavigation([{ name: 'logged-home-screen' }]);
         },
       },
     ]);
@@ -245,7 +245,7 @@ const UserPersonalDataScreen = ({ navigation }: { navigation: any }) => {
             control={control}
             name="des_nome_pes"
             render={({ field: { onChange, value } }) => (
-              <TextInput label="Nome" value={value} onChangeText={onChange} mode="outlined" style={styles.input} error={!!errors.des_nome_pes} />
+              <TextInput editable={false} label="Nome" value={value} onChangeText={onChange} mode="outlined" style={styles.input} error={!!errors.des_nome_pes} />
             )}
           />
 
@@ -255,6 +255,7 @@ const UserPersonalDataScreen = ({ navigation }: { navigation: any }) => {
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 label="CPF"
+                editable={false}
                 mode="outlined"
                 error={!!errors.cod_cpf_pes}
                 onBlur={onBlur}

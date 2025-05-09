@@ -1,8 +1,7 @@
-import { View, StyleSheet, FlatList, ScrollView, BackHandler, SafeAreaView } from 'react-native';
+import { View, StyleSheet, FlatList, ScrollView, SafeAreaView } from 'react-native';
 import { Card, useTheme, Text, Portal, ActivityIndicator, Avatar } from 'react-native-paper';
-import { Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { card_data } from './card_data';
 import { promotion_data } from './promotion_data';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
@@ -34,28 +33,6 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
 
   const isLogged = !dadosUsuarioData.user.id_usuario_usr ? false : true;
 
-  //console.log('inadimplencias', inadimplencias);
-
-  useFocusEffect(() => {
-    const backAction = () => {
-      Alert.alert('Aviso', 'Deseja sair do aplicativo?', [
-        {
-          text: 'não',
-          onPress: () => null,
-          style: 'cancel',
-        },
-        {
-          text: 'Sim',
-          onPress: () => BackHandler.exitApp(),
-        },
-      ]);
-      return true;
-    };
-
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
-
-    return () => backHandler.remove();
-  });
 
   useFocusEffect(
     useCallback(() => {

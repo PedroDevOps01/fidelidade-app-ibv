@@ -97,7 +97,6 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
         //enviar dados do device
         await api.post('/usuarioDevice', deviceData, generateRequestHeader(loginData.authorization.access_token));
       }
-      //navigation.navigate('logged-home-screen');
       reset([{ name: routeAfterLogin }]);
     } catch (err) {
       console.log(err);

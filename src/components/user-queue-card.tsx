@@ -27,7 +27,7 @@ const UserQueueCard = ({ data }: Props) => {
           <Text style={[styles.value, styles.status]}>{data.status}</Text>
         </View>
         <View>
-          <Text style={styles.label}>Posiçãao na fila</Text>
+          <Text style={styles.label}>Posição na fila</Text>
           <Text style={styles.ordemFila}>{data.ordem_fila}</Text>
         </View>
       </View>

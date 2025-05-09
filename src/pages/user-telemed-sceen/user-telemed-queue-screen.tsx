@@ -9,6 +9,7 @@ import { toast } from 'sonner-native';
 import { goBack, navigate } from '../../router/navigationRef';
 import LoadingFull from '../../components/loading-full';
 import UserQueueCard from '../../components/user-queue-card';
+import notifee, { AndroidImportance } from '@notifee/react-native';
 
 const UserTelemedQueueScreen = () => {
   const { colors } = useTheme();
@@ -18,6 +19,7 @@ const UserTelemedQueueScreen = () => {
   const [agendaExamesId, setAgendaExamesId] = useState<number>();
   const [hasAlreadyFetched, setHasAlreadyFetched] = useState<boolean>(false);
   const [positionInQueue, setPositionInQueue] = useState<PacienteFila>();
+  const [alreadyShownNotification, setAlreadyShownNotification] = useState<boolean>(false);
 
   async function getIntoQueue() {
     setLoading(true);
@@ -76,6 +78,22 @@ const UserTelemedQueueScreen = () => {
     }
   }
 
+  async function showNotification() {
+    if(alreadyShownNotification) return;
+
+    await notifee.displayNotification({
+      title: "Você é o próximo da fila!",
+      body: "Você é o próximo da fila! Clique aqui para voltar para o aplicativo.",
+      android: {
+        channelId: 'default-id-channel',
+        smallIcon: 'ic_launcher',
+        pressAction: { id: 'default' },
+      },
+    });
+
+    setAlreadyShownNotification(true);
+  }
+
   useEffect(() => {
     (async () => {
       if (dadosUsuarioData.pessoaDados?.cod_token_pes && authData.access_token != '') {
@@ -103,6 +121,11 @@ const UserTelemedQueueScreen = () => {
   }, [agendaExamesId]);
 
   useEffect(() => {
+
+    if(positionInQueue?.ordem_fila == '1') {
+      showNotification();
+    }
+
     if (!positionInQueue && hasAlreadyFetched) {
       navigate('user-telemed-finished');
     }
@@ -112,7 +135,16 @@ const UserTelemedQueueScreen = () => {
         url: `${agendaExamesId}_${dadosUsuarioData.pessoaDados?.cod_token_pes}`,
       });
     }
+
+
+
+
+    
   }, [positionInQueue]);
+
+  useEffect(() => {
+    
+  }, [positionInQueue])
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
