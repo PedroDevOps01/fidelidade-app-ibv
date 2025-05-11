@@ -14,6 +14,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { navigate } from '../../router/navigationRef';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import React from 'react';
+import CustomBackdrop from '../../components/custom-backdrop-component';
 
 type valueTypes = {
   vlr_particular: number;
@@ -85,7 +86,6 @@ export default function UserExamsCheckLocal() {
   };
 
   function onTypeSelect(vlr_total: number, typeProcedure: 'particular' | 'assinante') {
-
     // if (!dadosUsuarioData.pessoaAssinatura?.assinatura_liberada) {
     //   navigate('user-payment-attempt-screen');
     //   return;
@@ -146,6 +146,7 @@ export default function UserExamsCheckLocal() {
             />
           )}
           <BottomSheet
+            backdropComponent={CustomBackdrop}
             ref={bottomSheetRef}
             index={-1}
             snapPoints={['40%']}

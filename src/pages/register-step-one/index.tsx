@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Button, TextInput, useTheme } from 'react-native-paper';
+import { Button, ProgressBar, TextInput, useTheme } from 'react-native-paper';
 import { DatePickerInput } from 'react-native-paper-dates';
 import { usePessoaCreate } from '../../context/create-pessoa-context';
 import { z } from 'zod';
@@ -53,14 +53,13 @@ const RegisterStepOne = () => {
         const { data } = response;
 
         if (data.response.data.length > 0) {
-          
           if (tipo == 'DEPENDENT') {
             toast.error('Usuário já cadastrado no sistema!', { position: 'bottom-center' });
             return;
           }
 
           toast.success('Realize um login para continuar', { position: 'bottom-center' });
-          goBack()
+          goBack();
           //navigate('check-password', { cod_cpf_pes: submitData.cod_cpf_pes });
         } else {
           console.log('else');
@@ -70,8 +69,7 @@ const RegisterStepOne = () => {
             ...submitData,
             cod_cpf_pes: removeAccents(submitData.cod_cpf_pes),
             tipo: route.params.tipo,
-            id_situacao_pda: tipo == "NEW_USER" ? "1" : "2"
-            
+            id_situacao_pda: tipo == 'NEW_USER' ? '1' : '2',
           };
 
           console.log(localData);
@@ -92,6 +90,7 @@ const RegisterStepOne = () => {
 
   return (
     <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <ProgressBar progress={0.2} color={theme.colors.primary} style={{ height: 8, borderRadius: 4, marginBottom: 16 }} />
       <Text style={[styles.title, { color: theme.colors.primary }]}>Vamos precisar de algumas informações antes de continuar</Text>
 
       <View>

@@ -4,16 +4,14 @@ import { formatDateWithDayOfWeek, formatTimeToHHMM } from '../../utils/app-utils
 import { FlatList } from 'react-native-gesture-handler';
 import React from 'react';
 import { useConsultas } from '../../context/consultas-context';
+import { FlashList } from '@shopify/flash-list';
 
 interface TimeCardComponentProps {
   procedure: Record<string, ProcedureTimeResponse[]>;
-  onSelect: (proc: Record<string, ProcedureTimeResponse>) => void;
-  currentSelectedProcedure: Record<string, ProcedureTimeResponse> | undefined;
 }
 
-function TimeCardComponent({ procedure, onSelect, currentSelectedProcedure }: TimeCardComponentProps) {
+function TimeCardComponent({ procedure }: TimeCardComponentProps) {
   const { colors } = useTheme();
-
   const { setProcedureTimeDetailsData } = useConsultas();
 
   return (
@@ -23,7 +21,7 @@ function TimeCardComponent({ procedure, onSelect, currentSelectedProcedure }: Ti
           <List.Subheader style={[styles.sectionHeader, { color: colors.primary }]}>{formatDateWithDayOfWeek(date)}</List.Subheader>
           <View style={styles.scheduleContainer}>
             {proceduresArray.map((e, i) => (
-              <View key={i} style={[styles.card, { backgroundColor: colors.surfaceVariant }]}>
+              <View key={i} style={[styles.card]}>
                 <View style={{ flexDirection: 'row' }}>
                   <View style={styles.textContainer}>
                     <Text variant="titleMedium" style={[styles.professionalName, { color: colors.onSurface }]}>
@@ -37,10 +35,11 @@ function TimeCardComponent({ procedure, onSelect, currentSelectedProcedure }: Ti
                     <Image source={{ uri: e.fachada_profissional }} style={styles.professionalImage} />
                   </View>
                 </View>
-                <View>
-                  <FlatList
+                <View style={{marginTop: 10}}>
+                  <FlashList
+                    estimatedItemSize={110}
                     horizontal
-                    style={{marginTop: 4}}
+                    showsHorizontalScrollIndicator={false}
                     data={e.horarios_list.map(e => e.split(':').slice(0, 2).join(':'))}
                     renderItem={({ item, index }) => (
                       <TouchableOpacity
@@ -48,11 +47,6 @@ function TimeCardComponent({ procedure, onSelect, currentSelectedProcedure }: Ti
                         style={[
                           styles.timeButton,
                           { borderColor: colors.primary, borderWidth: 2 },
-                          // { backgroundColor: colors.surfaceVariant },
-                          // currentSelectedProcedure?.[date]?.selected_time === item && {
-                          //   borderColor: colors.primary,
-                          //   borderWidth: 2,
-                          // },
                         ]}
                         onPress={() => {
                           const currentData: Record<string, ProcedureTimeResponse> = {
@@ -61,7 +55,6 @@ function TimeCardComponent({ procedure, onSelect, currentSelectedProcedure }: Ti
                               selected_time: formatTimeToHHMM(item),
                             },
                           };
-                          //onSelect(currentData); // Mantém apenas a atualização necessária
                           setProcedureTimeDetailsData(currentData);
                         }}>
                         <Text style={styles.timeText}>{formatTimeToHHMM(item)}</Text>
@@ -83,14 +76,14 @@ export default React.memo(TimeCardComponent);
 
 const styles = StyleSheet.create({
   sectionHeader: {
-    fontWeight: '600',
-    fontSize: 14,
+    fontWeight: 'bold',
+    fontSize: 16,
     marginBottom: 0,
     textAlign: 'left',
     paddingLeft: 6,
   },
   scheduleContainer: {
-    padding: 12,
+    padding: 0,
   },
   card: {
     borderWidth: 0,
@@ -124,12 +117,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 8,
     marginHorizontal: 5, // Espaçamento entre os botões
-    //elevation: 2, // Sombras no Android
-    // shadowColor: '#000', // Sombras no iOS
-    // shadowOffset: {width: 0, height: 2},
-    // shadowOpacity: 0.2,
-    // shadowRadius: 4,
-    minWidth: 100,
+    minWidth: 110,
     justifyContent: 'center',
   },
   timeText: {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert, BackHandler } from 'react-native';
-import { Button, TextInput, useTheme } from 'react-native-paper';
+import { Button, ProgressBar, TextInput, useTheme } from 'react-native-paper';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -113,6 +113,8 @@ const RegisterStepFive = ({ route, navigation }: { route: any; navigation: any }
       />
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <ProgressBar progress={1} color={theme.colors.primary} style={{ height: 8, borderRadius: 4, marginBottom: 16 }} />
+
         <Text style={[styles.title, { color: theme.colors.primary }]}>Agora, cadastre uma senha</Text>
 
         <Controller

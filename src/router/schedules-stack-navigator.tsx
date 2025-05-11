@@ -13,6 +13,7 @@ import UserExamsCheckLocal from '../pages/user-exams-check-local';
 import UserExamsSelectDate from '../pages/user-exams-select-date';
 import UserSchedulesHistoryScreen from '../pages/user-schedules-history-screen';
 import UserCreateCreditCard from '../pages/user-create-credit-card';
+import AuthenticationStackNavigator from './authentication-stack-navigator';
 
 const SchedulesStack = createNativeStackNavigator();
 
@@ -39,6 +40,10 @@ const SchedulesStackNavigator = () => {
           headerShadowVisible: false,
         }}
       />
+
+      <SchedulesStack.Screen name="user-login-screen-exams" options={{ headerShown: false, headerTitle: 'Login' }}>
+        {props => <AuthenticationStackNavigator {...props} initialRouteName="user-login-screen" routeAfterLogin="user-select-payment-method" />}
+      </SchedulesStack.Screen>
 
       <SchedulesStack.Screen
         name="user-consultas-screen-list"
@@ -106,7 +111,6 @@ const SchedulesStackNavigator = () => {
       <SchedulesStack.Screen name="user-exams-select-date" component={UserExamsSelectDate} options={{ headerShown: true, title: 'Datas disponíveis' }} />
       <SchedulesStack.Screen name="user-shcdules-history-screen" component={UserSchedulesHistoryScreen} options={{ headerShown: true, title: 'Meus agendamentos' }} />
       <SchedulesStack.Screen name="user-create-credit-card-screen" component={UserCreateCreditCard} options={{ headerShown: true, title: 'Cadastrar Cartão' }} />
-      {/* <SchedulesStack.Screen name="user-payment-attempt-screen" component={UserPaymentAttemptScreen} options={{ headerShown: false, title: 'Cadastrar Cartão' }} /> */}
     </SchedulesStack.Navigator>
   );
 };

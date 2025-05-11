@@ -12,7 +12,7 @@ const MinimalCardComponent = ({ item, colors }: { item: CardData; colors: MD3Col
   return (
     <Card
       style={[styles.card, { borderColor: colors.onSurfaceVariant }]}
-      mode="contained"
+      mode="elevated"
       onPress={() => {
         if ((item.route == 'user-telepet-screen' || item.route == 'user-telemed-screen') && !dadosUsuarioData.pessoaAssinatura?.assinatura_liberada) {
           navigate('new-contract-stack');
@@ -21,16 +21,12 @@ const MinimalCardComponent = ({ item, colors }: { item: CardData; colors: MD3Col
 
         navigate(item.route!);
       }}>
-      <Card.Cover source={item.imageUrl as ImageSourcePropType} style={{ backgroundColor: colors.surfaceVariant }} />
+      <Card.Cover source={item.imageUrl as ImageSourcePropType} style={{ backgroundColor: 'transparent' }} />
       <Card.Content>
       <Title style={{fontWeight: 'bold'}}>{item.title}</Title>
       <Paragraph>{item.description}</Paragraph>
       </Card.Content>
 
-      {/* <Card.Content style={{ justifyContent: 'center', alignItems: 'center' }}>
-        <View style={{ height: 100, width: 100, backgroundColor: '#FFF', borderRadius: 50, justifyContent: 'center', alignItems: 'center' }}>
-          <Icon name={item.icon} size={50} color={colors.primary} />
-        </View> */}
     </Card>
   );
 };

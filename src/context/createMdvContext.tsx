@@ -1,11 +1,9 @@
 import { createContext, ReactNode, useContext, useState } from "react";
 
 interface CreateMdvContextProps {
-  
   mdvBankData: CreateMdvData | null
   setMdvBankData: (data: CreateMdvData) => void
   clearMdvBankData: () => void
-
 }
 
 

@@ -157,7 +157,7 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
               )}
             />
 
-            <Button disabled={!isConnected} mode="contained" onPress={handleSubmit(handleLogin)} loading={loading} style={styles.button}>
+            <Button key={!isConnected ? 'disabled' : 'login'} disabled={!isConnected} mode="contained" onPress={handleSubmit(handleLogin)} loading={loading} style={styles.button}>
               {loading ? 'Aguarde' : 'Continuar'}
             </Button>
 

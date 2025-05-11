@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
-import { Button, TextInput, useTheme } from 'react-native-paper';
+import { Button, ProgressBar, TextInput, useTheme } from 'react-native-paper';
 import { usePessoaCreate } from '../../context/create-pessoa-context';
 import { api } from '../../network/api';
 import axios from 'axios';
@@ -17,7 +17,6 @@ const RegisterStepTwo = ({ route, navigation }: { route: any; navigation: any })
   const { pessoaCreateData, setPessoaCreateData } = usePessoaCreate();
 
   type StepTwoSchemaFormType = z.infer<typeof stepTwoSchema>;
-console.log(pessoaCreateData.des_ponto_referencia_pda)
   const {
     control,
     handleSubmit,
@@ -34,7 +33,7 @@ console.log(pessoaCreateData.des_ponto_referencia_pda)
       des_endereco_pda: pessoaCreateData.des_endereco_pda ?? '',
       id_municipio_pda: pessoaCreateData.id_municipio_pda ?? 0,
       num_endereco_pda: pessoaCreateData.num_endereco_pda ?? '',
-      des_ponto_referencia_pda: pessoaCreateData.des_ponto_referencia_pda == '' ? 'Não possui' : pessoaCreateData.des_ponto_referencia_pda
+      des_ponto_referencia_pda: pessoaCreateData.des_ponto_referencia_pda == '' ? 'Não possui' : pessoaCreateData.des_ponto_referencia_pda,
     },
   });
 
@@ -104,6 +103,8 @@ console.log(pessoaCreateData.des_ponto_referencia_pda)
 
   return (
     <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}>
+      
+      <ProgressBar progress={0.4} color={theme.colors.primary} style={{ height: 8, borderRadius: 4, marginBottom: 16 }} />
       <Text style={[styles.title, { color: theme.colors.primary }]}>Informe os dados sobre o seu endereço</Text>
 
       <View>

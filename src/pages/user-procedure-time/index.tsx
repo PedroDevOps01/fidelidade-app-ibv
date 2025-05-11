@@ -7,11 +7,14 @@ import LoadingFull from '../../components/loading-full';
 import TimeCardComponent from './time-card-component';
 import ProcedureError from '../user-procedure-details-screen/procedure-error';
 import BottomSheet, { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
-import { convertStringToNumber, formatDateToDDMMYYYY, formatTimeToHHMM } from '../../utils/app-utils';
+import { convertStringToNumber, formatDateToDDMMYYYY, formatTimeToHHMM, log } from '../../utils/app-utils';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
 import { useConsultas } from '../../context/consultas-context';
 import { navigate } from '../../router/navigationRef';
 import React from 'react';
+import CustomBackdrop from '../../components/custom-backdrop-component';
+import { FlashList } from '@shopify/flash-list';
+import CustomToast from '../../components/custom-toast';
 
 interface UserProcedureTimeProps {
   navigation: any;
@@ -118,6 +121,17 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
 
   //assinante: true / particular: false
   const getScheduleRequestData = (assinante: boolean) => {
+
+
+
+    if(dadosUsuarioData.user.id_usuario_usr == 0) {
+      CustomToast('Você precisa estar logado para continuar.',colors, 'error')
+      navigate('user-login-screen-exams')
+      return
+
+    }
+
+
     const { procedureTimeDetails } = procedureTimeDetailsData;
 
     //console.log(JSON.stringify(procedureTimeDetails, null, 2))
@@ -137,8 +151,6 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
       vlr_procedimento_particular,
     } = values;
 
-    console.log('vlr_procedimento_particular', vlr_procedimento_particular);
-
     let schedule: ScheduleRequest = {
       data_agenda,
       cod_agenda: Number(cod_agenda),
@@ -155,8 +167,6 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
         ? convertStringToNumber(vlr_procedimento_assinatura)
         : convertStringToNumber(vlr_procedimento_particular),
     };
-
-    console.log(JSON.stringify(schedule, null, 2));
 
     navigate('user-select-payment-method', schedule);
   };
@@ -182,12 +192,13 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
                   placeholder="Pesquisar Profissional"
                   onChangeText={setSearchQuery}
                   value={searchQuery}
-                  style={{ marginTop: 10, marginBottom: 10, backgroundColor: colors.secondaryContainer }}
+                  style={{  backgroundColor: colors.secondaryContainer }}
                   loading={loading}
                 />
               </View>
 
-              <FlatList
+              <FlashList
+                showsVerticalScrollIndicator={false}
                 data={Object.entries(data)}
                 renderItem={({ item, index }) => {
                   const procedureRecord: Record<string, ProcedureTimeResponse[]> = {
@@ -197,13 +208,6 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
                   return (
                     <TimeCardComponent
                       procedure={procedureRecord}
-                      currentSelectedProcedure={procedureTimeDetailsData.procedureTimeDetails}
-                      onSelect={proc => {
-                        unstable_batchedUpdates(() => {
-                          //setCurrentSelectedProcedure(proc);
-                          //setProcedureTimeDetailsData(proc);
-                        });
-                      }}
                     />
                   );
                 }}
@@ -212,17 +216,18 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
             </View>
           )}
           <BottomSheet
+            backdropComponent={CustomBackdrop}
             ref={bottomSheetRef}
             index={-1}
-            snapPoints={['55%']}
+            snapPoints={['60%']}
             enablePanDownToClose
             handleIndicatorStyle={{ backgroundColor: colors.primary }}
             handleStyle={{
-              backgroundColor: colors.surfaceVariant,
+              backgroundColor: colors.background,
               borderTopLeftRadius: 14,
               borderTopRightRadius: 14,
             }}>
-            <BottomSheetScrollView contentContainerStyle={[styles.sheetContent, { backgroundColor: colors.surfaceVariant }]}>
+            <BottomSheetScrollView contentContainerStyle={[styles.sheetContent, { backgroundColor: colors.surface }]}>
               {procedureTimeDetailsData.procedureTimeDetails ? (
                 <>
                   {Object.entries(procedureTimeDetailsData.procedureTimeDetails).map(([date, procedure]) => (

@@ -5,7 +5,7 @@ import { applyPhoneMask, formatDateToDDMMYYYY } from '../../utils/app-utils';
 
 const UserScheduleCard = ({ index, appointment, onPress }: { index: number; appointment: UserSchedule; onPress: (index: number) => void }) => {
   return (
-    <Card style={styles.card} mode="contained" onPress={() => onPress(index)}>
+    <Card style={styles.card} mode="elevated" onPress={() => onPress(index)}>
       <Card.Title
         title={appointment.nome_profissional}
         subtitle={appointment.contato_paciente ? `Contato: ${applyPhoneMask(appointment.contato_paciente)}` : ''}
@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
     margin: 10,
     borderRadius: 10,
     elevation: 3,
+    borderWidth: 0.3
   },
   section: {
     marginTop: 8,

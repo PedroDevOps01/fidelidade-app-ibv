@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
-import { Button, RadioButton, SegmentedButtons, TextInput, useTheme } from 'react-native-paper';
+import { Button, ProgressBar, RadioButton, SegmentedButtons, TextInput, useTheme } from 'react-native-paper';
 import { DatePickerInput } from 'react-native-paper-dates';
 import { usePessoaCreate } from '../../context/create-pessoa-context';
 import { Controller, useForm } from 'react-hook-form';
@@ -74,6 +74,7 @@ const RegisterStepThree = ({ route, navigation }: { route: any; navigation: any 
 
   return (
     <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <ProgressBar progress={0.6} color={theme.colors.primary} style={{ height: 8, borderRadius: 4, marginBottom: 16 }} />
       <Text style={[styles.title, { color: theme.colors.primary }]}>Informe seus dados pessoais</Text>
 
       {/* Sexo Biológico */}

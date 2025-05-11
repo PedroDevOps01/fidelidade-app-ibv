@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
-import { Button, shadow, TextInput, useTheme } from 'react-native-paper';
+import { Button, ProgressBar, shadow, TextInput, useTheme } from 'react-native-paper';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { stepFourSchema } from '../../form-objects/step-four-form';
@@ -100,15 +100,13 @@ const RegisterStepFour = ({ route, navigation }: { route: any; navigation: any }
 
     //se for dependente
     const registerDependent = async () => {
-
       const contratoId = userContracts.filter(e => e.is_ativo_ctt == 1)[0].id_contrato_ctt;
       const request = await api.post('/pessoa', pessoaCreateData, generateRequestHeader(authData.access_token));
 
       if (request.status === 200) {
-        
-        console.log('criou pessoa')
+        console.log('criou pessoa');
         const data: CreatePessoaResponse = request.data;
-        
+
         const res = await api.post(
           `/contrato/${contratoId}/dependente`,
           {
@@ -117,7 +115,7 @@ const RegisterStepFour = ({ route, navigation }: { route: any; navigation: any }
           },
           generateRequestHeader(authData.access_token),
         );
-        console.log('status', res.status)
+        console.log('status', res.status);
 
         if (res.status == 200) {
           toast.success('Dependente adicionado com sucesso!', {
@@ -162,6 +160,8 @@ const RegisterStepFour = ({ route, navigation }: { route: any; navigation: any }
 
   return (
     <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <ProgressBar progress={0.8} color={theme.colors.primary} style={{ height: 8, borderRadius: 4, marginBottom: 16 }} />
+
       <Text style={[styles.title, { color: theme.colors.primary }]}>Informe seus telefones de contato</Text>
 
       <Controller
@@ -170,7 +170,7 @@ const RegisterStepFour = ({ route, navigation }: { route: any; navigation: any }
         render={({ field: { onChange, value } }) => (
           <TextInput
             label="WhatsApp"
-            keyboardType='number-pad'
+            keyboardType="number-pad"
             value={value}
             onChangeText={e => {
               onChange(applyPhoneMask(e));
@@ -189,7 +189,7 @@ const RegisterStepFour = ({ route, navigation }: { route: any; navigation: any }
         render={({ field: { onChange, value } }) => (
           <TextInput
             label="Número do telefone celular"
-            keyboardType='number-pad'
+            keyboardType="number-pad"
             value={value}
             onChangeText={e => {
               onChange(applyPhoneMask(e));
@@ -207,7 +207,7 @@ const RegisterStepFour = ({ route, navigation }: { route: any; navigation: any }
         render={({ field: { onChange, value } }) => (
           <TextInput
             label="Número de telefone"
-            keyboardType='number-pad'
+            keyboardType="number-pad"
             value={value!}
             onChangeText={e => {
               onChange(applyPhoneMask(e, 10));

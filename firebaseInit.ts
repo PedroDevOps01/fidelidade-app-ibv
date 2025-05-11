@@ -1,0 +1,2 @@
+// firebaseInit.ts
+globalThis.RNFB_SILENCE_MODULAR_DEPRECATION_WARNINGS = true;

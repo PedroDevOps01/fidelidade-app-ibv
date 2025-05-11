@@ -12,7 +12,7 @@ const CreditCard = ({card, onDeletePress}: {card: UserCreditCard, onDeletePress:
   const isActive = card.status === 'active';
 
   return (
-    <Card mode='contained' style={styles.card}>
+    <Card mode='elevated' style={styles.card}>
       <Card.Content>
         {/* Card Number and Brand */}
         <View style={styles.row}>
@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
   card: {
     margin: 16,
     borderRadius: 8,
+    borderWidth: 0.3
   },
   row: {
     flexDirection: 'row',

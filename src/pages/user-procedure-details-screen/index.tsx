@@ -59,7 +59,7 @@ export default function UserProcedureDetailsScreen({ navigation, route }: { navi
       {loading ? (
         <LoadingFull />
       ) : (
-        <View style={{ flex: 1, paddingHorizontal: 10 }}>
+        <View style={{ flex: 1 }}>
           {proceduresDetails!.length === 0 ? (
             <ProcedureError
               icon="alert-circle"
@@ -84,6 +84,7 @@ export default function UserProcedureDetailsScreen({ navigation, route }: { navi
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 16
   },
   text: {
     marginTop: 8,

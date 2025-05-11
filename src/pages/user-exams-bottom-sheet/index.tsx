@@ -5,6 +5,7 @@ import { Card, useTheme, Button, IconButton } from 'react-native-paper';
 import { useConsultas } from '../../context/consultas-context';
 import { navigate } from '../../router/navigationRef';
 import { useExames } from '../../context/exames-context';
+import CustomBackdrop from '../../components/custom-backdrop-component';
 
 export type UserExamsBottomSheetRef = {
   openBottomSheet: () => void;
@@ -12,7 +13,6 @@ export type UserExamsBottomSheetRef = {
 };
 
 const UserExamsBottomSheet = forwardRef<UserExamsBottomSheetRef>((_, ref) => {
-  
   const bottomSheetRef = React.useRef<BottomSheet>(null);
   const { colors } = useTheme();
   const { selectedExams, removeSelectedExam } = useExames();
@@ -36,6 +36,7 @@ const UserExamsBottomSheet = forwardRef<UserExamsBottomSheetRef>((_, ref) => {
 
   return (
     <BottomSheet
+      backdropComponent={CustomBackdrop}
       ref={bottomSheetRef}
       snapPoints={[dimensions.height / 2]}
       index={-1}

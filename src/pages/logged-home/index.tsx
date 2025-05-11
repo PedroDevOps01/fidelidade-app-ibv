@@ -150,7 +150,6 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             keyExtractor={item => item.id}
             horizontal
             showsHorizontalScrollIndicator={false}
-            // ItemSeparatorComponent={() => <View style={{ width: '5%' }} />}
             contentContainerStyle={{
               marginTop: 16,
               paddingVertical: 8,
@@ -183,18 +182,18 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
           ) : (
             <>
               {userSchedules.length === 0 ? (
-                <Card mode="contained" style={{ marginRight: 0, marginTop: 16, borderWidth: 0.3, borderColor: colors.onSurfaceVariant }} onPress={() => navigate('user-schedules')}>
+                <Card mode="elevated" style={{ marginRight: 0, marginTop: 16, borderWidth: 0.3, borderColor: colors.onSurfaceVariant }} onPress={() => navigate('user-schedules')}>
                   <Card.Title title="Nenhum agendamento próximo!" subtitle="Agendar uma nova consulta ou exame!" />
                 </Card>
               ) : (
                 <Card
                   onPress={() => navigate('user-schedules')}
-                  mode="contained"
+                  mode="elevated"
                   style={{
-                    marginRight: 16,
                     marginTop: 16,
                     padding: 4,
                     paddingLeft: 0,
+                    borderWidth: 0.3, borderColor: colors.onSurfaceVariant
                   }}>
                   <Card.Title
                     title={userSchedules[0].nome_procedimento}
@@ -215,7 +214,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             onPress={() => {
               navigate('user-shcdules-history-screen');
             }}
-            mode="contained"
+            mode="elevated"
             style={{
               marginRight: 0,
               marginTop: 16,

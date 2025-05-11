@@ -1,4 +1,4 @@
-import {createContext, ReactNode, useContext, useReducer} from 'react';
+import { createContext, ReactNode, useContext, useState } from 'react';
 
 const initialState: PessoaCreateData = {
   cod_cpf_pes: '',
@@ -25,56 +25,41 @@ const initialState: PessoaCreateData = {
   des_ponto_referencia_pda: '',
   vlr_renda_mensal_pda: 100,
   des_nome_mae_pda: '',
-  tipo: "NEW_USER"
+  tipo: 'NEW_USER',
 };
 
-type Action =
-  | {type: 'SET_PESSOA_CREATE_DATA'; payload: PessoaCreateData}
-  | {type: 'CLEAR_PESSOA_CREATE_DATA'};
-
-const pessoaCreateReducer = (
-  state: PessoaCreateData,
-  action: Action,
-): PessoaCreateData => {
-  switch (action.type) {
-    case 'SET_PESSOA_CREATE_DATA':
-      return {...state, ...action.payload};
-    case 'CLEAR_PESSOA_CREATE_DATA':
-      return initialState;
-    default:
-      return state;
-  }
-};
-
-const PessoaCreateContext = createContext<{
+interface PessoaCreateContextProps {
+  pessoaCreateData: PessoaCreateData;
   setPessoaCreateData: (data: PessoaCreateData) => void;
   clearPessoaCreateData: () => void;
-  pessoaCreateData: PessoaCreateData;
-}>({
+}
+
+const PessoaCreateContext = createContext<PessoaCreateContextProps>({
+  pessoaCreateData: initialState,
   setPessoaCreateData: () => {},
   clearPessoaCreateData: () => {},
-  pessoaCreateData: initialState,
 });
 
-export const PessoaCreateProvider: React.FC<{children: ReactNode}> = ({
-  children,
-}) => {
-  const [pessoaCreateData, dispatch] = useReducer(
-    pessoaCreateReducer,
-    initialState,
-  );
+export const PessoaCreateProvider = ({ children }: { children: ReactNode }) => {
+  const [pessoaCreateData, setPessoaCreateDataState] =
+    useState<PessoaCreateData>(initialState);
 
   const setPessoaCreateData = (data: PessoaCreateData) => {
-    dispatch({type: 'SET_PESSOA_CREATE_DATA', payload: data});
+    setPessoaCreateDataState(data);
   };
 
   const clearPessoaCreateData = () => {
-    dispatch({type: 'CLEAR_PESSOA_CREATE_DATA'});
+    setPessoaCreateDataState(initialState);
   };
 
   return (
     <PessoaCreateContext.Provider
-      value={{pessoaCreateData, setPessoaCreateData, clearPessoaCreateData}}>
+      value={{
+        pessoaCreateData,
+        setPessoaCreateData,
+        clearPessoaCreateData,
+      }}
+    >
       {children}
     </PessoaCreateContext.Provider>
   );
@@ -83,9 +68,7 @@ export const PessoaCreateProvider: React.FC<{children: ReactNode}> = ({
 export const usePessoaCreate = () => {
   const context = useContext(PessoaCreateContext);
   if (!context) {
-    throw new Error(
-      'usePessoaCreate must be used within a PessoaCreateProvider',
-    );
+    throw new Error('usePessoaCreate must be used within a PessoaCreateProvider');
   }
   return context;
 };

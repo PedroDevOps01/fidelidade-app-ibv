@@ -2,14 +2,10 @@ import {View, Image, StyleSheet} from 'react-native';
 import {Card, Text, useTheme, Divider} from 'react-native-paper';
 
 export default function ProcedureItem({procedure, navigation}: {procedure: ProcedureResponse; navigation: any}) {
-  const {colors} = useTheme();
-
-  console.log(JSON.stringify(procedure, null, 2))
-
-
   return (
     <Card
-      style={[styles.card, {backgroundColor: colors.surfaceVariant}]}
+      mode='outlined'
+      style={[styles.card]}
       onPress={() => {
         navigation.navigate('user-procedure-time', {procedimento: procedure});
       }}>
