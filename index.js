@@ -1,5 +1,5 @@
+import 'react-native-gesture-handler';
 import 'react-native-reanimated';
-import './gesture-handler.native';
 import './firebaseInit';
 import {AppRegistry} from 'react-native';
 import App from './App';

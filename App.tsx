@@ -1,3 +1,4 @@
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import React, { useEffect } from 'react';
 import { Platform } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
@@ -5,7 +6,7 @@ import AppRouter from './src/router/app-router';
 import { LightTheme } from './src/themes/app-theme';
 import { AuthProvider } from './src/context/AuthContext';
 import { DadosUsuarioProvider } from './src/context/pessoa-dados-context';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 import { UserCartProvider } from './src/context/user-cart-context';
 import { ConsultasProvider } from './src/context/consultas-context';
 import { ExamesProvider } from './src/context/exames-context';

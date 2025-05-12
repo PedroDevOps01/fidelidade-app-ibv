@@ -45,7 +45,7 @@ const getInitialAuthState = async (): Promise<AuthorizationData> => {
     const savedAuthData = await AsyncStorage.getItem("authorization");
     return savedAuthData ? JSON.parse(savedAuthData) : initialAuthState;
   } catch (error) {
-    console.error("Failed to load auth data from storage:", error);
+    console.log("Failed to load auth data from storage:", error);
     return initialAuthState;
   }
 };
@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await AsyncStorage.setItem("authorization", JSON.stringify(data));
       dispatch({ type: "SET_AUTH_DATA", payload: data });
     } catch (error) {
-      console.error("Failed to save auth data to storage:", error);
+      console.log("Failed to save auth data to storage:", error);
     }
   };
 
@@ -77,7 +77,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await AsyncStorage.removeItem("authorization");
       dispatch({ type: "CLEAR_AUTH_DATA" });
     } catch (error) {
-      console.error("Failed to clear auth data from storage:", error);
+      console.log("Failed to clear auth data from storage:", error);
     }
   };
 
@@ -99,7 +99,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       console.log("Token refreshed at", new Date().toLocaleTimeString());
     } catch (error) {
-      console.error("Failed to refresh token:", error);
+      console.log("Failed to refresh token:", error);
     }
   };
 

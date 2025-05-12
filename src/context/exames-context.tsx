@@ -51,10 +51,9 @@ export const ExamesProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     try {
       if (selectedExams.some(item => item.nome === exam.nome)) {
         throw new Error('Exame já adicionado no carrinho');
-        
       }
-      toast.success(`Procedimento ${exam.nome} adicionado ao carrinho!`, {position: 'bottom-center'})
-                  
+      toast.success(`Procedimento ${exam.nome} adicionado ao carrinho!`, { position: 'bottom-center' });
+
       const updatedItems = [...selectedExams, exam];
       setSelectedExamsState(updatedItems);
       await AsyncStorage.setItem('selected_exams', JSON.stringify(updatedItems));
@@ -69,8 +68,7 @@ export const ExamesProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setSelectedExamsState(updatedItems);
 
       await AsyncStorage.setItem('selected_exams', JSON.stringify(updatedItems));
-      toast.success(`Procedimento removido do carrinho!`, {position: 'bottom-center'})
-      
+      toast.success(`Procedimento removido do carrinho!`, { position: 'bottom-center' });
     } catch (err) {
       console.error('Erro ao remover item:', err);
     }
@@ -117,7 +115,7 @@ export const ExamesProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         resetsetSelectedExamsState,
       }}>
       {children}
-      <UserExamsBottomSheet ref={bottomSheetRef} />
+      {selectedExams.length > 0 && <UserExamsBottomSheet ref={bottomSheetRef} />}
     </ExamesContext.Provider>
   );
 };
