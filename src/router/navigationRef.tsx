@@ -1,4 +1,4 @@
-import { createNavigationContainerRef } from "@react-navigation/native";
+import { createNavigationContainerRef, StackActions } from "@react-navigation/native";
 
 export const navigationRef = createNavigationContainerRef();
 
@@ -24,5 +24,11 @@ export function goBack() {
 export function goHome() {
   if(navigationRef.isReady()) {
     reset([{name: "logged-home-screen"}], 0)
+  }
+}
+
+export function replace(name: string, params?: object) {
+  if (navigationRef.isReady()) {
+    navigationRef.dispatch(StackActions.replace(name, params));
   }
 }

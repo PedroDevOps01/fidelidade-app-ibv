@@ -1,5 +1,4 @@
-import { Alert, FlatList, StyleSheet, View } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { Alert, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { List, Text, useTheme } from 'react-native-paper';
 import { useAccquirePlan } from '../../context/accquirePlanContext';
@@ -51,21 +50,26 @@ export default function UserContractsPaymentMethod() {
       {loading ? (
         <LoadingFull />
       ) : (
-        <List.Section title="Selecione uma Forma de pagamento">
-          <FlatList
-            data={formasPagamento}
-            renderItem={({ item }) => (
-              <List.Item
-                title={item.des_nome_fmp}
-                right={props => <List.Icon {...props} icon={'chevron-right'} />}
-                onPress={() => {
-                  setIdFormaPagamento(item.id_forma_pagamento_fmp);
-                  navigate('user-contracts-payment-method-router');
-                }}
-              />
-            )}
-          />
-        </List.Section>
+
+
+        <FlatList
+          ListHeaderComponent={() => <Text style={{ marginBottom: 16 }}>Selecione uma Forma de pagamento</Text>}
+          data={formasPagamento}
+          removeClippedSubviews={false}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.item}
+              onPress={() => {
+                setIdFormaPagamento(item.id_forma_pagamento_fmp);
+                navigate('user-contracts-payment-method-router');
+              }}>
+              <View style={styles.content}>
+                <Text style={styles.title}>{item.des_nome_fmp}</Text>
+                <List.Icon icon="chevron-right" />
+              </View>
+            </TouchableOpacity>
+          )}
+        />
       )}
     </View>
   );
@@ -75,5 +79,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+  },
+  item: {
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#ccc',
+  },
+  content: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 16,
   },
 });

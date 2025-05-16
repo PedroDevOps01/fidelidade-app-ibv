@@ -13,7 +13,7 @@ export default function NoMdvFound() {
     if (!dadosUsuarioData.pessoaAssinatura) {
       Alert.alert(
         'Aviso', 
-        `É necessário ser assinante antes de se tornar um vendedor\nDeseja assinar o plano?`,
+        `É necessário ser assinante antes de se tornar um vendedor\nDeseja assinar um plano?`,
       [
         {text: 'Sim', onPress: () => {navigate('new-contract-navigator')}},
         {text: 'Não', onPress: () => {}},

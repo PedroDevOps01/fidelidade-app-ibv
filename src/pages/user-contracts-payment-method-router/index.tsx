@@ -8,7 +8,7 @@ import { Alert, StyleSheet, View } from 'react-native';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
 import LoadingFull from '../../components/loading-full';
 import PaymentPix from './payment-pix';
-import { goBack, reset } from '../../router/navigationRef';
+import { reset } from '../../router/navigationRef';
 import PaymentCreditCard from './payment-credit-card';
 
 export default function UserContractsPaymentMethodRouter() {
@@ -126,7 +126,7 @@ export default function UserContractsPaymentMethodRouter() {
               mode="contained"
               onPress={() => {
                 setAlertErrorMessageVisible(false);
-                reset([{name: "logged-home-screen"}], 0)
+                reset([{ name: 'logged-home-screen' }], 0);
               }}
               style={styles.closeButton}>
               Fechar
@@ -148,7 +148,6 @@ export default function UserContractsPaymentMethodRouter() {
           )}
         </>
       )}
-      
     </>
   );
 }

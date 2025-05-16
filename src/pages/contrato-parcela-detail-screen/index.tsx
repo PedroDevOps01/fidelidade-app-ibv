@@ -1,10 +1,10 @@
-import {useEffect, useState} from 'react';
-import {StyleSheet, View, FlatList} from 'react-native';
-import {ActivityIndicator, Text, useTheme} from 'react-native-paper';
-import {api} from '../../network/api';
-import {RouteProp, useRoute} from '@react-navigation/native';
-import {useAuth} from '../../context/AuthContext';
-import {createRequestHeader} from '../../utils/app-utils';
+import { useEffect, useState } from 'react';
+import { StyleSheet, View, FlatList } from 'react-native';
+import { ActivityIndicator, Text, useTheme } from 'react-native-paper';
+import { api } from '../../network/api';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import { useAuth } from '../../context/AuthContext';
+import { createRequestHeader } from '../../utils/app-utils';
 import ContratoParcelaDetailsCard from './contrato-parcela-details-card';
 
 type ContratoParcelaDetailsRouteParams = {
@@ -15,28 +15,22 @@ type ContratoParcelaDetailsRouteParams = {
 
 const ContratoParcelaDetailScren = () => {
   const theme = useTheme();
-  const route =
-    useRoute<RouteProp<ContratoParcelaDetailsRouteParams, 'params'>>();
-  const {authData} = useAuth();
+  const route = useRoute<RouteProp<ContratoParcelaDetailsRouteParams, 'params'>>();
+  const { authData } = useAuth();
   const idContrato = route.params.idContrato;
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [contratoParcelaDetails, setContratoParcelaDetails] = useState<
-    ContratoParcelaDetails[]
-  >([]);
+  const [contratoParcelaDetails, setContratoParcelaDetails] = useState<ContratoParcelaDetails[]>([]);
 
   async function fetchData() {
     setLoading(true);
-    
-    console.log(`/parcela/${idContrato}`)
+
+    console.log(`/parcela/${idContrato}`);
 
     try {
-      const {data} = await api(
-        `/parcela/${idContrato}`,
-        {
-          headers: createRequestHeader(authData.access_token),
-        },
-      );
+      const { data } = await api(`/parcela/${idContrato}`, {
+        headers: createRequestHeader(authData.access_token),
+      });
       setContratoParcelaDetails(data.data.data);
     } catch (err: any) {
       console.log(err);
@@ -52,21 +46,15 @@ const ContratoParcelaDetailScren = () => {
   }, []);
 
   return (
-    <View
-      style={[
-        styles.outerContainer,
-        {backgroundColor: theme.colors.background},
-      ]}>
+    <View style={[styles.outerContainer, { backgroundColor: theme.colors.background }]}>
       {loading ? (
         <ActivityIndicator size={60} />
       ) : (
         <FlatList
           data={contratoParcelaDetails}
           keyExtractor={item => item.cod_numparcela_cpc.toString()}
-          renderItem={({item}) => (
-            <ContratoParcelaDetailsCard item={item} key={item.id_contrato_parcela_config_cpc} />
-          )}
-
+          renderItem={({ item }) => <ContratoParcelaDetailsCard item={item} key={item.id_contrato_parcela_config_cpc} />}
+          removeClippedSubviews={false}
         />
       )}
     </View>

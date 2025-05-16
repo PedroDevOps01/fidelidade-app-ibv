@@ -1,14 +1,14 @@
 import { Text, useTheme } from 'react-native-paper';
-import { BackHandler, Dimensions, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import { Dimensions, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../network/api';
-import { generateRequestHeader, log } from '../../utils/app-utils';
-import { useCallback, useEffect, useState } from 'react';
+import { generateRequestHeader } from '../../utils/app-utils';
+import { useEffect, useState } from 'react';
 import LoadingFull from '../../components/loading-full';
 import ContractDetailCard from './contract-details-card';
 import { useAccquirePlan } from '../../context/accquirePlanContext';
 import { navigate } from '../../router/navigationRef';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 export default function ContractsPresenterScreen() {
   const { colors } = useTheme();
@@ -61,9 +61,8 @@ export default function ContractsPresenterScreen() {
               }}
             />
           )}
-          refreshControl={
-            <RefreshControl refreshing={loading} onRefresh={fetchPlans} />
-          }
+          refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchPlans} />}
+          removeClippedSubviews={false}
         />
       )}
     </View>

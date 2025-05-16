@@ -63,10 +63,11 @@ const UserTelemedQueueScreen = () => {
       const filteredPosition = data
         .filter(item => item.paciente_id.includes(String(dadosUsuarioData.pessoaDados?.cod_token_pes)))
         .reduce((min, item) => {
-          return Number(item.ordem_fila) < Number(min.ordem_fila) ? item : min;
+          log('item', item);
+          //return Number(item.ordem_fila) < Number(min.ordem_fila) ? item : min;
+          return item
         }, data[0]);
 
-      log('filteredPosition', filteredPosition);
 
       setPositionInQueue(filteredPosition);
       setHasAlreadyFetched(true);

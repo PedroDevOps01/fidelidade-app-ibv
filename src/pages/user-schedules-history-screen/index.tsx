@@ -22,7 +22,13 @@ const UserSchedulesHistoryScreen = () => {
   const [listItemIndex, setListItemIndex] = useState<number>(0);
 
   async function fetchSchedules() {
+
     const token = dadosUsuarioData.pessoaDados?.cod_token_pes!;
+
+    if(token == undefined) {
+      CustomToast('Erro ao carregar os dados. Tente novamente mais tarde!', colors);
+      return;
+    }
 
     try {
       const response = await api.get(`/integracao/listHistoricoAgendamentos?token_paciente=${token}`, generateRequestHeader(authData.access_token));
