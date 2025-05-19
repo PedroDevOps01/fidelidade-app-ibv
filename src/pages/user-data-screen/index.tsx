@@ -42,25 +42,16 @@ const UserDataScreen = ({ navigation }: { navigation: any }) => {
               />
             </>
           )}
+
+          {dadosUsuarioData.pessoaDados?.id_pessoa_pes != 0 && (
+            <List.Item
+              title="Carteirinha"
+              description="Visualize sua carteirinha"
+              right={props => <List.Icon {...props} icon="chevron-right" />}
+              onPress={() => navigation.navigate('user-personal-carteirinha-screen')}
+            />
+          )}
         </List.Section>
-
-        {/* <TabsProvider defaultIndex={0} onChangeIndex={setActiveTab}>
-          <Tabs theme={theme.colors} disableSwipe>
-
-            <TabScreen label="Dados pessoais">
-              <DadosPessoais navigation={navigation} />
-            </TabScreen>
-
-            <TabScreen label="Cartões">
-            <>{activeTab === 1 && <CreditCardStackNavigator />}</>
-            </TabScreen>
-
-            <TabScreen label="Contrato">
-            <>{activeTab === 2 && <ContractsStackNavigator /> }</>
-            </TabScreen>
-
-          </Tabs>
-        </TabsProvider> */}
       </View>
     </View>
   );

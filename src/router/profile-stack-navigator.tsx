@@ -5,16 +5,17 @@ import UserPersonalDataScreen from '../pages/user-data-screen/dados-pessoais';
 import CreditCardStackNavigator from './credit-card-stack-navigator';
 import AuthenticationStackNavigator from './authentication-stack-navigator';
 import { useDadosUsuario } from '../context/pessoa-dados-context';
+import UserPersonalCarteirinhaScreen from '../pages/user-personal-carteirinha-screen';
 
 const ProfileStack = createNativeStackNavigator();
 
 const ProfileStackNavigator = () => {
   const { colors } = useTheme();
-  const {dadosUsuarioData} = useDadosUsuario()
-  const isLogged = !dadosUsuarioData.user.id_usuario_usr ? false : true
+  const { dadosUsuarioData } = useDadosUsuario();
+  const isLogged = !dadosUsuarioData.user.id_usuario_usr ? false : true;
   return (
     <ProfileStack.Navigator
-      initialRouteName={isLogged ? 'user-data-screen' : 'user-login-screen_profile' }
+      initialRouteName={isLogged ? 'user-data-screen' : 'user-login-screen_profile'}
       screenOptions={{
         headerShown: true,
         headerShadowVisible: false,
@@ -22,7 +23,6 @@ const ProfileStackNavigator = () => {
         headerBackTitle: 'Voltar',
         headerTintColor: colors.onSurface,
       }}>
-        
       <ProfileStack.Screen name="user-login-screen_profile" options={{ headerShown: false, headerTitle: 'Login' }}>
         {props => <AuthenticationStackNavigator {...props} initialRouteName="user-login-screen" routeAfterLogin="Home" />}
       </ProfileStack.Screen>
@@ -30,6 +30,7 @@ const ProfileStackNavigator = () => {
       <ProfileStack.Screen name="user-data-screen" component={UserDataScreen} options={{ headerShown: true, headerTitle: 'Login' }} />
       <ProfileStack.Screen name="user-personal-data-screen" component={UserPersonalDataScreen} options={{ headerTitle: 'Dados pessoais' }} />
       <ProfileStack.Screen name="user-personal-credit-cards-screen" component={CreditCardStackNavigator} options={{ headerTitle: 'Meus cartões de crédito' }} />
+      <ProfileStack.Screen name="user-personal-carteirinha-screen" component={UserPersonalCarteirinhaScreen} options={{ headerShown: false, headerTitle: 'Carteirinha' }} />
     </ProfileStack.Navigator>
   );
 };

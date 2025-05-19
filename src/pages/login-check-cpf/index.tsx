@@ -114,6 +114,7 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
 
       <View style={[styles.innerContainer, { backgroundColor: colors.background }]}>
         <Image source={require('../../assets/images/fidelidade_logo.png')} style={styles.logo} />
+        
         <View style={[styles.card, { borderColor: colors.primary }]}>
           <View>
             <Text variant="headlineMedium" style={styles.title}>
@@ -189,7 +190,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: '100%',
-    height: 350,
+    height: 300,
     marginBottom: 0,
     resizeMode: 'center',
   },
