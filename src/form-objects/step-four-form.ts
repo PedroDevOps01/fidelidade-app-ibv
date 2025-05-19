@@ -9,11 +9,13 @@ export const stepFourSchema = z.object({
 
   num_telefone_pes: z
     .string()
-    .min(10, 'Preencha o Num. Celular')
+    // .min(10, 'Preencha o Num. Celular')
     .nullable() // Optional field
     .transform(value => {
+
+      if (!value) return null
+
       let num = `${value}0`
-      console.log(num!.replace(/\D/g, ''))
       return num!.replace(/\D/g, '')
     }),
 
