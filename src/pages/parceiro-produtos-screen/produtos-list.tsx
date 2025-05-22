@@ -20,6 +20,7 @@ const ProdutosParceiroList = ({
       refreshControl={
         <RefreshControl refreshing={loading} onRefresh={onRefresh} />
       }
+      removeClippedSubviews={false}
     />
   );
 };

@@ -212,6 +212,7 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
                   );
                 }}
                 refreshControl={<RefreshControl refreshing={loading} onRefresh={onRefresh} />}
+                removeClippedSubviews={false}
               />
             </View>
           )}

@@ -49,6 +49,7 @@ const GroupedList = ({list, loading}: GroupedListProps) => {
                   });
                 }
               }}
+              removeClippedSubviews={false}
             />
           )}
         />
@@ -68,6 +69,7 @@ const GroupedList = ({list, loading}: GroupedListProps) => {
           keyExtractor={item => item[0]} // O nome do grupo será a chave
           renderItem={renderAccordion}
           style={{backgroundColor: colors.background}}
+          removeClippedSubviews={false}
         />
       )}
     </>

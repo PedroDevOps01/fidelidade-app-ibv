@@ -51,6 +51,7 @@ export default function ProfissionalList({
           data={data as ProfessionallMedico[]}
           renderItem={({item}) => <ProfissionalCard profissional={item} navigation={navigation} colors={colors} />}
           style={{backgroundColor: colors.background}}
+          removeClippedSubviews={false}
         />
       )}
     </>

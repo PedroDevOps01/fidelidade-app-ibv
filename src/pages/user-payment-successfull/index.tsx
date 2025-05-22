@@ -2,7 +2,7 @@ import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {Card, Text, Button, useTheme, IconButton} from 'react-native-paper';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
-import {navigate, reset} from '../../router/navigationRef';
+import {goHome, navigate, reset} from '../../router/navigationRef';
 import { useConsultas } from '../../context/consultas-context';
 import { initialScheduleRequestState, useExames } from '../../context/exames-context';
 
@@ -26,18 +26,18 @@ export default function UserPaymentSuccessfull() {
     if(currentProcedureMethod === 'exame') {
       setScheduleRequestData(initialScheduleRequestState)
       resetsetSelectedExamsState()
-      reset([{name: "user-schedules-screen"}], 0)
+      goHome()
     }
 
     if(currentProcedureMethod === 'consulta') {
       setScheduleRequestData(initialScheduleRequestState)
       resetsetSelectedExamsState()
-      reset([{name: "user-schedules-screen"}], 0)
+      goHome()
     }
 
 
     else {
-      reset([{name: "logged-home-screen"}])
+      goHome()
     }
 
 

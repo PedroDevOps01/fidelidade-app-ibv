@@ -46,6 +46,7 @@ export default function UserMdvSalesDetails() {
       <FlatList 
         data={sales}
         renderItem={RenderLine}
+        removeClippedSubviews={false}
       />
       
     </View>

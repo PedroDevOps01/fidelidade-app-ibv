@@ -132,6 +132,7 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
               data={userSchedules}
               renderItem={({ item, index }) => <UserScheduleCard index={index} appointment={item} onPress={e => showModal(e)} />}
               refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchSchedules} />}
+              removeClippedSubviews={false}
             />
           ) : (
             <NoSchedulesComponent />

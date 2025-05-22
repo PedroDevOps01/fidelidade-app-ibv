@@ -123,6 +123,7 @@ export default function UserProceduresByMedico({navigation, route}: UserProcedur
               }}
             />
           )}
+          removeClippedSubviews={false}
         />
       </List.Accordion>
     );
@@ -147,6 +148,7 @@ export default function UserProceduresByMedico({navigation, route}: UserProcedur
             data={Object.entries(filteredData())}
             keyExtractor={item => item[0]} // O nome do grupo será a chave
             renderItem={renderAccordion}
+            removeClippedSubviews={false}
           />
         )}
       </View>

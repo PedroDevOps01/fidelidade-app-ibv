@@ -77,6 +77,7 @@ const UserSelectPaymentMethod = () => {
                 onPress={() => handleSubmit(String(item.id_forma_pagamento_fmp))}
               />
             )}
+            removeClippedSubviews={false}
           />
         </List.Section>
       )}

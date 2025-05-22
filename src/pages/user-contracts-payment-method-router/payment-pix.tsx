@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useAccquirePlan } from '../../context/accquirePlanContext';
 import { api } from '../../network/api';
-import { formatDateToDDMMYYYY, generateRequestHeader, maskBrazilianCurrency } from '../../utils/app-utils';
+import { formatDateToDDMMYYYY, generateRequestHeader, log, maskBrazilianCurrency } from '../../utils/app-utils';
 import { ActivityIndicator, Alert, Clipboard, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import dayjs from 'dayjs';
 import { Button, Card, Icon, Text, useTheme } from 'react-native-paper';
@@ -43,6 +43,13 @@ export default function PaymentPix() {
   const [errorMessage, setErrorMessage] = useState<string>();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const navigation = useNavigation();
+
+
+  useEffect(() => {
+    log('pixResponse', pixResponse);
+  }, [pixResponse])
+
+
 
   const copyToClipboard = () => {
     Clipboard.setString(pixResponse?.qrcode!);
@@ -157,6 +164,7 @@ export default function PaymentPix() {
               title="Aviso!"
               description="Deseja cancelar o pagamento?"
               backButtonAction={() => {
+                goBack()
                 setIsModalVisible(false);
               }}
             />

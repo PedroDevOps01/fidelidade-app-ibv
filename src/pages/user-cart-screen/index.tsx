@@ -53,6 +53,7 @@ const UserCartScreen = ({ route, navigation }: { route: any; navigation: any }) 
         renderItem={renderItem}
         contentContainerStyle={styles.list}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
+        removeClippedSubviews={false}
       />
 
       <View style={styles.footer}>

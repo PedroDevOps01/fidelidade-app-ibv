@@ -22,6 +22,7 @@ export default function ProcedureDetails({ procedures }: ProcedureDetailsProps) 
       renderItem={({ item, index }) => <ProcedureItem procedure={item} navigation={navigation} />}
       style={{ marginTop: 10 }}
       contentContainerStyle={{ padding: 2 }}
+      removeClippedSubviews={false}
     />
   );
 }

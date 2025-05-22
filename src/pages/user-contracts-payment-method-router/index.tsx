@@ -98,7 +98,7 @@ export default function UserContractsPaymentMethodRouter() {
       } catch (err) {
         console.log('3 - err', err);
         Alert.alert('Erro', 'Erro ao carregar dados. Tente novamente mais tarde');
-        setAlertErrorMessage('erro 3');
+        setAlertErrorMessage('Erro ao realizar pagamento! código -  3');
       } finally {
         setLoading(false);
       }

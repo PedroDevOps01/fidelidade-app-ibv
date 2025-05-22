@@ -156,6 +156,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
               paddingHorizontal: 2,
               width: '100%',
             }}
+            removeClippedSubviews={false}
           />
 
           <FlatList
@@ -171,6 +172,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
               paddingHorizontal: 2,
               width: '100%',
             }}
+            removeClippedSubviews={false}
           />
 
           <Text variant="headlineSmall" style={{ fontWeight: 'bold', marginTop: 16 }}>

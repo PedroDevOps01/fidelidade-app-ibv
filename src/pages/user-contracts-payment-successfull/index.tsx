@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Card, Text, Button, useTheme, IconButton } from 'react-native-paper';
-import { reset } from '../../router/navigationRef';
+import { goHome, reset } from '../../router/navigationRef';
 import { api } from '../../network/api';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
 import { generateRequestHeader } from '../../utils/app-utils';
@@ -29,7 +29,7 @@ export default function UserContractPaymentSuccessfull() {
       });
     }
 
-    reset([{name: "logged-home-screen"}], 0)
+    goHome()
   };
 
   return (

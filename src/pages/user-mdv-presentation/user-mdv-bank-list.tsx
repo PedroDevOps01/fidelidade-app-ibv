@@ -67,6 +67,7 @@ export default function UserMdvBankList() {
                 onPress={() => {}}
               />
             )}
+            removeClippedSubviews={false}
           />
         </List.Section>
       )}

@@ -197,6 +197,7 @@ const UserProdutosScreen = ({
                 }}
               />
             }
+            removeClippedSubviews={false}
           />
 
           {/* <BottomSheet

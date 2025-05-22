@@ -37,7 +37,6 @@ function TimeCardComponent({ procedure }: TimeCardComponentProps) {
                 </View>
                 <View style={{marginTop: 10}}>
                   <FlashList
-                    estimatedItemSize={110}
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     data={e.horarios_list.map(e => e.split(':').slice(0, 2).join(':'))}
@@ -60,6 +59,7 @@ function TimeCardComponent({ procedure }: TimeCardComponentProps) {
                         <Text style={styles.timeText}>{formatTimeToHHMM(item)}</Text>
                       </TouchableOpacity>
                     )}
+                    removeClippedSubviews={false}
                   />
                 </View>
               </View>

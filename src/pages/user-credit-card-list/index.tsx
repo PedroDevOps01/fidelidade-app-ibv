@@ -94,6 +94,7 @@ export default function UserCreditCardList() {
           />
         )}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={onRefresh} />}
+        removeClippedSubviews={false}
       />
 
       <FAB

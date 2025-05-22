@@ -137,6 +137,7 @@ export default function UserExamsCheckLocal() {
               data={locals}
               renderItem={({ item }) => <ExamsLocalsCard data={item} onPress={onCardPress} />}
               refreshControl={<RefreshControl refreshing={loading} onRefresh={() => fetchExamsLocals()} />}
+              removeClippedSubviews={false}
             />
           ) : (
             <ProcedureError

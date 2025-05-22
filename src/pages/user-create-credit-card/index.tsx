@@ -8,7 +8,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import UserCreditCard from "./user-credit-card";
 import { useEffect, useState } from "react";
-import { generateRequestHeader, getCardBrand } from "../../utils/app-utils";
+import { generateRequestHeader, getCardBrand, log } from "../../utils/app-utils";
 import { ScrollView } from "react-native-gesture-handler";
 import { useDadosUsuario } from "../../context/pessoa-dados-context";
 import { api } from "../../network/api";
@@ -91,7 +91,8 @@ export default function UserCreateCreditCard() {
           },
         ]);
       }
-    } catch {
+    } catch(err) {
+      log("Error:", err);
       Alert.alert("Aviso", "Erro ao cadastrar cartão!");
     } finally {
       setLoading(false);

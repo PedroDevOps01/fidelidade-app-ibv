@@ -76,6 +76,7 @@ const UserSchedulesHistoryScreen = () => {
               data={userSchedules}
               renderItem={({ item, index }) => <UserScheduleCard index={index} appointment={item} onPress={e => showModal(e)} />}
               refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchSchedules} />}
+              removeClippedSubviews={false}
             />
           ) : (
             <NoSchedulesComponent />
