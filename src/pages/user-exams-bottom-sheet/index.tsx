@@ -43,12 +43,12 @@ const UserExamsBottomSheet = forwardRef<UserExamsBottomSheetRef>((_, ref) => {
       enablePanDownToClose
       handleIndicatorStyle={{ backgroundColor: colors.onSurface }}
       handleStyle={{
-        backgroundColor: colors.surfaceVariant,
+        backgroundColor: colors.background,
         borderTopLeftRadius: 14,
         borderTopRightRadius: 14,
         borderBottomWidth: 0,
       }}>
-      <View style={[styles.contentContainer, { backgroundColor: colors.surfaceVariant }]}>
+      <View style={[styles.contentContainer, { backgroundColor: colors.background }]}>
         <View style={{ flex: 9 }}>
           <BottomSheetFlatList
             data={selectedExams}
@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
   card: {
     shadowColor: 'transparent',
     height: 80,
+    borderWidth: 0.5
   },
   title: {
     fontSize: 16,

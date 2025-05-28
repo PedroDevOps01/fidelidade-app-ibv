@@ -1,11 +1,10 @@
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
-import {Card, Text, Button, useTheme, IconButton} from 'react-native-paper';
-import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
-import {goHome, navigate, reset} from '../../router/navigationRef';
+import { StyleSheet, View } from 'react-native';
+import { Card, Text, Button, useTheme, IconButton } from 'react-native-paper';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { goHome, navigate, reset } from '../../router/navigationRef';
 import { useConsultas } from '../../context/consultas-context';
 import { initialScheduleRequestState, useExames } from '../../context/exames-context';
-
 
 type UserPaymentSuccessfullRouteParams = {
   params: {
@@ -13,45 +12,35 @@ type UserPaymentSuccessfullRouteParams = {
   };
 };
 
-
 export default function UserPaymentSuccessfull() {
-  const {colors} = useTheme();
-  const {currentProcedureMethod} = useConsultas();
-  const {setScheduleRequestData, resetsetSelectedExamsState} = useExames()
-  const route = useRoute<RouteProp<UserPaymentSuccessfullRouteParams>>()
-
+  const { colors } = useTheme();
+  const { currentProcedureMethod } = useConsultas();
+  const { setScheduleRequestData, resetsetSelectedExamsState } = useExames();
+  const route = useRoute<RouteProp<UserPaymentSuccessfullRouteParams>>();
 
   const handlePress = () => {
-
-    if(currentProcedureMethod === 'exame') {
-      setScheduleRequestData(initialScheduleRequestState)
-      resetsetSelectedExamsState()
-      goHome()
+    if (currentProcedureMethod === 'exame') {
+      setScheduleRequestData(initialScheduleRequestState);
+      resetsetSelectedExamsState();
+      goHome();
     }
 
-    if(currentProcedureMethod === 'consulta') {
-      setScheduleRequestData(initialScheduleRequestState)
-      resetsetSelectedExamsState()
-      goHome()
+    if (currentProcedureMethod === 'consulta') {
+      setScheduleRequestData(initialScheduleRequestState);
+      resetsetSelectedExamsState();
+      goHome();
+    } else {
+      goHome();
     }
-
-
-    else {
-      goHome()
-    }
-
 
     // if(route.params) {
     //   console.log(route.params.name)
     //   reset([{name: }], 0)
     // }
-  }
-
-
-
+  };
 
   return (
-    <View style={[styles.container, {backgroundColor: colors.background}]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Card mode="contained" style={styles.card}>
         <View style={styles.iconContainer}>
           <IconButton icon="check-circle" size={64} iconColor={colors.primary} style={styles.icon} />
@@ -59,15 +48,13 @@ export default function UserPaymentSuccessfull() {
 
         <Card.Content>
           <Text style={styles.title}>Pagamento Realizado com Sucesso!</Text>
-          <Text style={styles.message}>
-            Seu pagamento está sendo processado no momento. Agora, você pode continuar utilizando nossos serviços.
-          </Text>
+          <Text style={styles.message}>Seu pagamento está sendo processado no momento. Agora, você pode continuar utilizando nossos serviços.</Text>
         </Card.Content>
-        
+
         <Button
           mode="contained"
           onPress={handlePress} // Substitua 'HomeScreen' pela rota desejada
-          style={{marginTop: 10}}>
+          style={{ marginTop: 10 }}>
           Continuar
         </Button>
       </Card>
@@ -103,7 +90,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     color: '#666',
-    marginBottom: 20
+    marginBottom: 20,
   },
   button: {},
 });

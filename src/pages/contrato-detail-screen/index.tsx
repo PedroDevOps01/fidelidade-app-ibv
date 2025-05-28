@@ -102,7 +102,7 @@ const ContratosDetailScreen = ({ contrato, title }: ContratosDetailScreenProps) 
 
           <List.Item title="Descrição" description={contrato.des_descricao_tsi} left={() => <List.Icon icon="card-text-outline" />} style={styles.listItem} />
 
-          <List.Item
+          {/* <List.Item
             title="Dependentes"
             description={`Ver dependentes`}
             left={() => <List.Icon icon="account-multiple"  />}
@@ -111,7 +111,7 @@ const ContratosDetailScreen = ({ contrato, title }: ContratosDetailScreenProps) 
               navigate('user-dependents-screen');
             }}
             style={styles.listItem}
-          />
+          /> */}
 
           
 

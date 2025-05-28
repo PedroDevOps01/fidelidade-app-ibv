@@ -7,7 +7,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { CreditCardSchema, CreditCardSchemaFormType } from '../../form-objects/credit-card-form-object';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
-import { generateRequestHeader, getCardBrand, getCurrentDate } from '../../utils/app-utils';
+import { generateRequestHeader, getCardBrand, getCurrentDate, log } from '../../utils/app-utils';
 import { toast } from 'sonner-native';
 import { useAccquirePlan } from '../../context/accquirePlanContext';
 import { api } from '../../network/api';
@@ -102,7 +102,7 @@ export default function PaymentCreditCard() {
     };
 
     const res = await api.post(`/integracaoPagarMe/criarCartaoCliente`, dataToSent, generateRequestHeader(authData.access_token));
-    console.log('1 res', res);
+    //console.log('1 res', res);
     const { data: dataRes } = res;
 
     if (res.status == 200) {
@@ -132,11 +132,20 @@ export default function PaymentCreditCard() {
       card_id: card.id,
     };
 
-    console.log('baseData', baseData);
+    log('baseData', baseData);
 
     const response = await api.post(`/pagamento-parcela`, baseData, generateRequestHeader(authData.access_token));
 
     const { data } = response;
+
+    log(`makePayment status ${response.status}`, data);
+
+    if (response.status == 500) {
+      toast.error('Ocorreu um problema ao processar o pagamento. Tente novamente mais tarde.');
+      setLoading(false);
+      return;
+    }
+
     if (response.status == 200) {
       if (data.response.error) {
         console.log(data.response.error);
@@ -144,6 +153,9 @@ export default function PaymentCreditCard() {
         setLoading(false);
         return;
       }
+
+      console.log('deveria passar');
+      
       // update
       getSignatureDataAfterPaid();
     } else {

@@ -4,15 +4,15 @@ const LightTheme = {
   ...MD3LightTheme,
   colors: {
     ...MD3LightTheme.colors,
-    primary: '#2754a2',
+    primary: '#b183ff',
     surfaceTint: '#266A49',
     onPrimary: '#FFFFFF',
-    primaryContainer: '#2754a2',
+    primaryContainer: '#b183ff',
     onPrimaryContainer: '#FFF',
-    secondary: '#000',
+    secondary: '#b183ff',
     onSecondary: '#FFFFFF',
-    secondaryContainer: '#c1d3f0', //searchbar
-    onSecondaryContainer: '#364B3E',
+    secondaryContainer: '#b183ff', //searchbar
+    onSecondaryContainer: '#FFF',
     tertiary: '#3C6471',
     onTertiary: '#FFFFFF',
     tertiaryContainer: '#BFE9F9',

@@ -145,6 +145,7 @@ const NewContratoScreen = () => {
         id_pessoa_ctt: loginUsuarioData.id_pessoa_usr,
         id_situacao_ctt: 15,
         id_origem_ctt: 12,
+        is_mobile: true
       };
 
 

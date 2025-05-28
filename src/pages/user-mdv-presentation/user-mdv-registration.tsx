@@ -68,6 +68,7 @@ export default function UserMdvRegistration() {
 
   async function registerBankData(data: PessoaFormDadosBancariosSchemaType) {
     let idPessoa = dadosUsuarioData.pessoaDados?.id_pessoa_pes;
+
     let data_to_sent = {
       cod_banco_pdb: String(data.codBancoPdb),
       cod_agencia_pdb: String(data.codAgenciaPdb),
@@ -76,7 +77,7 @@ export default function UserMdvRegistration() {
       cod_conta_validador_pdb: String(data.codContaValidadorPdb),
       des_tipo_pdb: String(data.desTipoPdb),
     };
-
+    
     if (newAccount) {
       setMdvBankData(data_to_sent);
       navigate('user-mdv-terms');

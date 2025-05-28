@@ -212,7 +212,7 @@ export default function UserCreateCreditCard() {
             name="exp_year"
             render={({ field: { onChange, value } }) => (
               <TextInput
-                label="Ano"
+                label="Ano(YYYY)"
                 value={value}
                 onChangeText={onChange}
                 mode="outlined"

@@ -10,7 +10,7 @@ export default function ContractDetailCard({ contract, onPress }: ContractDetail
   const { colors } = useTheme();
 
   return (
-    <TouchableRipple onPress={onPress} style={{ minHeight: 300, borderWidth: 0.5, borderRadius: 10, borderColor: colors.primary }}>
+    <TouchableRipple onPress={onPress} style={{ height: 'auto', borderWidth: 0.5, borderRadius: 10, borderColor: colors.primary }}>
       <Card.Content style={{ alignItems: 'center', padding: 16 }}>
         <Text variant="titleLarge" style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 6 }}>
           {contract.des_nome_pla}

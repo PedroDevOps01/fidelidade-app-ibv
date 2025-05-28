@@ -180,15 +180,18 @@ export function maskBrazilianCurrency(value: string | number): string {
   // Converte o valor para string e remove todos os caracteres que não sejam números
   let numericValue = value.toString().replace(/\D/g, '');
 
-  // Adiciona as casas decimais
+  // Garante pelo menos 3 dígitos (ex: "8" → "008", "85" → "085")
+  numericValue = numericValue.padStart(3, '0');
+
+  // Adiciona a vírgula antes dos dois últimos dígitos
   numericValue = numericValue.replace(/(\d{2})$/, ',$1');
 
-  // Adiciona os pontos de milhares
+  // Adiciona os pontos de milhar
   numericValue = numericValue.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
 
-  // Retorna o valor formatado com o símbolo R$
-  return numericValue;
+  return `R$ ${numericValue}`;
 }
+
 
 export const convertToReais = (value: string | number): string => {
   // Verifica e converte a entrada se for uma string

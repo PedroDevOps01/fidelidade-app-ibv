@@ -16,13 +16,15 @@ import InputAlert from '../../components/input-alert';
 import LoadingFull from '../../components/loading-full';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { reset as resetNavigation } from '../../router/navigationRef';
+import { useConsultas } from '../../context/consultas-context';
+import { useExames } from '../../context/exames-context';
 
 type PessoaSchemaFormType = z.infer<typeof pessoaSchema>;
 
 const UserPersonalDataScreen = ({ navigation }: { navigation: any }) => {
   const { colors } = useTheme();
   const { dadosUsuarioData, clearLoginDadosUsuarioData, clearDadosUsuarioData, setDadosUsuarioData } = useDadosUsuario();
-
+  const { clearSelectedExams } = useExames()
   const { authData, clearAuthData } = useAuth();
   const { pessoaDados } = dadosUsuarioData;
 
@@ -73,6 +75,9 @@ const UserPersonalDataScreen = ({ navigation }: { navigation: any }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hashPassword, setHashPassword] = useState<string>('');
   const [isInputAlertVisible, setIsInputAlertVisible] = useState<boolean>(false);
+
+  const { setUserSchedulesData } = useConsultas();
+
 
   const fetchUserData = async () => {
     try {
@@ -218,6 +223,8 @@ const UserPersonalDataScreen = ({ navigation }: { navigation: any }) => {
           clearDadosUsuarioData();
           clearLoginDadosUsuarioData();
           clearAuthData();
+          setUserSchedulesData([]);
+          clearSelectedExams()
           logout(authData.access_token);
           resetNavigation([{ name: 'logged-home-screen' }]);
         },

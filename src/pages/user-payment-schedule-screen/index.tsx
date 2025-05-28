@@ -50,7 +50,7 @@ export default function UserPaymentScheduleScreen() {
 
       setPixResponse(response.data);
     } catch (err: any) {
-      console.log(err)
+      console.log(err);
       goBack();
       CustomToast('Erro ao realizar pagamento. Tente novamente mais tarde', colors);
     } finally {
@@ -72,7 +72,12 @@ export default function UserPaymentScheduleScreen() {
 
       if (response.status == 200) {
         //console.log(JSON.stringify(response.data, null, 2))
-        console.log(response.data.response[0].des_status_pgm);
+        console.log('status', response.data.response[0].des_status_pgm);
+
+        if (response.data.response[0].des_status_pgm === 'failed') {
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          navigate('user-payment-failed-screen');
+        }
 
         if (response.data.response[0].des_status_pgm === 'paid') {
           if (intervalRef.current) clearInterval(intervalRef.current);
@@ -103,6 +108,15 @@ export default function UserPaymentScheduleScreen() {
     };
   });
 
+  function getTotalValue() {
+    if (route.params && route.params.vlr_total) {
+      return route.params.vlr_total; 
+    }
+    else if (route.params && route.params.vlr_procedimento) {
+      return route.params.vlr_procedimento; 
+    }
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {loading ? (
@@ -113,7 +127,7 @@ export default function UserPaymentScheduleScreen() {
             <Card.Title title="Pagamento via Pix" titleStyle={{ textAlign: 'center', fontWeight: 'bold' }} titleVariant="headlineMedium" />
             <Card.Content>
               <Text style={styles.text}>Valor:</Text>
-              <Text style={styles.value}>R$: {maskBrazilianCurrency(route.params!.vlr_total ?? 0)}</Text>
+              <Text style={styles.value}>R$: {maskBrazilianCurrency(getTotalValue())}</Text>
 
               <View style={styles.qrContainer}>
                 <Text style={styles.text}>Escaneie o QR Code:</Text>

@@ -14,6 +14,7 @@ import UserExamsSelectDate from '../pages/user-exams-select-date';
 import UserSchedulesHistoryScreen from '../pages/user-schedules-history-screen';
 import UserCreateCreditCard from '../pages/user-create-credit-card';
 import AuthenticationStackNavigator from './authentication-stack-navigator';
+import UserContractPaymentFailed from '../pages/user-payment-failed';
 
 const SchedulesStack = createNativeStackNavigator();
 
@@ -111,6 +112,7 @@ const SchedulesStackNavigator = () => {
       <SchedulesStack.Screen name="user-exams-select-date" component={UserExamsSelectDate} options={{ headerShown: true, title: 'Datas disponíveis' }} />
       <SchedulesStack.Screen name="user-shcdules-history-screen" component={UserSchedulesHistoryScreen} options={{ headerShown: true, title: 'Meus agendamentos' }} />
       <SchedulesStack.Screen name="user-create-credit-card-screen" component={UserCreateCreditCard} options={{ headerShown: true, title: 'Cadastrar Cartão' }} />
+      <SchedulesStack.Screen name="user-payment-failed-screen" component={UserContractPaymentFailed} />
     </SchedulesStack.Navigator>
   );
 };

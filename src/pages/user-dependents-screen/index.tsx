@@ -19,15 +19,12 @@ export default function UserDependentsScreen() {
   const { authData } = useAuth();
   const [dependentes, setDependentes] = useState<Dependente[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [isModalOfQtdMaxDepPlaVisible, setIsModalOfQtdMaxDepPlaVisible] = useState(false)
+  const [isModalOfQtdMaxDepPlaVisible, setIsModalOfQtdMaxDepPlaVisible] = useState(false);
 
   async function fetchDependentes() {
     setLoading(true);
 
-
-
-    
-    console.log(userContracts.filter(e => e.is_ativo_ctt == 1)[0])
+    console.log(userContracts.filter(e => e.is_ativo_ctt == 1)[0]);
 
     const contratoId = userContracts.filter(e => e.is_ativo_ctt == 1)[0].id_contrato_ctt;
 
@@ -44,17 +41,14 @@ export default function UserDependentsScreen() {
     }
   }
 
-
   // handle do fab
   function handleFabPress() {
-    if(dependentes.length >= userContracts[0].qtd_max_dependentes_pla!) {
-      setIsModalOfQtdMaxDepPlaVisible(true)
-      return
+    if (dependentes.length >= userContracts[0].qtd_max_dependentes_pla!) {
+      setIsModalOfQtdMaxDepPlaVisible(true);
+      return;
     }
-    navigate('register-step-one', {tipo: "DEPENDENT"})
+    navigate('register-step-one', { tipo: 'DEPENDENT' });
   }
-
-
 
   useEffect(() => {
     (async () => {
@@ -63,30 +57,29 @@ export default function UserDependentsScreen() {
   }, []);
 
   return (
-    <KeyboardAwareScrollView 
-    refreshControl={<RefreshControl refreshing={loading} onRefresh={() => fetchDependentes()} />}
-    contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}>
+    <KeyboardAwareScrollView
+      refreshControl={<RefreshControl refreshing={loading} onRefresh={() => fetchDependentes()} />}
+      contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}>
       {loading ? (
         <LoadingFull />
       ) : (
         <>
-
-          <ModalContainer  visible={isModalOfQtdMaxDepPlaVisible} handleVisible={() => setIsModalOfQtdMaxDepPlaVisible(false)}>
-            <ModalContent 
+          <ModalContainer visible={isModalOfQtdMaxDepPlaVisible} handleVisible={() => setIsModalOfQtdMaxDepPlaVisible(false)}>
+            <ModalContent
               confirmButtonAction={() => {
-                navigate('register-step-one', {tipo: "DEPENDENT"})
-                setIsModalOfQtdMaxDepPlaVisible(false)
+                navigate('register-step-one', { tipo: 'DEPENDENT' });
+                setIsModalOfQtdMaxDepPlaVisible(false);
               }}
-              confirmButtonText='Sim'
-              description={`A quantidade de dependentes sem custo adicional está cheia. Deseja adicionar mais um dependente por R$: ${maskBrazilianCurrency(userContracts[0].vlr_dependente_adicional_pla ?? 0)}?`}
+              confirmButtonText="Sim"
+              description={`A quantidade de dependentes sem custo adicional está cheia. Deseja adicionar mais um dependente por ${maskBrazilianCurrency(
+                userContracts[0].vlr_dependente_adicional_pla ?? 0,
+              )}?`}
               isBackButtonVisible
-              title='Aviso'
+              title="Aviso"
               backButtonAction={() => setIsModalOfQtdMaxDepPlaVisible(false)}
-              backButtonText='Não'
+              backButtonText="Não"
             />
           </ModalContainer>
-
-
 
           <List.Section>
             {dependentes.map((e, i) => (

@@ -40,16 +40,13 @@ export default function PaymentPix() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const { idFormaPagamento, contratoParcela, contratoCreated } = useAccquirePlan();
-  const [errorMessage, setErrorMessage] = useState<string>();
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const navigation = useNavigation();
 
-
-  useEffect(() => {
-    log('pixResponse', pixResponse);
-  }, [pixResponse])
-
-
+  // useEffect(() => {
+  //   log('pixResponse', pixResponse);
+  // }, [pixResponse]);
 
   const copyToClipboard = () => {
     Clipboard.setString(pixResponse?.qrcode!);
@@ -79,19 +76,39 @@ export default function PaymentPix() {
   }
 
   async function checkPaid(cod_pagamento: string) {
-    console.log('check paid', cod_pagamento);
+    setErrorMessage('')
     const response = await api.get(`/integracaoPagarMe/verificarPagamento?cod_pedido_pgm=${cod_pagamento}`, generateRequestHeader(authData.access_token));
-    console.log('response', response.status);
+    
+    //log('response', response.data.response);
     if (response.status == 200) {
-      // navegar para sucesso
-      await getSignatureDataAfterPixPaid();
+      const { data } = response; 
+
+
+      if (data.response[0].des_status_pgm == 'paid') {
+        await getSignatureDataAfterPixPaid();
+        return
+      }
+  
+
+      if (data.response[0].des_status_pgm == 'failed') {
+        navigate('user-contracts-payment-failed');
+        return
+      }
+
+
+      if (data.response[0].des_status_pgm == 'pending') {
+        console.log('pending');
+      }
+
     } else {
       // navegar para falha
-      console.log('not paid');
+      setErrorMessage('Erro ao verificar pagamento');
+      setLoading(false);
     }
   }
 
   async function requestPayment() {
+    setErrorMessage('');
     if (!idFormaPagamento) {
       return;
     }
@@ -113,6 +130,7 @@ export default function PaymentPix() {
       const { data } = response;
       if (response.status == 200) {
         setPixResponse(data.response);
+        //setErrorMessage('Erro ao realizar checagem de pagamento');
       }
     } catch (err) {
       setErrorMessage('Erro ao realizar checagem de pagamento');
@@ -155,81 +173,101 @@ export default function PaymentPix() {
         <LoadingFull />
       ) : (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-          <ModalContainer handleVisible={() => setIsModalVisible(false)} visible={isModalVisible}>
-            <ModalContent
-              isBackButtonVisible={true}
-              backButtonText="Não"
-              confirmButtonText="Sim"
-              confirmButtonAction={handleBackButtonPress}
-              title="Aviso!"
-              description="Deseja cancelar o pagamento?"
-              backButtonAction={() => {
-                goBack()
-                setIsModalVisible(false);
-              }}
-            />
-          </ModalContainer>
-
-          <Card mode="elevated" style={styles.containerCard}>
-            <Card.Content>
-              <Text variant="titleLarge" style={styles.containerTitle}>
-                Pagamento via Pix
+          {errorMessage != '' ? (
+            <View style={{ padding: 24, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontSize: 16, color: colors.error, textAlign: 'center', marginBottom: 16 }}>
+                Houve um problema ao gerar o Pix. Verifique sua conexão e tente novamente.
               </Text>
 
-              <Text variant="bodyMedium" style={styles.containerSubtitle}>
-                Escaneie o QR Code ou copie o código abaixo para pagar.
-              </Text>
+              <Button
+                mode="contained"
+                onPress={() => {
+                  requestPayment();
+                }}
+                style={{ borderRadius: 8 }}
+                buttonColor={colors.primary}>
+                Tentar novamente
+              </Button>
+            </View>
+          ) : (
+            <>
+              <ModalContainer handleVisible={() => setIsModalVisible(false)} visible={isModalVisible}>
+                <ModalContent
+                  isBackButtonVisible={true}
+                  backButtonText="Não"
+                  confirmButtonText="Sim"
+                  confirmButtonAction={handleBackButtonPress}
+                  title="Aviso!"
+                  description="Deseja cancelar o pagamento?"
+                  backButtonAction={() => {
+                    goBack();
+                    setIsModalVisible(false);
+                  }}
+                />
+              </ModalContainer>
 
-              {/* QR Code */}
-              <View style={styles.containerQrcode}>
-                <Image source={{ uri: pixResponse?.qrcode_url }} style={{ width: 200, height: 200, borderRadius: 10 }} resizeMode="contain" />
-              </View>
+              <Card mode="elevated" style={styles.containerCard}>
+                <Card.Content>
+                  <Text variant="titleLarge" style={styles.containerTitle}>
+                    Pagamento via Pix
+                  </Text>
 
-              {/* Código Pix - Copiar ao tocar */}
-              <TouchableOpacity
-                onPress={copyToClipboard}
-                style={{
-                  backgroundColor: colors.surfaceVariant,
-                  padding: 10,
-                  borderRadius: 8,
-                  marginBottom: 10,
-                }}>
-                <Text selectable={true} style={{ textAlign: 'center', fontSize: 14 }}>
-                  {pixResponse?.qrcode?.slice(0, 25).concat('...')}
-                </Text>
-              </TouchableOpacity>
+                  <Text variant="bodyMedium" style={styles.containerSubtitle}>
+                    Escaneie o QR Code ou copie o código abaixo para pagar.
+                  </Text>
 
-              {/* Valor */}
-              <Text variant="bodyMedium" style={{ textAlign: 'center', marginTop: 10 }}>
-                Valor: <Text style={{ fontWeight: 'bold' }}>R$ {maskBrazilianCurrency(pixResponse?.vlr_parcela_cpp!)}</Text>
-              </Text>
+                  {/* QR Code */}
+                  <View style={styles.containerQrcode}>
+                    <Image source={{ uri: pixResponse?.qrcode_url }} style={{ width: 200, height: 200, borderRadius: 10 }} resizeMode="contain" />
+                  </View>
 
-              {/* Vencimento */}
-              <Text variant="bodyMedium" style={{ textAlign: 'center', width: '100%' }}>
-                Vencimento: <Text style={{ fontWeight: 'bold' }}>{formatDateToDDMMYYYY(pixResponse?.dta_pagamento_cpp!)}</Text>
-              </Text>
+                  {/* Código Pix - Copiar ao tocar */}
+                  <TouchableOpacity
+                    onPress={copyToClipboard}
+                    style={{
+                      backgroundColor: colors.surfaceVariant,
+                      padding: 10,
+                      borderRadius: 8,
+                      marginBottom: 10,
+                    }}>
+                    <Text selectable={true} style={{ textAlign: 'left', fontSize: 14 }}>
+                      {pixResponse?.qrcode?.slice(0, 35).concat('...')}
+                    </Text>
+                  </TouchableOpacity>
 
-              {/* Loading Spinner */}
-              <View style={{ marginTop: 20, alignItems: 'center' }}>
-                <ActivityIndicator animating={true} />
-                <Button
-                  mode="outlined"
-                  key={'goBack'}
-                  disabled={loading}
-                  onPress={() => setIsModalVisible(true)}
-                  labelStyle={{ fontSize: 16 }}
-                  style={{ marginTop: 16 }}
-                  contentStyle={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <Icon source={'arrow-left'} size={18} color={colors.primary} />
-                  <Text style={{ color: colors.primary }}> Voltar</Text>
-                </Button>
-              </View>
-            </Card.Content>
-          </Card>
+                  {/* Valor */}
+                  <Text variant="bodyMedium" style={{ textAlign: 'center', marginTop: 10 }}>
+                    Valor: <Text style={{ fontWeight: 'bold' }}>R$ {maskBrazilianCurrency(pixResponse?.vlr_parcela_cpp! ?? 0)}</Text>
+                  </Text>
+
+                  {/* Vencimento */}
+                  <Text variant="bodyMedium" style={{ textAlign: 'center', width: '100%' }}>
+                    Vencimento: <Text style={{ fontWeight: 'bold' }}>{formatDateToDDMMYYYY(pixResponse?.dta_pagamento_cpp!)}</Text>
+                  </Text>
+
+                  {/* Loading Spinner */}
+                  <View style={{ marginTop: 20, alignItems: 'center' }}>
+                    <ActivityIndicator animating={true} />
+                    {/* <Button
+                      mode="outlined"
+                      key={'goBack'}
+                      disabled={loading}
+                      onPress={() => setIsModalVisible(true)}
+                      labelStyle={{ fontSize: 16 }}
+                      style={{ marginTop: 16 }}
+                      contentStyle={{
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Icon source={'arrow-left'} size={18} color={colors.primary} />
+                      <Text style={{ color: colors.primary }}> Voltar</Text>
+                    </Button> */}
+                  </View>
+                </Card.Content>
+              </Card>
+            </>
+          )}
         </View>
       )}
     </>

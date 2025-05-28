@@ -7,6 +7,7 @@ import UserContractsPaymentMethod from '../pages/user-contracts-payment-method';
 import UserContractsPaymentMethodRouter from '../pages/user-contracts-payment-method-router';
 import UserContractPaymentSuccessfull from '../pages/user-contracts-payment-successfull';
 import AuthenticationStackNavigator from './authentication-stack-navigator';
+import UserContractPaymentFailed from '../pages/user-payment-failed';
 
 const NewContractStack = createNativeStackNavigator();
 
@@ -30,10 +31,15 @@ export const NewContractStackNavigator = () => {
         </NewContractStack.Screen>
 
         <NewContractStack.Screen name="user-payment-attempt-screen" component={UserPaymentAttemptScreen} options={{ headerShown: false }} />
-        <NewContractStack.Screen name="user-contracts-presenter-screen" component={ContractsPresenterScreen} options={{ headerBackVisible: true, headerShown: true, title: 'Planos' }} />
+        <NewContractStack.Screen
+          name="user-contracts-presenter-screen"
+          component={ContractsPresenterScreen}
+          options={{ headerBackVisible: true, headerShown: true, title: 'Planos' }}
+        />
         <NewContractStack.Screen name="user-contracts-payment-method" component={UserContractsPaymentMethod} options={{ headerShown: true, title: 'Forma de pagamento' }} />
         <NewContractStack.Screen name="user-contracts-payment-method-router" component={UserContractsPaymentMethodRouter} options={{ headerShown: true, title: 'Pagamento' }} />
         <NewContractStack.Screen name="user-contracts-payment-successfull" component={UserContractPaymentSuccessfull} options={{ headerShown: true, title: 'Pagamento' }} />
+        <NewContractStack.Screen name="user-contracts-payment-failed" component={UserContractPaymentFailed} options={{ headerShown: true, title: 'Pagamento' }} />
       </NewContractStack.Navigator>
     </AccquirePlanProvider>
   );

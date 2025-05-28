@@ -15,6 +15,9 @@ const UserScheduleCard = ({ index, appointment, onPress }: { index: number; appo
         <View style={{ flexDirection: 'row' }}>
           <View style={{ flex: 5 }}>
             <Text variant="titleMedium" style={styles.section}>
+              {formatDateToDDMMYYYY(appointment.data)}
+            </Text>
+            <Text variant="titleMedium" style={styles.section}>
               {appointment.nome_procedimento.join(', ')}
             </Text>
           </View>

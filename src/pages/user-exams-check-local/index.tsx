@@ -154,11 +154,11 @@ export default function UserExamsCheckLocal() {
             enablePanDownToClose
             handleIndicatorStyle={{ backgroundColor: colors.primary }}
             handleStyle={{
-              backgroundColor: colors.surfaceVariant,
+              backgroundColor: colors.background,
               borderTopLeftRadius: 14,
               borderTopRightRadius: 14,
             }}>
-            <BottomSheetView style={[styles.bottomSheetContainer, { backgroundColor: colors.surfaceVariant }]}>
+            <BottomSheetView style={[styles.bottomSheetContainer, { backgroundColor: colors.background }]}>
               {prices ? (
                 <View style={{ flex: 1, justifyContent: 'center' }}>
                   <Button
@@ -171,7 +171,7 @@ export default function UserExamsCheckLocal() {
                   </Button>
 
                   <Button mode="outlined" onPress={() => onTypeSelect(prices?.vlr_particular as number, 'particular')}>
-                    {`Continuar como particular: ${maskBrazilianCurrency(prices?.vlr_assinante as number)}`}
+                    {`Continuar como particular: ${maskBrazilianCurrency(prices?.vlr_particular as number)}`}
                   </Button>
                 </View>
               ) : (

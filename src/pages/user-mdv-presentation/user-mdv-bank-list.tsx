@@ -63,7 +63,7 @@ export default function UserMdvBankList() {
               <List.Item
                 title={item.des_descricao_ban}
                 description={item.des_tipo_pdb == 'poupanca' ? `Tipo: Poupança` : `Tipo: Corrente`}
-                // right={props => <List.Icon {...props} icon="chevron-right" />}
+                right={props => <List.Icon {...props} icon="chevron-right" />}
                 onPress={() => {}}
               />
             )}

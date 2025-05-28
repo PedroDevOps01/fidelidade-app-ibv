@@ -4,10 +4,12 @@ import { toast } from 'sonner-native';
 export default function CustomToast(
   title: string,
   colors: MD3Colors,
-  type: 'error' | 'success' | 'warning' = 'error'
+  type: 'error' | 'success' | 'warning' = 'error',
+  duration = 5000
 ) {
   const toastprops: any = {
     position: 'bottom-center',
+    duration,
     styles: {
       toast: {
         backgroundColor: colors.inverseSurface,

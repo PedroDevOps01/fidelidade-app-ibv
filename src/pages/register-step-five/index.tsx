@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert, BackHandler } from 'react-native';
 import { Button, ProgressBar, TextInput, useTheme } from 'react-native-paper';
 import { Controller, useForm } from 'react-hook-form';
@@ -12,13 +12,14 @@ import LoadingAlert from '../../components/loading-alert';
 import { useAuth } from '../../context/AuthContext';
 import { usePessoaCreate } from '../../context/create-pessoa-context';
 import { reset } from '../../router/navigationRef';
+import { useFocusEffect } from '@react-navigation/native';
 
 const RegisterStepFive = ({ route, navigation }: { route: any; navigation: any }) => {
   const theme = useTheme();
 
   const { dadosUsuarioData, setDadosUsuarioData } = useDadosUsuario();
   const { setAuthData } = useAuth();
-  const { clearPessoaCreateData } = usePessoaCreate();
+  const { clearPessoaCreateData, pessoaCreateData } = usePessoaCreate();
 
   type StepFiveSchemaFormType = z.infer<typeof stepFiveSchema>;
 
@@ -98,6 +99,23 @@ const RegisterStepFive = ({ route, navigation }: { route: any; navigation: any }
   const onError = (data: any) => {
     console.log('step four errors', JSON.stringify(data, null, 2));
   };
+
+
+  // se for dependente, nao cadastre senha
+  // useFocusEffect(
+  //   useCallback(() => {
+
+  //     //volte para a tela dos dependentes
+  //     if(pessoaCreateData.tipo == 'DEPENDENT') {
+
+  //       // manda pra tela de pagar 
+  //       reset([{name: 'user-dependents-screen'}])
+  //     }
+
+
+
+  //   }, [])
+  // )
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet, Image, FlatList } from 'react-native';
 import { Card, Text, useTheme, Divider, List, Avatar, Button } from 'react-native-paper';
 import { maskBrazilianCurrency } from '../../utils/app-utils';
 import ImageViewing from 'react-native-image-viewing';
@@ -17,9 +17,7 @@ const ExamsLocalsCard: React.FC<ExamsLocalsCardProps> = ({ data, onPress }) => {
 
   return (
     <View style={styles.card}>
-      
-      <ImageViewerPreview type='large' uri={data.fachada_empresa} onLong={() => {}} />
-
+      <ImageViewerPreview type="large" uri={data.fachada_empresa} onLong={() => {}} />
 
       <Card.Title
         title={data.empresa}
@@ -34,14 +32,18 @@ const ExamsLocalsCard: React.FC<ExamsLocalsCardProps> = ({ data, onPress }) => {
 
         <Text style={styles.sectionTitle}>Procedimentos</Text>
 
-        {data.procedimentos.map((proc, index) => (
-          <List.Item
-            key={index}
-            title={proc.nome}
-            description={`Assinatura: R$ ${maskBrazilianCurrency(proc.valor_assinatura)}${'\n'}Particular: R$ ${maskBrazilianCurrency(proc.valor_particular)}`}
-            left={props => <Avatar.Icon {...props} icon="medical-bag" style={{ backgroundColor: colors.primary }} color={colors.onPrimary} />}
-          />
-        ))}
+        <FlatList
+          data={data.procedimentos}
+          keyExtractor={(_, index) => index.toString()}
+          renderItem={({ item }) => (
+            <List.Item
+              title={item.nome}
+              description={`Assinatura: R$ ${maskBrazilianCurrency(item.valor_assinatura)}\nParticular: R$ ${maskBrazilianCurrency(item.valor_particular)}`}
+              left={props => <Avatar.Icon {...props} icon="medical-bag" style={{ backgroundColor: colors.primary }} color={colors.onPrimary} />}
+            />
+          )}
+          removeClippedSubviews={false}
+        />
 
         <Button mode="contained" key={'continue'} onPress={() => onPress(data)}>
           Continuar
@@ -55,7 +57,9 @@ const styles = StyleSheet.create({
   card: {
     margin: 12,
     borderRadius: 8,
-    elevation: 3,
+    borderWidth: 0.5,
+    padding: 10,
+    elevation: 0,
   },
   image: {
     borderTopLeftRadius: 8,

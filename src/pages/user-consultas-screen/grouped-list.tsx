@@ -11,48 +11,34 @@ interface GroupedListProps {
   loading: boolean;
 }
 
-const GroupedList = ({list, loading}: GroupedListProps) => {
-  const {colors} = useTheme();
+const GroupedList = ({ list, loading }: GroupedListProps) => {
+  const { colors } = useTheme();
 
-  const {currentProcedureMethod} = useConsultas();
-  const {addSelectedExam} = useExames();
+  const { currentProcedureMethod } = useConsultas();
+  const { addSelectedExam } = useExames();
 
-  const renderAccordion = ({item}: {item: [string, ConsultaReposta[]]}) => {
+  const renderAccordion = ({ item }: { item: [string, ConsultaReposta[]] }) => {
     const [grupo, procedimentos] = item;
 
     return (
-      <List.Accordion
-        title={grupo}
-        id={grupo}
-        style={[styles.groupContainer, {backgroundColor: colors.surface}]}
-        titleStyle={[styles.accordionTitle, {color: colors.primary}]}>
-        <FlatList
-          data={procedimentos}
-          keyExtractor={procedimento => procedimento.cod_procedimento}
-          renderItem={({item: procedimento}) => (
-            <List.Item
-              title={<Text style={[styles.listItemTitle, {color: colors.onSurface}]}>{procedimento.nome}</Text>}
-              description={
-                <Text
-                  style={[
-                    styles.listItemDescription,
-                    {color: colors.onSurfaceVariant},
-                  ]}>{`Código: ${procedimento.cod_procedimento}`}</Text>
+      <List.Accordion title={grupo} id={grupo} style={[styles.groupContainer, { backgroundColor: colors.surface }]} titleStyle={[styles.accordionTitle, { color: colors.primary }]}>
+        {procedimentos.map(procedimento => (
+          <List.Item
+            key={procedimento.cod_procedimento}
+            title={<Text style={[styles.listItemTitle, { color: colors.onSurface }]}>{procedimento.nome}</Text>}
+            description={<Text style={[styles.listItemDescription, { color: colors.onSurfaceVariant }]}>{`Código: ${procedimento.cod_procedimento}`}</Text>}
+            style={[styles.listItem, { backgroundColor: colors.surface, borderBottomColor: colors.onSurfaceVariant }]}
+            onPress={() => {
+              if (currentProcedureMethod == 'exame') {
+                addSelectedExam(procedimento);
+              } else {
+                navigate('user-procedure-details-screen', {
+                  procedimento,
+                });
               }
-              style={[styles.listItem, {backgroundColor: colors.surface, borderBottomColor: colors.onSurfaceVariant}]}
-              onPress={() => {
-                if (currentProcedureMethod == 'exame') {
-                  addSelectedExam(procedimento);
-                } else {
-                  navigate('user-procedure-details-screen', {
-                    procedimento,
-                  });
-                }
-              }}
-              removeClippedSubviews={false}
-            />
-          )}
-        />
+            }}
+          />
+        ))}
       </List.Accordion>
     );
   };
@@ -68,7 +54,7 @@ const GroupedList = ({list, loading}: GroupedListProps) => {
           data={groupedData}
           keyExtractor={item => item[0]} // O nome do grupo será a chave
           renderItem={renderAccordion}
-          style={{backgroundColor: colors.background}}
+          style={{ backgroundColor: colors.background }}
           removeClippedSubviews={false}
         />
       )}

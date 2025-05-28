@@ -21,30 +21,25 @@ import ParceiroLoggedDrawerNavigator from './parceiro-router';
 
 const RegistrationRouter = ({ initialRoute }: { initialRoute: string }) => {
   const theme = useTheme();
-  const {dadosUsuarioData} = useDadosUsuario()
+  const { dadosUsuarioData } = useDadosUsuario();
   const Stack = createNativeStackNavigator();
 
-
   function handleUserId() {
-    if(!dadosUsuarioData.user) {
-      return "user"
+    if (!dadosUsuarioData.user) {
+      return 'user';
     }
 
-    if(dadosUsuarioData.user.id_origem_usr == 0) {
-      return "user"
+    if (dadosUsuarioData.user.id_origem_usr == 0) {
+      return 'user';
     }
 
-
-    if(dadosUsuarioData.user.id_origem_usr == 2) {
-      return "user"
+    if (dadosUsuarioData.user.id_origem_usr == 2) {
+      return 'user';
     }
-    if(dadosUsuarioData.user.id_origem_usr == 14) {
-      return "partner"
+    if (dadosUsuarioData.user.id_origem_usr == 14) {
+      return 'partner';
     }
   }
-
-  console.log('handleUserId()', dadosUsuarioData.user.id_origem_usr, handleUserId())
-
 
   return (
     <PessoaCreateProvider>
@@ -60,32 +55,21 @@ const RegistrationRouter = ({ initialRoute }: { initialRoute: string }) => {
           headerShadowVisible: false,
           headerBackTitle: 'Voltar',
         }}>
-        {/* <Stack.Screen name="check-cpf" component={LoginCheckCpf} options={{ headerShown: false }} />
-        <Stack.Screen name="check-password" component={LoginCheckPassword} options={{ headerShown: true, title: 'Senha' }} /> */}
+        
         <Stack.Screen name="register-step-one" component={RegisterStepOne} options={{ headerShown: true, title: 'Cadastro' }} />
         <Stack.Screen name="register-step-two" component={RegisterStepTwo} options={{ headerShown: true, title: 'Endereço' }} />
         <Stack.Screen name="register-step-three" component={RegisterStepThree} options={{ headerShown: true, title: 'Dados pessoais' }} />
         <Stack.Screen name="register-step-four" component={RegisterStepFour} options={{ headerShown: true, title: 'Telefone' }} />
         <Stack.Screen name="register-step-five" component={RegisterStepFive} options={{ headerShown: true, title: 'Senha', headerBackVisible: false }} />
-
         <Stack.Screen name="user-telepet-stack" component={TelepetStackNavigator} options={{ headerShown: true, title: 'Telepet' }} />
         <Stack.Screen name="user-telemed-stack" component={TelemedcineStackNavigator} options={{ headerShown: true, title: 'Telemedicina' }} />
         <Stack.Screen name="user-contracts-stack" component={ContractsStackNavigator} options={{ headerShown: true, title: 'Meus Dados' }} />
-
-        
-        <Stack.Screen name="logged-home-screen" component={
-          handleUserId() === "user" ? LoggedDrawerNavigator : ParceiroLoggedDrawerNavigator
-            
-          } options={{ headerShown: false }} />
-        
-        
-        
+        <Stack.Screen name="logged-home-screen" component={handleUserId() === 'user' ? LoggedDrawerNavigator : ParceiroLoggedDrawerNavigator} options={{ headerShown: false }} />
         <Stack.Screen name="new-contract-stack" component={NewContractStackNavigator} options={{ headerShown: false }} />
         <Stack.Screen name="user-shcdules-history-screen" component={UserSchedulesHistoryScreen} options={{ headerShown: true, title: 'Meus agendamentos' }} />
-
         <Stack.Screen name="parceiro-produto-router" component={ParceiroProdutoCreateScreen} options={{ headerShown: true, title: 'Criar Produto' }} />
       
-      
+        
       
       
       

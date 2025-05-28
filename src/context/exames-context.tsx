@@ -12,6 +12,7 @@ type ExamesContextProps = {
   scheduleRequest: ScheduleRequest;
   setScheduleRequestData: (sheduleRequest: ScheduleRequest) => void;
   resetsetSelectedExamsState: () => void;
+  clearSelectedExams: () => void;
 };
 
 export const initialScheduleRequestState: ScheduleRequest = {
@@ -34,6 +35,7 @@ const ExamesContext = createContext<ExamesContextProps>({
   scheduleRequest: initialScheduleRequestState,
   setScheduleRequestData: () => {},
   resetsetSelectedExamsState: () => {},
+  clearSelectedExams: () => {},
 });
 
 export const ExamesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -113,6 +115,7 @@ export const ExamesProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         scheduleRequest,
         setScheduleRequestData,
         resetsetSelectedExamsState,
+        clearSelectedExams: () => setSelectedExamsData([])
       }}>
       {children}
       {selectedExams.length > 0 && <UserExamsBottomSheet ref={bottomSheetRef} />}

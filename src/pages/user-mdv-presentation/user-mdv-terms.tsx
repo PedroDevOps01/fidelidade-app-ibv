@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { MD3Colors } from 'react-native-paper/lib/typescript/types';
 import { api } from '../../network/api';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
-import { generateRequestHeader } from '../../utils/app-utils';
+import { generateRequestHeader, log } from '../../utils/app-utils';
 import { useAuth } from '../../context/AuthContext';
 import { navigate, reset } from '../../router/navigationRef';
 import LoadingFull from '../../components/loading-full';
@@ -20,24 +20,30 @@ export default function UserMdvTerms() {
   const { authData } = useAuth();
   const [accepted, setAccepted] = useState(false);
   const [creating, setCreating] = useState(false);
+
   const [message, setMessage] = useState<string>('');
 
   const navigate = useNavigation();
-
   // 1 - Criando dados bancários
   const creatingBankData = async () => {
     setMessage('Aguarde...');
-    setCreating(true);
+    //setCreating(true);
     let idPessoa = dadosUsuarioData.pessoaDados?.id_pessoa_pes;
-
     try {
-      const response = await api.post(`/pessoa/banco/${idPessoa}`, mdvBankData, generateRequestHeader(authData.access_token));
+
+      let data_to_sent = {
+        ...mdvBankData,
+        cod_agencia_validador_pdb: mdvBankData?.cod_agencia_validador_pdb.length == 0 ? "0" : mdvBankData?.cod_agencia_validador_pdb
+      }
+
+      const response = await api.post(`/pessoa/banco/${idPessoa}`, data_to_sent, generateRequestHeader(authData.access_token));
 
       if (response.status == 200) {
         const { data } = response;
         let id_pessoa_banco_pdb = data.pessoaBanco.id_pessoa_banco_pdb;
         creatingMdv(id_pessoa_banco_pdb);
-      } else {
+      }
+      else {
         Alert.alert('Erro ao cadastrar. Tente novamente mais tarde');
         return;
       }
@@ -96,7 +102,7 @@ export default function UserMdvTerms() {
       {creating ? (
         <LoadingFull title={message} />
       ) : (
-        <ScrollView keyboardShouldPersistTaps="handled">
+        <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           <Text variant="headlineMedium" style={{ fontWeight: 'bold', marginBottom: 10 }}>
             Termos de Uso para Vendedores
           </Text>

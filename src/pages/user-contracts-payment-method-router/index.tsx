@@ -61,6 +61,7 @@ export default function UserContractsPaymentMethodRouter() {
         id_origem_ctt: 12,
         dta_dia_cpc: Number(getCurrentDate().split('-')[2]),
         vlr_parcela_cpc: planoPagamento?.vlr_parcela_ppg,
+        is_mobile: true
       };
 
       const response = await api.post(`/contrato`, dataToSent, generateRequestHeader(authData.access_token));

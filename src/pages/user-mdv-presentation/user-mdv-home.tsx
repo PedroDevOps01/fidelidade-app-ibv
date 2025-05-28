@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Alert, SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, RefreshControl, SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Button, Icon, Menu, Text, useTheme } from 'react-native-paper';
 import { navigate } from '../../router/navigationRef';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -35,400 +35,7 @@ export default function UserMdvHome() {
     endDate: null,
   });
 
-  const [totalSales, setTotalSales] = useState<Sale[]>([
-    {
-      id_contrato_ctt: 8,
-      id_pessoa_ctt: 207,
-      des_nome_pes: 'Pedro Ian Pietro Campos',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 10000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-01',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 7,
-      id_pessoa_ctt: 206,
-      des_nome_pes: 'Nina Raquel Teixeira',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 25000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-02',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 7,
-      id_pessoa_ctt: 206,
-      des_nome_pes: 'Nina Raquel Teixeira',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 10000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-03',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 8,
-      id_pessoa_ctt: 207,
-      des_nome_pes: 'Pedro Ian Pietro Campos',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 10000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-04',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 7,
-      id_pessoa_ctt: 206,
-      des_nome_pes: 'Nina Raquel Teixeira',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 25000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-05',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 7,
-      id_pessoa_ctt: 206,
-      des_nome_pes: 'Nina Raquel Teixeira',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 10000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-06',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 8,
-      id_pessoa_ctt: 207,
-      des_nome_pes: 'Pedro Ian Pietro Campos',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 10000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-07',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 7,
-      id_pessoa_ctt: 206,
-      des_nome_pes: 'Nina Raquel Teixeira',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 25000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-08',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 7,
-      id_pessoa_ctt: 206,
-      des_nome_pes: 'Nina Raquel Teixeira',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 10000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-09',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 8,
-      id_pessoa_ctt: 207,
-      des_nome_pes: 'Pedro Ian Pietro Campos',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 10000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-10',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 7,
-      id_pessoa_ctt: 206,
-      des_nome_pes: 'Nina Raquel Teixeira',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 25000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-11',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 7,
-      id_pessoa_ctt: 206,
-      des_nome_pes: 'Nina Raquel Teixeira',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 10000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-12',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 8,
-      id_pessoa_ctt: 207,
-      des_nome_pes: 'Pedro Ian Pietro Campos',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 10000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-13',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 7,
-      id_pessoa_ctt: 206,
-      des_nome_pes: 'Nina Raquel Teixeira',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 25000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-14',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 7,
-      id_pessoa_ctt: 206,
-      des_nome_pes: 'Nina Raquel Teixeira',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 10000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-15',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 8,
-      id_pessoa_ctt: 207,
-      des_nome_pes: 'Pedro Ian Pietro Campos',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 10000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-16',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 7,
-      id_pessoa_ctt: 206,
-      des_nome_pes: 'Nina Raquel Teixeira',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 25000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-17',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 7,
-      id_pessoa_ctt: 206,
-      des_nome_pes: 'Nina Raquel Teixeira',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 10000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-18',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 8,
-      id_pessoa_ctt: 207,
-      des_nome_pes: 'Pedro Ian Pietro Campos',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 15432,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-19',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 7,
-      id_pessoa_ctt: 206,
-      des_nome_pes: 'Nina Raquel Teixeira',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 25123,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-20',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 7,
-      id_pessoa_ctt: 206,
-      des_nome_pes: 'Nina Raquel Teixeira',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 12444,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-21',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 8,
-      id_pessoa_ctt: 207,
-      des_nome_pes: 'Pedro Ian Pietro Campos',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 22222,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-22',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 7,
-      id_pessoa_ctt: 206,
-      des_nome_pes: 'Nina Raquel Teixeira',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 11111,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-23',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 7,
-      id_pessoa_ctt: 206,
-      des_nome_pes: 'Nina Raquel Teixeira',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 54321,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-24',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 7,
-      id_pessoa_ctt: 206,
-      des_nome_pes: 'Nina Raquel Teixeira',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 12345,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-25',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 7,
-      id_pessoa_ctt: 206,
-      des_nome_pes: 'Nina Raquel Teixeira',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 12000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-26',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 8,
-      id_pessoa_ctt: 207,
-      des_nome_pes: 'Pedro Ian Pietro Campos',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 17000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-27',
-      id_vendedor_mdv_ctt: 1,
-    },
-    {
-      id_contrato_ctt: 7,
-      id_pessoa_ctt: 206,
-      des_nome_pes: 'Nina Raquel Teixeira',
-      id_situacao_ctt: 15,
-      id_plano_pagamento_ctt: 1783,
-      num_parcelas_ppg: 1,
-      vlr_parcela_ppg: 29000,
-      des_nome_pla: 'INDIVIDUAL MENSAL',
-      des_nome_fmp: 'PIX (INTEGRACAO SISTEMA)',
-      id_situacao_cpp: 11,
-      dta_pagamento_cpp: '2025-02-28',
-      id_vendedor_mdv_ctt: 1,
-    },
-  ]);
+  const [totalSales, setTotalSales] = useState<Sale[]>([]);
 
   const data = dadosUsuarioData.pessoaMdv?.map(e => {
     let tipo = '';
@@ -475,7 +82,15 @@ export default function UserMdvHome() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      <ScrollView style={styles.container}>
+      <ScrollView contentContainerStyle={[styles.container, { flex: 1, backgroundColor: colors.background }]} refreshControl={
+        <RefreshControl
+          refreshing={loading}
+          onRefresh={() => {
+            fetchMonthlySales();
+          }
+        }
+        />
+      }>
         <View style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Text variant="titleLarge" style={{ fontWeight: 'bold' }}>
             Minhas vendas
@@ -523,10 +138,10 @@ export default function UserMdvHome() {
 
         <View style={{ gap: 10 }}>
           <SalesChart salesData={totalSales} loading={loading} />
-          <TotalSalesValue salesData={totalSales} />
+          <TotalSalesValue salesData={totalSales} currentMdv={value} />
           <CopyMdvLink id={value} />
 
-          <View style={[styles.cardContainer, { backgroundColor: colors.surfaceVariant }]}>
+          {/* <View style={[styles.cardContainer, { backgroundColor: colors.surfaceVariant }]}>
             <Text style={[styles.textCard, { color: colors.onSurface, marginBottom: 10 }]}>Meus dados Bancários</Text>
 
             <Button
@@ -537,7 +152,7 @@ export default function UserMdvHome() {
               }}>
               Consultar meus dados bancários
             </Button>
-          </View>
+          </View> */}
         </View>
       </ScrollView>
 
@@ -561,7 +176,7 @@ export default function UserMdvHome() {
               if (date) setDates(prev => ({ ...prev, endDate: date }));
             }}
             mode="date"
-            label="Data de nascimento"
+            label="Data"
           />
         </View>
 
@@ -592,7 +207,6 @@ export default function UserMdvHome() {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    gap: 100,
   },
   cardContainer: { height: 'auto', paddingVertical: 20, borderRadius: 12, padding: 12, overflow: 'hidden' },
   textCard: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
