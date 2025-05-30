@@ -1,12 +1,13 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {StyleSheet, View, Image, Clipboard} from 'react-native';
 import {Text, Card, Button, useTheme, ActivityIndicator} from 'react-native-paper';
-import {useRoute} from '@react-navigation/native';
+import {useFocusEffect, useRoute} from '@react-navigation/native';
 import {generateRequestHeader, getCurrentDate, maskBrazilianCurrency} from '../../utils/app-utils';
 import {api} from '../../network/api';
 import {useAuth} from '../../context/AuthContext';
 import LoadingFull from '../../components/loading-full';
 import {navigate} from '../../router/navigationRef';
+import { toast } from 'sonner-native';
 
 export default function UserPaymentScreen() {
   const route = useRoute();
@@ -17,10 +18,15 @@ export default function UserPaymentScreen() {
   const [pixResponse, setPixResponse] = useState<PixResponse>();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const copyToClipboard = (code: string) => {
-    Clipboard.setString(code);
-  };
+
+  const copyToClipboard = () => {
+      Clipboard.setString(pixResponse?.qrcode!);
+      toast.success('Codigo copiado!', {
+        position: 'bottom-center',
+      });
+    };
 
   async function fetchPayment(payload: any) {
     setLoading(true);
@@ -47,36 +53,49 @@ export default function UserPaymentScreen() {
   }
 
   async function checkPaid(cod_pagamento: string) {
-    try {
-      console.log('teste', cod_pagamento);
+    setErrorMessage('')
+    const response = await api.get(`/integracaoPagarMe/verificarPagamento?cod_pedido_pgm=${cod_pagamento}`, generateRequestHeader(authData.access_token));
+    
+    //log('response', response.data.response);
+    if (response.status == 200) {
+      const { data } = response; 
 
-      const response = await api.get(`/integracaoPagarMe/verificarPagamento?cod_pedido_pgm=${cod_pagamento}`, {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          Authorization: `bearer ${authData.access_token}`,
-        },
-      });
 
-      if (response.status == 200) {
-        //console.log(JSON.stringify(response.data, null, 2))
-        console.log(response.data.response[0].des_status_pgm);
-
-        if (response.data.response[0].des_status_pgm === 'paid') {
-          if (intervalRef.current) clearInterval(intervalRef.current);
-          navigate('user-payment-successfull-screen');
-        }
+      if (data.response[0].des_status_pgm == 'paid') {
+        //await getSignatureDataAfterPixPaid();
+        return
       }
-    } catch (err: any) {}
+  
+
+      if (data.response[0].des_status_pgm == 'failed') {
+        //navigate('user-contracts-payment-failed');
+        return
+      }
+
+
+      if (data.response[0].des_status_pgm == 'pending') {
+        console.log('pending');
+      }
+
+    } else {
+      // navegar para falha
+      setErrorMessage('Erro ao verificar pagamento');
+      setLoading(false);
+    }
   }
 
-  useEffect(() => {
-    if (pixResponse?.qrcode_url) {
-      intervalRef.current = setInterval(() => {
-        if (pixResponse!.codigoPagamento) checkPaid(pixResponse!.codigoPagamento); // Executa a função a cada 20 segundos
-      }, 20000);
-    }
-  }, [pixResponse]);
+  useFocusEffect(
+      useCallback(() => {
+        const interval = setInterval(() => {
+          checkPaid(pixResponse?.codigoPagamento!);
+        }, 20000);
+        return () => clearInterval(interval);
+      }, [pixResponse?.codigoPagamento, checkPaid]),
+    );
+
+
+
+
 
   useEffect(() => {
     (async () => {
@@ -104,13 +123,13 @@ export default function UserPaymentScreen() {
             />
             <Card.Content>
               <Text style={styles.text}>Valor da Parcela:</Text>
-              <Text style={styles.value}>R$: {maskBrazilianCurrency(pixResponse!.vlr_parcela_cpp ?? 0)}</Text>
+              <Text style={styles.value}>{maskBrazilianCurrency(pixResponse!.vlr_parcela_cpp ?? 0)}</Text>
 
               <View style={styles.qrContainer}>
                 <Text style={styles.text}>Escaneie o QR Code:</Text>
                 <Image source={{uri: pixResponse!.qrcode_url}} style={styles.qrCode} resizeMode="contain" />
               </View>
-              <Button mode='contained' style={{marginTop: 10}} onPress={() => copyToClipboard(pixResponse!.qrcode!)}>Copiar código</Button>
+              <Button mode='contained' style={{marginTop: 10}} onPress={() => copyToClipboard()}>Copiar código</Button>
             </Card.Content>
           </Card>
 

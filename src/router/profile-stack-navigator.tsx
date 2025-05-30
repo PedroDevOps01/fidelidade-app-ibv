@@ -27,7 +27,7 @@ const ProfileStackNavigator = () => {
         {props => <AuthenticationStackNavigator {...props} initialRouteName="user-login-screen" routeAfterLogin="Home" />}
       </ProfileStack.Screen>
 
-      <ProfileStack.Screen name="user-data-screen" component={UserDataScreen} options={{ headerShown: true, headerTitle: 'Login' }} />
+      <ProfileStack.Screen name="user-data-screen" component={UserDataScreen} options={{ headerShown: false }} />
       <ProfileStack.Screen name="user-personal-data-screen" component={UserPersonalDataScreen} options={{ headerTitle: 'Dados pessoais' }} />
       <ProfileStack.Screen name="user-personal-credit-cards-screen" component={CreditCardStackNavigator} options={{ headerTitle: 'Meus cartões de crédito' }} />
       <ProfileStack.Screen name="user-personal-carteirinha-screen" component={UserPersonalCarteirinhaScreen} options={{ headerShown: false, headerTitle: 'Carteirinha' }} />

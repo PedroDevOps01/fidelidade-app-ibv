@@ -9,6 +9,7 @@ import { api } from '../../network/api';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
 import CustomToast from '../../components/custom-toast';
 import ModalContainer from '../../components/modal';
+import { goBack } from '../../router/navigationRef';
 
 type UserMdvWithdrawRouteParams = {
   params: {
@@ -83,20 +84,22 @@ export default function UserMdvWithdraw() {
       );
 
       if (response.status === 200) {
-        if (response.data.data.original.error) {
-          Alert.alert('Aviso', response.data.data.original.error ?? "Erro ao solicitar transferência. Tente novamente mais tarde.");
-          return
+        if (!response.data.data.original.error) {
+          Alert.alert('Aviso', response.data.data.original.error ?? 'Erro ao solicitar transferência. Tente novamente mais tarde.');
+          return;
+        } else {
+          goBack();
+          CustomToast('Transferência solicitada com sucesso!', colors, 'success');
+          return;
         }
 
-        //goBack()
       }
     } catch (error) {
-      
+      CustomToast('Erro ao solicitar transferência. Tente novamente mais tarde.', colors, 'error');
     } finally {
       setIsWithdrawRequesting(false);
       setIsModalVisible(false);
     }
-    CustomToast('Erro ao solicitar transferência. Tente novamente mais tarde.', colors, 'error');
   }
 
   useEffect(() => {
@@ -176,12 +179,14 @@ export default function UserMdvWithdraw() {
                 Ao solicitar a transferência, o valor será debitado da sua conta de vendas e creditado na conta bancária informada.
               </Text>
               <Text style={{ textAlign: 'center', marginTop: 10, fontSize: 18 }}>
-                É necessário ter acima de <Text style={{ fontWeight: 'bold' }}>R$: 5,00</Text> para solicitar a transferência.
+                É necessário ter acima de <Text style={{ fontWeight: 'bold' }}>R$: 30,00</Text> para solicitar a transferência.
               </Text>
               <Text style={{ textAlign: 'center', marginTop: 10, fontSize: 18 }}>
                 Será debitado uma taxa de <Text style={{ fontWeight: 'bold' }}>R$: 3,67</Text> para cada transferência solicitada.
               </Text>
-              <Text style={{ textAlign: 'center', marginTop: 10, fontSize: 18 }}>A transferência será processada em até 3 dias úteis.</Text>
+              <Text style={{ textAlign: 'center', marginTop: 10, fontSize: 18 }}>
+                A transferência será processada no mesmo dia se solicitada até antes das 15h. Após isso, somente no próx. dia útil.
+              </Text>
             </Card.Content>
           </Card>
 
@@ -192,7 +197,7 @@ export default function UserMdvWithdraw() {
             mode="contained"
             key={value > 0 ? 'enabled' : 'disabled'}
             style={{ marginTop: 16, marginBottom: 16 }}
-            disabled={value > 500 || !bank}>
+            disabled={value < 30000 || !bank}>
             Solicitar Transferência
           </Button>
         </ScrollView>

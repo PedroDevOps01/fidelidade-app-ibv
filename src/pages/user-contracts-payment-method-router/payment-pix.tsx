@@ -237,7 +237,7 @@ export default function PaymentPix() {
 
                   {/* Valor */}
                   <Text variant="bodyMedium" style={{ textAlign: 'center', marginTop: 10 }}>
-                    Valor: <Text style={{ fontWeight: 'bold' }}>R$ {maskBrazilianCurrency(pixResponse?.vlr_parcela_cpp! ?? 0)}</Text>
+                    Valor: <Text style={{ fontWeight: 'bold' }}>{maskBrazilianCurrency(pixResponse?.vlr_parcela_cpp! ?? 0)}</Text>
                   </Text>
 
                   {/* Vencimento */}

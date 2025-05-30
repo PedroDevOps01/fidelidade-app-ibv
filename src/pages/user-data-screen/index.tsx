@@ -1,15 +1,27 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { List, useTheme } from 'react-native-paper';
+import { List, Text, useTheme } from 'react-native-paper';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
 import { navigate } from '../../router/navigationRef';
+import { useFocusEffect } from '@react-navigation/native';
 
 const UserDataScreen = ({ navigation }: { navigation: any }) => {
   const theme = useTheme();
   const { dadosUsuarioData } = useDadosUsuario();
 
+  useFocusEffect(
+    useCallback(() => {
+      navigation.setOptions({
+        title: 'Meus dados',
+      });
+    }, [navigation]),
+  );
+
   return (
     <View style={[styles.outerContainer, { backgroundColor: theme.colors.background }]}>
+      <Text variant="titleLarge" style={{ marginTop: 10, fontWeight: 'bold', paddingHorizontal: 16 }}>
+        Meus Dados
+      </Text>
       <View style={styles.innerContainer}>
         <List.Section>
           <List.Item
