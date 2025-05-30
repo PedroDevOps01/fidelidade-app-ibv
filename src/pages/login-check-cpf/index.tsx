@@ -77,6 +77,14 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
       const response = await api.post('/login', dataToSent);
       const loginData: LoginResponse = response.data;
 
+
+      if(loginData.user.is_ativo_usr == 0) {
+        CustomToast('Usuário inativo! Contate o suporte.', colors);
+        return
+      }
+
+
+
       setAuthData(loginData.authorization);
       setDadosUsuarioData({
         pessoa: { ...loginData.user, cod_cpf_pes: dataToSent.cpf },

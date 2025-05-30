@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Alert, RefreshControl, SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, RefreshControl, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Button, Icon, Menu, Text, useTheme } from 'react-native-paper';
 import { navigate } from '../../router/navigationRef';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -10,7 +10,6 @@ import { generateRequestHeader, log } from '../../utils/app-utils';
 import { useAuth } from '../../context/AuthContext';
 import TotalSalesValue from './charts/total-sales-value';
 import CopyMdvLink from './charts/copy-mdv-link';
-import { ScrollView } from 'react-native-gesture-handler';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import ModalContainer from '../../components/modal';
 import CustomDatePicker from '../../components/custom-date-picker';
@@ -73,7 +72,6 @@ export default function UserMdvHome() {
     }
   };
 
-  //log('dadosUsuarioData', dadosUsuarioData);
   const handleFocusEffect = useCallback(() => {
     fetchMonthlySales();
   }, [value]);
@@ -81,67 +79,78 @@ export default function UserMdvHome() {
   useFocusEffect(handleFocusEffect);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      <ScrollView contentContainerStyle={[styles.container, { flex: 1, backgroundColor: colors.background }]} refreshControl={
+    <ScrollView
+      contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}
+      refreshControl={
         <RefreshControl
           refreshing={loading}
           onRefresh={() => {
             fetchMonthlySales();
-          }
-        }
+          }}
         />
       }>
-        <View style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Text variant="titleLarge" style={{ fontWeight: 'bold' }}>
-            Minhas vendas
-          </Text>
+      <View style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Text variant="titleLarge" style={{ fontWeight: 'bold' }}>
+          Minhas vendas
+        </Text>
 
-          <Menu
-            visible={menuVisible}
-            onDismiss={() => setMenuVisible(false)}
-            anchor={
-              <TouchableOpacity onPress={() => setMenuVisible(true)}>
-                <Icon source={'menu'} size={30} />
-              </TouchableOpacity>
-            }>
-            <Menu.Item
-              onPress={() => {
-                setMenuVisible(false);
-                setPeriodModalVisible(true);
-              }}
-              title="Período"
-            />
-          </Menu>
-        </View>
-
-        <View style={[styles.cardContainer, { backgroundColor: colors.surfaceVariant, marginVertical: 10 }]}>
-          <Text style={[styles.textCard, { color: colors.onSurface, marginBottom: 10 }]}>Nível de vendedor:</Text>
-          <Dropdown
-            style={[styles.dropdown, { borderColor: colors.primary, backgroundColor: colors.primary }]}
-            placeholderStyle={styles.placeholderStyle}
-            selectedTextStyle={[styles.selectedTextStyle, { color: colors.onPrimary }]}
-            iconStyle={styles.iconStyle}
-            data={data!}
-            labelField="label"
-            valueField="value"
-            placeholder={!isFocus ? 'Select item' : '...'}
-            searchPlaceholder="Search..."
-            value={value ?? data![0]}
-            onFocus={() => setIsFocus(true)}
-            onBlur={() => setIsFocus(false)}
-            onChange={item => {
-              setValue(item.value);
-              setIsFocus(false);
+        <Menu
+          visible={menuVisible}
+          onDismiss={() => setMenuVisible(false)}
+          anchor={
+            <TouchableOpacity onPress={() => setMenuVisible(true)}>
+              <Icon source={'menu'} size={30} />
+            </TouchableOpacity>
+          }>
+          <Menu.Item
+            onPress={() => {
+              setMenuVisible(false);
+              setPeriodModalVisible(true);
             }}
+            title="Período"
           />
+        </Menu>
+      </View>
+
+      <View style={[styles.cardContainer, { backgroundColor: colors.surfaceVariant, marginVertical: 10 }]}>
+        <Text style={[styles.textCard, { color: colors.onSurface, marginBottom: 10 }]}>Nível de vendedor:</Text>
+        <Dropdown
+          style={[styles.dropdown, { borderColor: colors.primary, backgroundColor: colors.primary }]}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={[styles.selectedTextStyle, { color: colors.onPrimary }]}
+          iconStyle={styles.iconStyle}
+          data={data!}
+          labelField="label"
+          valueField="value"
+          placeholder={!isFocus ? 'Select item' : '...'}
+          searchPlaceholder="Search..."
+          value={value ?? data![0]}
+          onFocus={() => setIsFocus(true)}
+          onBlur={() => setIsFocus(false)}
+          onChange={item => {
+            setValue(item.value);
+            setIsFocus(false);
+          }}
+        />
+      </View>
+
+      <View style={{ gap: 10 }}>
+        <SalesChart salesData={totalSales} loading={loading} />
+        <View style={[styles.cardContainer, { backgroundColor: colors.surfaceVariant }]}>
+          <Text style={[styles.textCard, { color: colors.onSurface, marginBottom: 10 }]}>Meu Extrato</Text>
+          <Button
+            key={'get_extract'}
+            mode="contained"
+            onPress={() => {
+              navigate('user-mdv-sales-extract', { recipient_id: dadosUsuarioData.pessoaMdv?.filter(e => e.id_usuario_mdv_umv == value)[0].cod_recipients_umv });
+            }}>
+            Consultar extrato
+          </Button>
         </View>
+        <TotalSalesValue salesData={totalSales} currentMdv={value} />
+        <CopyMdvLink id={value} />
 
-        <View style={{ gap: 10 }}>
-          <SalesChart salesData={totalSales} loading={loading} />
-          <TotalSalesValue salesData={totalSales} currentMdv={value} />
-          <CopyMdvLink id={value} />
-
-          {/* <View style={[styles.cardContainer, { backgroundColor: colors.surfaceVariant }]}>
+        {/* <View style={[styles.cardContainer, { backgroundColor: colors.surfaceVariant }]}>
             <Text style={[styles.textCard, { color: colors.onSurface, marginBottom: 10 }]}>Meus dados Bancários</Text>
 
             <Button
@@ -153,8 +162,7 @@ export default function UserMdvHome() {
               Consultar meus dados bancários
             </Button>
           </View> */}
-        </View>
-      </ScrollView>
+      </View>
 
       <ModalContainer visible={periodModalVisible} handleVisible={() => setPeriodModalVisible(false)}>
         <View>
@@ -200,7 +208,7 @@ export default function UserMdvHome() {
           </Button>
         </View>
       </ModalContainer>
-    </SafeAreaView>
+    </ScrollView>
   );
 }
 

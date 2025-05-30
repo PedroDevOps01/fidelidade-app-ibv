@@ -10,6 +10,7 @@ import UserMdvSalesDetails from '../pages/user-mdv-presentation/user-mdv-sales-d
 import UserMdvTerms from '../pages/user-mdv-presentation/user-mdv-terms';
 import { NewContractStackNavigator } from './new-contract-stack-navigator';
 import UserMdvWithdraw from '../pages/user-mdv-presentation/user-mdv-withdraw';
+import UserMdvSalesExtract from '../pages/user-mdv-presentation/user-mdv-sales-extract';
 
 const MdvStack = createNativeStackNavigator();
 
@@ -37,7 +38,7 @@ export const MdvStackNavigator = () => {
         <MdvStack.Screen name="new-contract-navigator" component={NewContractStackNavigator} options={{ headerShown: false }} />
         <MdvStack.Screen name="user-mdv-sales-details" component={UserMdvSalesDetails} options={{ headerShown: true, title: 'Minhas vendas' }} />
         <MdvStack.Screen name="user-mdv-withdraw" component={UserMdvWithdraw} options={{ headerShown: true, title: 'Transferência' }} />
-        
+        <MdvStack.Screen name="user-mdv-sales-extract" component={UserMdvSalesExtract} options={{ headerShown: false}} />
       </MdvStack.Navigator>
     </CreateMdvProvider>
   );

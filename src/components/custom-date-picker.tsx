@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Platform, View, Button, Text, Pressable, StyleSheet } from "react-native";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
+import { useTheme } from "react-native-paper";
+import dayjs from 'dayjs';
 
 interface CustomDatePickerProps {
   value: Date | null;
@@ -19,6 +21,7 @@ export default function CustomDatePicker({
   display = "default",
   label = "Selecionar data",
 }: CustomDatePickerProps) {
+  const {colors} = useTheme()
   const [show, setShow] = useState(Platform.OS === "ios");
 
   const handleChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
@@ -29,8 +32,8 @@ export default function CustomDatePicker({
   return (
     <View style={styles.container}>
       {Platform.OS === "android" && (
-        <Pressable onPress={() => setShow(true)} style={styles.button}>
-          <Text style={styles.buttonText}>{label}: { value ? value.toLocaleDateString() : new Date().toLocaleDateString()}</Text>
+        <Pressable onPress={() => setShow(true)} style={[styles.button, {backgroundColor: colors.primary}]}>
+          <Text style={styles.buttonText}>{label}: { value ? dayjs(value).format("DD/MM/YYYY") : dayjs(new Date()).format("DD/MM/YYYY")}</Text>
         </Pressable>
       )}
 
@@ -56,7 +59,6 @@ const styles = StyleSheet.create({
   },
   button: {
     padding: 12,
-    backgroundColor: "#007bff",
     borderRadius: 8,
   },
   buttonText: {
