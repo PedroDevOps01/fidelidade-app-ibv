@@ -31,13 +31,14 @@ export default function UserMdvTerms() {
     let idPessoa = dadosUsuarioData.pessoaDados?.id_pessoa_pes;
     try {
 
+
       let data_to_sent = {
         ...mdvBankData,
         cod_agencia_validador_pdb: mdvBankData?.cod_agencia_validador_pdb.length == 0 ? "0" : mdvBankData?.cod_agencia_validador_pdb
       }
 
       const response = await api.post(`/pessoa/banco/${idPessoa}`, data_to_sent, generateRequestHeader(authData.access_token));
-
+      
       if (response.status == 200) {
         const { data } = response;
         let id_pessoa_banco_pdb = data.pessoaBanco.id_pessoa_banco_pdb;
@@ -48,7 +49,7 @@ export default function UserMdvTerms() {
         return;
       }
     } catch (err) {
-      console.log('1 err', err);
+      console.log('1 err', err.response.data);
       toast.error('Erro ao registrar dados bancários.', { position: 'bottom-center' });
       setCreating(false);
     }

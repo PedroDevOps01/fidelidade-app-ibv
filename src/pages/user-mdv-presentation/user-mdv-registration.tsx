@@ -36,8 +36,6 @@ export default function UserMdvRegistration() {
   const [banks, setBanks] = useState<Bank[]>([]);
   const [loadingBanks, setLoadingBanks] = useState<boolean>(false);
 
-
-
   // Bottom sheet control
   const bottomSheetRef = useRef<BottomSheet>(null);
 
@@ -77,7 +75,7 @@ export default function UserMdvRegistration() {
       cod_conta_validador_pdb: String(data.codContaValidadorPdb),
       des_tipo_pdb: String(data.desTipoPdb),
     };
-    
+
     if (newAccount) {
       setMdvBankData(data_to_sent);
       navigate('user-mdv-terms');
@@ -105,8 +103,6 @@ export default function UserMdvRegistration() {
     })();
   }, []);
 
-  
-
   return (
     <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}>
       <Text variant="titleLarge" style={{ fontWeight: 'bold', marginVertical: 10 }}>
@@ -122,7 +118,7 @@ export default function UserMdvRegistration() {
             <Dropdown
               disable={loadingBanks}
               search
-              inputSearchStyle={{backgroundColor: colors.background}}
+              inputSearchStyle={{ backgroundColor: colors.background }}
               containerStyle={{ backgroundColor: colors.background }}
               style={[styles.dropdown, { borderRadius: 4, borderWidth: 2, borderColor: errors.codBancoPdb ? colors.error : 'black' }]}
               placeholderStyle={styles.placeholderStyle}
@@ -132,7 +128,7 @@ export default function UserMdvRegistration() {
               data={banks.map(e => ({ label: e.des_descricao_ban, value: e.cod_banco_ban }))}
               labelField="label"
               valueField="value"
-              placeholder={loadingBanks ? 'Carregando bancos...' :'Selecione'}
+              placeholder={loadingBanks ? 'Carregando bancos...' : 'Selecione'}
               searchPlaceholder="Pesquise"
               value={value}
               onChange={item => {
@@ -156,7 +152,10 @@ export default function UserMdvRegistration() {
               itemContainerStyle={{ backgroundColor: colors.background }}
               itemTextStyle={{ color: colors.primary }}
               iconStyle={styles.iconStyle}
-              data={[{label: 'Poupança', value: 'poupanca'}, {label: 'corrente', value: 'Corrente'}].map(e => ({ label: e.label, value: e.value }))}
+              data={[
+                { label: 'Poupança', value: 'poupanca' },
+                { label: 'Corrente', value: 'corrente' },
+              ].map(e => ({ label: e.label, value: e.value }))}
               labelField="label"
               valueField="value"
               placeholder={'Selecione'}
