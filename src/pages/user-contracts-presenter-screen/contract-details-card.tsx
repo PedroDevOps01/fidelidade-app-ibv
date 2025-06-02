@@ -26,7 +26,7 @@ export default function ContractDetailCard({ contract, onPress }: ContractDetail
           </Text>
         )}
 
-        <Text style={{ fontSize: 20, color: '#4CAF50', fontWeight: 'bold' }}>Valor do plano: R$ {maskBrazilianCurrency(contract.vlr_adesao_pla!)}</Text>
+        <Text style={{ fontSize: 20, color: '#4CAF50', fontWeight: 'bold' }}>Valor do plano: {maskBrazilianCurrency(contract.vlr_adesao_pla!)}</Text>
       </Card.Content>
     </TouchableRipple>
   );

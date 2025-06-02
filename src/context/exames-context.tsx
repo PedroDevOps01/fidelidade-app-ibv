@@ -54,7 +54,7 @@ export const ExamesProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (selectedExams.some(item => item.nome === exam.nome)) {
         throw new Error('Exame já adicionado no carrinho');
       }
-      toast.success(`Procedimento ${exam.nome} adicionado ao carrinho!`, { position: 'bottom-center' });
+      toast.success(`Procedimento ${exam.nome} adicionado ao carrinho!`, { position: 'bottom-center', close: true });
 
       const updatedItems = [...selectedExams, exam];
       setSelectedExamsState(updatedItems);

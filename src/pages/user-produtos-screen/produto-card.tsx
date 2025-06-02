@@ -27,7 +27,7 @@ const ProdutoCard = ({ item, navigation }: ProdutoCardProps) => {
 
       <Card.Content>
         <Text variant="titleMedium" style={{ fontWeight: 'bold', marginBottom: 4 }}>
-          R$ {maskBrazilianCurrency(item.vlr_produto_ppc)}
+          {maskBrazilianCurrency(item.vlr_produto_ppc)}
         </Text>
         <Text variant="bodySmall" style={{ color: colors.onSurfaceVariant }}>
           {item.nome_categoria_cpp}

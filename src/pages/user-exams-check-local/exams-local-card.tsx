@@ -38,7 +38,7 @@ const ExamsLocalsCard: React.FC<ExamsLocalsCardProps> = ({ data, onPress }) => {
           renderItem={({ item }) => (
             <List.Item
               title={item.nome}
-              description={`Assinatura: R$ ${maskBrazilianCurrency(item.valor_assinatura)}\nParticular: R$ ${maskBrazilianCurrency(item.valor_particular)}`}
+              description={`Assinatura: ${maskBrazilianCurrency(item.valor_assinatura)}\nParticular: ${maskBrazilianCurrency(item.valor_particular)}`}
               left={props => <Avatar.Icon {...props} icon="medical-bag" style={{ backgroundColor: colors.primary }} color={colors.onPrimary} />}
             />
           )}

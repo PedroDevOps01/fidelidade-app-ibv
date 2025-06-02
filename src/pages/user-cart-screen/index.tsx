@@ -24,7 +24,7 @@ const UserCartScreen = ({ route, navigation }: { route: any; navigation: any }) 
           </Title>
           {item.obs_item_crt ? <Text>Observação: {item.obs_item_crt}</Text> : null}
 
-          <Text>R$ {maskBrazilianCurrency(item.vlr_produto_ppc)}</Text>
+          <Text>{maskBrazilianCurrency(item.vlr_produto_ppc)}</Text>
         </View>
 
         <IconButton icon="trash-can-outline" iconColor={colors.onErrorContainer} size={30} onPress={() => removeItemFromCart(index)} />
@@ -62,7 +62,7 @@ const UserCartScreen = ({ route, navigation }: { route: any; navigation: any }) 
           <Icon name="plus" size={14} />
         </Button>
 
-        {/* <Text style={styles.totalText}>Total: R$ {maskBrazilianCurrency(cart.total_cart_value)}</Text>
+        {/* <Text style={styles.totalText}>Total: {maskBrazilianCurrency(cart.total_cart_value)}</Text>
          */}
         <Button mode="contained" key={'finalize_byu'} onPress={handleFinalizarBtnPress} disabled={cart.items_cart.length === 0} style={{ width: 'auto' }}>
           {`Finalizar Compra R$ ${maskBrazilianCurrency(cart.total_cart_value)}`}

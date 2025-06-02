@@ -32,13 +32,13 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
       icon: 'calendar-today',
       onPress: () => handleFabPress('consulta'),
       label: 'Nova consulta',
-      style: { backgroundColor: colors.primary }
+      style: { backgroundColor: colors.primary },
     },
     {
       icon: 'stethoscope',
       onPress: () => handleFabPress('exame'),
       label: `${selectedExams.length > 0 ? 'Adicionar' : 'Novo'} exame`,
-      style: { backgroundColor: colors.primary }
+      style: { backgroundColor: colors.primary },
     },
     {
       icon: 'history',
@@ -46,7 +46,7 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
         navigate('user-shcdules-history-screen');
       },
       label: 'Meus agendamentos realizados',
-      style: { backgroundColor: colors.primary }
+      style: { backgroundColor: colors.primary },
     },
   ];
 
@@ -58,8 +58,9 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
     if (selectedExams.length > 0) {
       setFabOptions(prev => {
         const hasOption = prev.some(option => option.label === 'Visualizar Agendamentos');
-
-        if (hasOption) return prev; // Evita adicionar duplicatas
+        const meuCarrinho = prev.some(option => option.label === 'Meu carrinho');
+        
+        if (hasOption || meuCarrinho) return prev; // Evita adicionar duplicatas
 
         return [
           ...prev,
@@ -67,7 +68,7 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
             icon: 'calendar-today',
             onPress: () => openBottomSheet(),
             label: 'Meu carrinho',
-            style: { backgroundColor: colors.primary }
+            style: { backgroundColor: colors.primary },
           },
         ];
       });

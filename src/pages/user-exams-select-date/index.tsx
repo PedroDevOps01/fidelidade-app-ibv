@@ -7,6 +7,7 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import dayjs from 'dayjs';
 import { ScrollView } from 'react-native-gesture-handler';
 import { navigate } from '../../router/navigationRef';
+import CustomDatePicker from '../../components/custom-date-picker';
 
 type UserExamsSelectDateRouteParams = {
   params: {
@@ -85,14 +86,20 @@ export default function UserExamsSelectDate() {
 
           <Card.Actions>
             <View style={{ width: '100%' }}>
-              
-              
               <Text variant="bodyMedium" style={{ marginBottom: 10, textAlign: 'center' }}>
                 Selecione uma data:
               </Text>
-              <Button mode="contained" onPress={() => setShow(true)} contentStyle={{ width: '100%' }}>
+
+              {/* <Button mode="contained" onPress={() => setShow(true)} contentStyle={{ width: '100%' }}>
                 {date ? dayjs(date).format('DD/MM/YYYY') : 'Selecionar Data'}
-              </Button>
+              </Button> */}
+
+              <CustomDatePicker
+                value={date}
+                onChange={onChange}
+                mode="date"
+                label="Data"
+              />
             </View>
           </Card.Actions>
         </Card.Content>
@@ -113,18 +120,9 @@ export default function UserExamsSelectDate() {
       {Platform.OS === 'ios' && (
         <Modal transparent={true} visible={show} onRequestClose={() => setShow(false)}>
           <View style={styles.modalContainer}>
-            <View style={[styles.modalContent, {backgroundColor: colors.surfaceVariant}]}>
-              
-              <RNDateTimePicker
-                value={date}
-                minimumDate={today}
-                maximumDate={maxDate}
-                display="spinner"
-                onChange={onChange}
-                locale="pt-BR"
-                themeVariant='light'
-              />
-              
+            <View style={[styles.modalContent, { backgroundColor: colors.surfaceVariant }]}>
+              <RNDateTimePicker value={date} minimumDate={today} maximumDate={maxDate} display="spinner" onChange={onChange} locale="pt-BR" themeVariant="light" />
+
               <Button mode="contained" onPress={() => setShow(false)}>
                 Confirmar
               </Button>
