@@ -7,7 +7,7 @@ import {
 } from "../../form-objects/credit-card-form-object";
 import { zodResolver } from "@hookform/resolvers/zod";
 import UserCreditCard from "./user-credit-card";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { generateRequestHeader, getCardBrand, log } from "../../utils/app-utils";
 import { ScrollView } from "react-native-gesture-handler";
 import { useDadosUsuario } from "../../context/pessoa-dados-context";
@@ -19,7 +19,7 @@ import {
   CreditCardView,
 } from "react-native-credit-card-input";
 
-export default function UserCreateCreditCard() {
+export default function UserCreateCreditCard({navigation}: {navigation: any}) {
   const { colors } = useTheme();
   const { dadosUsuarioData } = useDadosUsuario();
   const { authData } = useAuth();
@@ -52,6 +52,12 @@ export default function UserCreateCreditCard() {
 
   const cardValues = watch();
   const cardBrand = getCardBrand(watch("number"));
+
+
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
+
 
   useEffect(() => {
     setValue("brand", cardBrand ?? "");

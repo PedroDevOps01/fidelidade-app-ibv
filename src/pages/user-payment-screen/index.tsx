@@ -62,13 +62,13 @@ export default function UserPaymentScreen() {
 
 
       if (data.response[0].des_status_pgm == 'paid') {
-        //await getSignatureDataAfterPixPaid();
+        navigate('user-payment-successfull-screen')
         return
       }
   
 
       if (data.response[0].des_status_pgm == 'failed') {
-        //navigate('user-contracts-payment-failed');
+        //('user-contracts-payment-failed');
         return
       }
 

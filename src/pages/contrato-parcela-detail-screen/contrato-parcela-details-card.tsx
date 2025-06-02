@@ -11,7 +11,7 @@ const ContratoParcelaDetailsCard = ({ item }: { item: ContratoParcelaDetails }) 
     <Card
       style={[styles.card, { backgroundColor: colors.background }]}
       onPress={() => {
-        if (item.des_descricao_tsi) return;
+        if (item.des_descricao_tsi?.includes("Pago")) return;
         navigate('user-contratos-payment-resume-screen', { item });
       }}>
       <Card.Title title={`Parcela #${item.cod_numparcela_cpc}`} subtitle={`Valor: R$ ${convertToReais(item.vlr_parcela_cpc)}`} />
