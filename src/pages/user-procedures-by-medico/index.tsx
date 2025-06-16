@@ -136,7 +136,7 @@ export default function UserProceduresByMedico({navigation, route}: UserProcedur
           placeholder={'Pesquisar procedimento'}
           onChangeText={setSearchQuery}
           value={searchQuery}
-          style={{marginTop: 12, marginBottom: 6}}
+          style={{marginTop: 12, marginBottom: 6, borderWidth: 1, borderColor: colors.secondaryContainer}}
           loading={loading}
         />
       </View>

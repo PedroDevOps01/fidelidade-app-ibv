@@ -166,15 +166,15 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
               )}
             />
 
-            <Button key={!isConnected ? 'disabled' : 'login'} disabled={!isConnected} mode="contained" onPress={handleSubmit(handleLogin)} loading={loading} style={styles.button}>
+            <Button key={!isConnected ? 'disabled' : 'login'} disabled={!isConnected || loading} mode="contained" onPress={handleSubmit(handleLogin)} loading={loading} style={styles.button}>
               {loading ? 'Aguarde' : 'Continuar'}
             </Button>
 
-            <Button disabled={!isConnected} mode="outlined" onPress={() => navigation.navigate('register-step-one', { tipo: 'NEW_USER' })} style={styles.registerButton}>
+            <Button disabled={!isConnected || loading} mode="outlined" onPress={() => navigation.navigate('register-step-one', { tipo: 'NEW_USER' })} style={styles.registerButton}>
               Criar minha conta
             </Button>
 
-            <Button disabled={!isConnected} mode="text" onPress={() => setIsRecoverPassworrdModalVisible(true)} style={{ marginTop: 10, width: '100%' }}>
+            <Button disabled={!isConnected || loading} mode="text" onPress={() => setIsRecoverPassworrdModalVisible(true)} style={{ marginTop: 10, width: '100%' }}>
               Esqueci minha senha
             </Button>
           </View>

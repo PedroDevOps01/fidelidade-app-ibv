@@ -148,7 +148,7 @@ export default function UserConsultasScreen({ navigation }: { navigation: any })
         placeholder={currentMethod === 'consulta' ? 'Pesquise o procedimento' : 'Pesquise o profissional'}
         onChangeText={setSearchQuery}
         value={searchQuery}
-        style={{ margin: 8, backgroundColor: colors.secondaryContainer }}
+        style={{ margin: 8, borderWidth: 1, borderColor: colors.secondaryContainer }}
       />
       <TabsProvider
         defaultIndex={0}

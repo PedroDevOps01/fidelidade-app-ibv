@@ -192,7 +192,6 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
                   placeholder="Pesquisar Profissional"
                   onChangeText={setSearchQuery}
                   value={searchQuery}
-                  style={{  backgroundColor: colors.secondaryContainer }}
                   loading={loading}
                 />
               </View>
