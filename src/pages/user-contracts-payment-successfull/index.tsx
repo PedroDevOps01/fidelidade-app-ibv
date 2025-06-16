@@ -14,10 +14,11 @@ export default function UserContractPaymentSuccessfull() {
 
   const handlePress = async () => {
     //fazer fetch novamente para atualizar o context
-
+    goHome();
     const response = await api.get(`/refresh/${dadosUsuarioData.pessoaDados?.id_pessoa_pes}`, generateRequestHeader(authData.access_token));
 
     if (response.status == 200) {
+      console.log('200');
       const { data } = response;
 
       setDadosUsuarioData({
@@ -25,11 +26,9 @@ export default function UserContractPaymentSuccessfull() {
         pessoaDados: data.dados,
         pessoaAssinatura: data.assinatura,
         errorCadastroPagarme: data.errorCadastroPagarme,
-        user: data.user
+        user: data.user,
       });
     }
-
-    goHome()
   };
 
   return (

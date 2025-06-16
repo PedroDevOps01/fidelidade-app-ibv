@@ -20,6 +20,7 @@ export default function ContractsPresenterScreen() {
   const [plans, setPlans] = useState<Plano[]>([]);
 
   async function fetchPlans() {
+    setLoading(true)
     try {
       const response = await api.get('/plano?is_ativo_pla=1', generateRequestHeader(authData?.access_token));
       const { data } = response;

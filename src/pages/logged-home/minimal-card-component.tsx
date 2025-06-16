@@ -8,13 +8,13 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const MinimalCardComponent = ({ item, colors }: { item: CardData; colors: MD3Colors }) => {
   const { dadosUsuarioData } = useDadosUsuario();
-
+  
   return (
     <Card
       style={[styles.card, { borderColor: colors.onSurfaceVariant }]}
       mode="elevated"
       onPress={() => {
-        if ((item.route == 'user-telepet-screen' || item.route == 'user-telemed-screen') && !dadosUsuarioData.pessoaAssinatura?.assinatura_liberada) {
+        if ((item.route == 'user-telepet-screen' || item.route == 'user-telemed-screen') && dadosUsuarioData.pessoaAssinatura?.assinatura_liberada) {
           navigate('new-contract-stack');
           return;
         }

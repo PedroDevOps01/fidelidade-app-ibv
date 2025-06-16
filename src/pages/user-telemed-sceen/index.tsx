@@ -52,6 +52,9 @@ const UserTelemedScreen = () => {
       return;
     }
 
+    
+
+
     //navigate('user-telemed-meet-screen')
     navigate('user-telemed-queue-screen');
   };

@@ -64,8 +64,9 @@ export default function PaymentCreditCard() {
   }, [navigation]);
 
   const handleBackButtonPress = async () => {
-    await api.delete(`/contrato/${contratoCreated?.id_contrato_ctt}`, generateRequestHeader(authData.access_token));
     goBack();
+    await api.delete(`/contrato/${contratoCreated?.id_contrato_ctt}`, generateRequestHeader(authData.access_token));
+    
   };
 
   async function getSignatureDataAfterPaid() {

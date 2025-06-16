@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { List, Text, useTheme } from 'react-native-paper';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
 import { navigate } from '../../router/navigationRef';
@@ -18,7 +18,7 @@ const UserDataScreen = ({ navigation }: { navigation: any }) => {
   );
 
   return (
-    <View style={[styles.outerContainer, { backgroundColor: theme.colors.background }]}>
+    <SafeAreaView style={[styles.outerContainer, { backgroundColor: theme.colors.background }]}>
       <Text variant="titleLarge" style={{ marginTop: 10, fontWeight: 'bold', paddingHorizontal: 16 }}>
         Meus Dados
       </Text>
@@ -65,7 +65,7 @@ const UserDataScreen = ({ navigation }: { navigation: any }) => {
           )}
         </List.Section>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
