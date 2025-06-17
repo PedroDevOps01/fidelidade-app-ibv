@@ -82,7 +82,7 @@ android {
         applicationId "br.com.henriquelabs.fidelidadeappajudda"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 18
+        versionCode 19
         versionName "1.2"
     }
     signingConfigs {
