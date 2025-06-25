@@ -18,6 +18,8 @@ import ModalContainer from '../../components/modal';
 import EsqueceuSenhaForm from './esqueceu-senha-form';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const LAST_LOGGED_CPF_KEY = 'last_logged_cpf';
+
 export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigation: any; routeAfterLogin: string }) {
   const { colors } = useTheme();
   const [loading, setLoading] = useState<boolean>(false);
@@ -36,9 +38,11 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
     control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<LoginFormType>({
     resolver: zodResolver(LoginSchema),
+    defaultValues: { cpf: '', password: '' },
   });
 
   useEffect(() => {
@@ -50,6 +54,21 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
       }
     })();
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const savedCpf = await AsyncStorage.getItem(LAST_LOGGED_CPF_KEY);
+        if (savedCpf) {
+          const masked =
+            savedCpf.length > 11 ? applyCnpjMask(savedCpf) : applyCpfMask(savedCpf);
+          setValue('cpf', masked);
+        }
+      } catch (err) {
+        console.log('Failed to load last logged CPF:', err);
+      }
+    })();
+  }, [setValue]);
 
   const handleLogin = async (form: LoginFormType) => {
     setLoading(true);
@@ -104,6 +123,11 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
       if (token) {
         //enviar dados do device
         await api.post('/usuarioDevice', deviceData, generateRequestHeader(loginData.authorization.access_token));
+      }
+      try {
+        await AsyncStorage.setItem(LAST_LOGGED_CPF_KEY, dataToSent.cpf);
+      } catch (err) {
+        console.log('Failed to save last logged CPF:', err);
       }
       reset([{ name: routeAfterLogin }]);
     } catch (err) {
