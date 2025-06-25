@@ -83,7 +83,7 @@ const RegisterStepFive = ({ route, navigation }: { route: any; navigation: any }
 
         clearPessoaCreateData();
         reset([{name: 'logged-home-screen'}], 0);
-        navigate('user-contracts-stack');
+        
       }
     } catch (err: any) {
       const statusCode = err.response?.status;

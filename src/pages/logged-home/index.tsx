@@ -1,7 +1,7 @@
 import { View, StyleSheet, FlatList, ScrollView, SafeAreaView } from 'react-native';
 import { Card, useTheme, Text, Portal, ActivityIndicator, Avatar } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { card_data } from './card_data';
 import { promotion_data } from './promotion_data';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
@@ -30,10 +30,16 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   const [schedulesLoading, setSchedulesLoading] = useState<boolean>(false);
 
   const [loading, setLoading] = useState<boolean>(false);
-
   const isLogged = !dadosUsuarioData.user.id_usuario_usr ? false : true;
 
 
+  useEffect(() => {
+    if(dadosUsuarioData.pessoa?.cod_cep_pda != '' && !dadosUsuarioData.pessoaAssinatura) {
+      navigation.navigate('user-contracts-stack');
+    }
+  }, [dadosUsuarioData])
+
+  
   useFocusEffect(
     useCallback(() => {
       if (dadosUsuarioData.user.id_usuario_usr != 0 && authData.access_token != '') {
