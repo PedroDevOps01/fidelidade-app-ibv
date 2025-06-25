@@ -9,7 +9,7 @@ const UserScheduleCard = ({ index, appointment, onPress }: { index: number; appo
       <Card.Title
         title={appointment.nome_profissional}
         subtitle={appointment.contato_paciente ? `Contato: ${applyPhoneMask(appointment.contato_paciente)}` : ''}
-        left={props => <Avatar.Image {...props} source={{ uri: appointment.fachada_profissional }} size={50} />}
+        left={props => <Avatar.Image {...props} source={{ uri: appointment.fachada_profissional }} size={50} style={{backgroundColor: 'transparent'}} />}
       />
       <Card.Content>
         <View style={{ flexDirection: 'row' }}>

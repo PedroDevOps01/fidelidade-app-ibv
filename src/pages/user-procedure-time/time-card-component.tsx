@@ -111,6 +111,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 8,
+    resizeMode: 'contain'
   },
   timeButton: {
     paddingVertical: 10, // Altura do botão controlada pelo padding

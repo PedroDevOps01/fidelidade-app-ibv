@@ -206,7 +206,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                   <Card.Title
                     title={userSchedules[0].nome_procedimento}
                     subtitle={` ${userSchedules[0].nome_profissional ?? 'Exame'} \nData:${formatDateToDDMMYYYY(userSchedules[0].data)}`}
-                    left={props => <Avatar.Image {...props} source={{ uri: userSchedules[0].fachada_profissional }} size={50} />}
+                    left={props => <Avatar.Image style={{backgroundColor: 'transparent'}} {...props} source={{ uri: userSchedules[0].fachada_profissional }} size={50} />}
                     subtitleNumberOfLines={2}
                   />
                 </Card>
