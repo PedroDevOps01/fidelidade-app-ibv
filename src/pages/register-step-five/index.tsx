@@ -11,7 +11,7 @@ import FormErrorLabel from '../../components/form-error-label';
 import LoadingAlert from '../../components/loading-alert';
 import { useAuth } from '../../context/AuthContext';
 import { usePessoaCreate } from '../../context/create-pessoa-context';
-import { reset } from '../../router/navigationRef';
+import { reset, navigate } from '../../router/navigationRef';
 import { useFocusEffect } from '@react-navigation/native';
 
 const RegisterStepFive = ({ route, navigation }: { route: any; navigation: any }) => {
@@ -83,6 +83,7 @@ const RegisterStepFive = ({ route, navigation }: { route: any; navigation: any }
 
         clearPessoaCreateData();
         reset([{name: 'logged-home-screen'}], 0);
+        navigate('user-contracts-stack');
       }
     } catch (err: any) {
       const statusCode = err.response?.status;
