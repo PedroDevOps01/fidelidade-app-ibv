@@ -25,21 +25,19 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
 
   const [pagarmeErrors, setPagarmeErrors] = useState<ErrorCadastroPagarme | null>();
   const [pagarmeErrorsDialogVisible, setPagarmeErrorsDialogVisible] = useState<boolean>(false);
-  //const [inadimplencias, setInadimplencias] = useState<PessoaAssinaturaInadimplencia[] | null>();
+  // const [inadimplencias, setInadimplencias] = useState<PessoaAssinaturaInadimplencia[] | null>();
   const [inadimplenciasDialogVisible, setInadimplenciasDialogVisible] = useState<boolean>(false);
   const [schedulesLoading, setSchedulesLoading] = useState<boolean>(false);
 
   const [loading, setLoading] = useState<boolean>(false);
   const isLogged = !dadosUsuarioData.user.id_usuario_usr ? false : true;
 
-
   useEffect(() => {
-    if(dadosUsuarioData.pessoa?.cod_cep_pda != '' && !dadosUsuarioData.pessoaAssinatura) {
+    if (dadosUsuarioData.pessoa?.cod_cep_pda != undefined && !dadosUsuarioData.pessoaAssinatura) {
       navigation.navigate('user-contracts-stack');
     }
-  }, [dadosUsuarioData])
+  }, [dadosUsuarioData]);
 
-  
   useFocusEffect(
     useCallback(() => {
       if (dadosUsuarioData.user.id_usuario_usr != 0 && authData.access_token != '') {
@@ -201,12 +199,13 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                     marginTop: 16,
                     padding: 4,
                     paddingLeft: 0,
-                    borderWidth: 0.3, borderColor: colors.onSurfaceVariant
+                    borderWidth: 0.3,
+                    borderColor: colors.onSurfaceVariant,
                   }}>
                   <Card.Title
                     title={userSchedules[0].nome_procedimento}
                     subtitle={` ${userSchedules[0].nome_profissional ?? 'Exame'} \nData:${formatDateToDDMMYYYY(userSchedules[0].data)}`}
-                    left={props => <Avatar.Image style={{backgroundColor: 'transparent'}} {...props} source={{ uri: userSchedules[0].fachada_profissional }} size={50} />}
+                    left={props => <Avatar.Image style={{ backgroundColor: 'transparent' }} {...props} source={{ uri: userSchedules[0].fachada_profissional }} size={50} />}
                     subtitleNumberOfLines={2}
                   />
                 </Card>
@@ -229,7 +228,8 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
               padding: 4,
               paddingLeft: 0,
               marginBottom: 10,
-              borderWidth: 0.3, borderColor: colors.onSurfaceVariant
+              borderWidth: 0.3,
+              borderColor: colors.onSurfaceVariant,
             }}>
             <Card.Title
               title="Veja seus agendamentos realizados"
