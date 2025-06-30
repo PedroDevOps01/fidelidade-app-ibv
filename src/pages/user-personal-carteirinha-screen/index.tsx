@@ -34,7 +34,7 @@ const UserPersonalCarteirinhaScreen = ({ navigation }: { navigation: any }) => {
   const cardWidth = isZoomed ? windowHeight * 0.8 : windowWidth * 0.9;
 
   return (
-<View style={[styles.mainContainer, { backgroundColor: '#ffffff' }]}>
+<View style={[styles.mainContainer, { backgroundColor: '#FEF7FF' }]}>
       {/* Header branco com título */}
       <View style={[styles.header, isZoomed && styles.hidden]}>
         <IconButton
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   additionalInfoContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FEF7FF',
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
     margin: 16,
@@ -128,23 +128,17 @@ const styles = StyleSheet.create({
     padding: 16,
     elevation: 2,
     marginTop: 0,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+   
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FEF7FF',
     height: 60,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 16,
     elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    
   },
   hidden: {
     display: 'none',
@@ -182,7 +176,7 @@ const styles = StyleSheet.create({
     
   },
   cardHeader: {
-    padding: 16,
+    padding: 28,
     flexDirection: 'row',
     alignItems: 'center',
   },
