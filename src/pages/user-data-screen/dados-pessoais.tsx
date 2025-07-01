@@ -342,6 +342,7 @@ const UserPersonalDataScreen = ({ navigation }: { navigation: any }) => {
               )}
             />
           </View>
+            <Text style={[styles.label, { color: colors.primary }]}>Informações</Text>
 
           <Controller
             control={control}
@@ -687,9 +688,10 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   label: {
-    fontFamily: 'Roboto-Bold',
     fontSize: 18,
+    paddingBottom: 10,
     color: 'black',
+    fontWeight: 600,
     marginBottom: 8,
   },
   segmentedButtons: {

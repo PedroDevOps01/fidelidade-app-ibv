@@ -45,7 +45,7 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
       onPress: () => {
         navigate('user-shcdules-history-screen');
       },
-      label: 'Meus agendamentos realizados',
+      label: 'Agendamentos realizados',
       style: { backgroundColor: colors.primary },
     },
   ];
@@ -65,7 +65,7 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
         return [
           ...prev,
           {
-            icon: 'calendar-today',
+            icon: 'cart',
             onPress: () => openBottomSheet(),
             label: 'Meu carrinho',
             style: { backgroundColor: colors.primary },

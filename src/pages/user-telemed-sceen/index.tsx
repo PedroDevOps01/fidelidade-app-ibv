@@ -69,10 +69,10 @@ const UserTelemedScreen = () => {
   return (
     <View style={styles.container}>
       <ModalContainer visible={pendentModalVisible} handleVisible={() => setPendentModalVisible(false)}>
-        <Text style={{ fontFamily: 'Roboto-Bold', fontSize: 20, marginBottom: 20 }}>
+        <Text style={{ fontSize: 20, marginBottom: 20 }}>
           Você possui pendências a serem resolvidas
         </Text>
-        <Text style={{ fontFamily: 'Roboto', fontSize: 18, marginBottom: 8 }}>
+        <Text style={{ fontSize: 18, marginBottom: 8 }}>
           Para acessar o atendimento, é necessário regularizar sua situação.
         </Text>
         {/* <Text style={{ fontFamily: 'Roboto', fontSize: 18, marginBottom: 8 }}>
@@ -133,12 +133,10 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   title: {
-    fontFamily: 'Roboto-Bold',
     fontSize: 24,
     marginBottom: 20,
   },
   label: {
-    fontFamily: 'Roboto',
     fontSize: 18,
     marginBottom: 8,
     textAlign: 'justify',

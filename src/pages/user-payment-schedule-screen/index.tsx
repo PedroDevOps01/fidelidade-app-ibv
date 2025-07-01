@@ -127,7 +127,7 @@ export default function UserPaymentScheduleScreen() {
             <Card.Title title="Pagamento via Pix" titleStyle={{ textAlign: 'center', fontWeight: 'bold' }} titleVariant="headlineMedium" />
             <Card.Content>
               <Text style={styles.text}>Valor:</Text>
-              <Text style={styles.value}>R$: {maskBrazilianCurrency(getTotalValue())}</Text>
+              <Text style={styles.value}>{maskBrazilianCurrency(getTotalValue())}</Text>
 
               <View style={styles.qrContainer}>
                 <Text style={styles.text}>Escaneie o QR Code:</Text>
