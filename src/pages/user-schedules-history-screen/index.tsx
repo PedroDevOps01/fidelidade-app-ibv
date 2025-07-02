@@ -65,7 +65,7 @@ const UserSchedulesHistoryScreen = () => {
     setIsModalVisible(true);
   }
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: '#e7d7ff' }]}>
       {loading ? (
         <LoadingFull />
       ) : (

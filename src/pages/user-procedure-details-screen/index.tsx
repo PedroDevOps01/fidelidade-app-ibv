@@ -69,7 +69,7 @@ export default function UserProcedureDetailsScreen({ navigation, route }: { navi
           ) : (
             <View style={{ backgroundColor: colors.background, flex: 1 }}>
               <Text variant="titleLarge" style={[styles.text, { color: colors.onSurface }]}>
-                Empresas que realizam o{'\n'}procedimento
+                Empresas que realizam o{'\n'}Procedimento:
               </Text>
 
               <ProcedureDetails procedures={proceduresDetails!} />

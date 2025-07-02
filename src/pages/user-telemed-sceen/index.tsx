@@ -1,9 +1,7 @@
-//user telepet screen
 import { useEffect, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View, Image } from 'react-native';
 import { Button, Text, useTheme } from 'react-native-paper';
 import { checkMultiple, PERMISSIONS, requestMultiple, RESULTS } from 'react-native-permissions';
-import { arePermissionsGranted, requestPermissions } from '../../utils/permissions';
 import { goBack, navigate } from '../../router/navigationRef';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
 import ModalContainer from '../../components/modal';
@@ -15,15 +13,12 @@ const UserTelemedScreen = () => {
   const [permissionsGranted, setPermissionsGranted] = useState<boolean>(false);
   const [pendentModalVisible, setPendentModalVisible] = useState(false);
   const isLogged = !dadosUsuarioData.user.id_usuario_usr ? false : true;
-  const hasPendent = dadosUsuarioData.pessoaAssinatura?.inadimplencia.length || dadosUsuarioData.pessoaAssinatura?.inadimplencia.length! >  0
-  
+  const hasPendent = dadosUsuarioData.pessoaAssinatura?.inadimplencia.length || dadosUsuarioData.pessoaAssinatura?.inadimplencia.length! >  0;
 
   const permissions = Platform.select({
     android: [PERMISSIONS.ANDROID.CAMERA, PERMISSIONS.ANDROID.RECORD_AUDIO],
     ios: [PERMISSIONS.IOS.CAMERA, PERMISSIONS.IOS.MICROPHONE],
   }) || [];
-
-
 
   const checkPermissions = async () => {
     const statuses = await checkMultiple(permissions);
@@ -52,69 +47,104 @@ const UserTelemedScreen = () => {
       return;
     }
 
-    
-
-
-    //navigate('user-telemed-meet-screen')
     navigate('user-telemed-queue-screen');
   };
 
   useEffect(() => {
     (async () => {
       const grantedInitially = await checkPermissions()
-      
     })();
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.onTertiary }]}>
       <ModalContainer visible={pendentModalVisible} handleVisible={() => setPendentModalVisible(false)}>
-        <Text style={{ fontSize: 20, marginBottom: 20 }}>
-          Você possui pendências a serem resolvidas
-        </Text>
-        <Text style={{ fontSize: 18, marginBottom: 8 }}>
-          Para acessar o atendimento, é necessário regularizar sua situação.
-        </Text>
-        {/* <Text style={{ fontFamily: 'Roboto', fontSize: 18, marginBottom: 8 }}>
-          Acesse a aba "Contratos" e regularize sua situação!
-        </Text> */}
-        <Button
-          onPress={() => {
-            setPendentModalVisible(false);
-            goBack()
-          }}
-          mode="contained"
-          contentStyle={{ flexDirection: 'row-reverse' }}
-          icon={'arrow-right'}
-          style={{ marginTop: 20 }}>
-          Regularizar
-        </Button>
+        <View style={styles.modalContent}>
+          
+          <Text style={[styles.modalTitle, { color: colors.onSurface }]}>
+            ⚠️ Atenção: Pendências Detectadas ⚠️
+          </Text>
+          <Text style={[styles.modalText, { color: colors.onSurfaceVariant }]}>
+            Você possui pendências que precisam ser resolvidas antes de acessar o atendimento.
+          </Text>
+          <Text style={[styles.modalText, { color: colors.onSurfaceVariant, marginBottom: 20 }]}>
+            Por favor, regularize sua situação para continuar.
+          </Text>
+          <Button
+            onPress={() => {
+              setPendentModalVisible(false);
+              goBack()
+            }}
+            mode="contained"
+            contentStyle={styles.modalButtonContent}
+            labelStyle={styles.modalButtonText}
+            style={[styles.modalButton, { backgroundColor: colors.primary }]}>
+            Regularizar Agora
+          </Button>
+        </View>
       </ModalContainer>
-      <ScrollView contentContainerStyle={styles.contentContainer} style={[styles.scrollView, { backgroundColor: colors.background }]}>
-        <Text style={styles.title}>Bem-vindo(a)! 🏥</Text>
-        <Text style={styles.label}>
-          Estamos muito felizes em tê-lo(a) aqui!{`\n`}
-          Sua conexão com especialistas em saúde está a apenas um clique de distância.{`\n`}
-          Sabemos o quanto seu bem-estar é importante, e nossa missão é garantir que você receba os melhores cuidados, onde quer que esteja.
-        </Text>
+      
+      
+      <ScrollView contentContainerStyle={styles.contentContainer}>
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            
+            <Text style={[styles.cardTitle, { color: colors.onSurface }]}>
+              Como funciona a Telemedicina?
+            </Text>
+          </View>
+          
+          <View style={styles.featureItem}>
+            <View style={styles.featureIcon}>
+              <Text style={styles.featureNumber}>1</Text>
+            </View>
+            <Text style={[styles.featureText, { color: colors.onSurfaceVariant }]}>
+              Conecte-se com médicos especialistas em tempo real
+            </Text>
+          </View>
+          
+          <View style={styles.featureItem}>
+            <View style={styles.featureIcon}>
+              <Text style={styles.featureNumber}>2</Text>
+            </View>
+            <Text style={[styles.featureText, { color: colors.onSurfaceVariant }]}>
+              Realize consultas de onde estiver, sem precisar se deslocar
+            </Text>
+          </View>
+          
+          <View style={styles.featureItem}>
+            <View style={styles.featureIcon}>
+              <Text style={styles.featureNumber}>3</Text>
+            </View>
+            <Text style={[styles.featureText, { color: colors.onSurfaceVariant }]}>
+              Receba orientações médicas e prescrições quando necessário
+            </Text>
+          </View>
+        </View>
 
-        <Text style={styles.label}>
-          Com nossa plataforma, você pode acessar orientações médicas, tirar dúvidas e cuidar da sua saúde no conforto da sua casa.{`\n`}
-          Se precisar de qualquer ajuda durante sua experiência, nossa equipe está pronta para auxiliar!{`\n\n`}
-          Vamos juntos garantir mais saúde e qualidade de vida para você e sua família!
-        </Text>
+        <View style={[styles.infoCard, { backgroundColor: '#FFFFFF' }]}>
+          <Text style={[styles.infoTitle, { color: colors.onSurface }]}>
+            Estamos felizes em atendê-lo! 🏥
+          </Text>
+          <Text style={[styles.infoText, { color: colors.onSurfaceVariant }]}>
+            Sua conexão com especialistas em saúde está a apenas um clique de distância.
+          </Text>
+          <Text style={[styles.infoText, { color: colors.onSurfaceVariant }]}>
+            Sabemos o quanto seu bem-estar é importante, e nossa missão é garantir que você receba os melhores cuidados, onde quer que esteja.
+          </Text>
+        </View>
       </ScrollView>
 
       {/* Botão fixo no fundo da tela */}
-      <View style={styles.buttonContainer}>
+      <View style={[styles.buttonContainer, { backgroundColor: colors.background }]}>
         <Button
-          key={permissionsGranted ? 'enabled' : 'disabled'}
           mode="contained"
-          style={styles.button}
-          icon={'arrow-right'}
-          contentStyle={{ flexDirection: 'row-reverse' }}
+          style={[styles.button, { backgroundColor: permissionsGranted ? colors.primary : colors.error }]}
+          contentStyle={styles.buttonContent}
+          labelStyle={styles.buttonText}
+          icon={permissionsGranted ? "video" : "camera"}
           onPress={handlePress}>
-          {permissionsGranted ? 'Continuar' : 'Permita a camera e o microfone'}
+          {permissionsGranted ? 'Iniciar Atendimento' : 'Permitir Câmera e Microfone'}
         </Button>
       </View>
     </View>
@@ -125,32 +155,148 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollView: {
-    flex: 1,
+  heroContainer: {
+    alignItems: 'center',
+    paddingVertical: 30,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    backgroundColor: '#F0F7FF',
+  },
+  heroImage: {
+    width: 200,
+    height: 150,
+    resizeMode: 'contain',
+    marginBottom: 15,
+  },
+  heroTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    textAlign: 'center',
+    maxWidth: 300,
   },
   contentContainer: {
-    padding: 16,
+    padding: 20,
     paddingBottom: 100,
   },
-  title: {
-    fontSize: 24,
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 20,
   },
-  label: {
-    fontSize: 18,
-    marginBottom: 8,
-    textAlign: 'justify',
+  cardIcon: {
+    width: 40,
+    height: 40,
+    marginRight: 15,
+  },
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    flex: 1,
+  },
+  featureItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  featureIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#4A90E2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  featureNumber: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  featureText: {
+    fontSize: 16,
+    flex: 1,
+  },
+  infoCard: {
+    borderRadius: 16,
+    padding: 20,
+    elevation: 2,
+  },
+  infoTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 15,
+  },
+  infoText: {
+    fontSize: 16,
+    marginBottom: 12,
+    lineHeight: 24,
   },
   buttonContainer: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 0,
     left: 0,
     right: 0,
-    padding: 16,
-    backgroundColor: 'transparent',
+    padding: 20,
+    paddingBottom: 30,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
   },
   button: {
-    justifyContent: 'center',
+    borderRadius: 12,
+    paddingVertical: 10,
+  },
+  buttonContent: {
+    height: 50,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  modalContent: {
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalIcon: {
+    width: 60,
+    height: 60,
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  modalText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 8,
+    lineHeight: 22,
+  },
+  modalButton: {
+    borderRadius: 10,
+    paddingVertical: 8,
+    marginTop: 10,
+    width: '100%',
+  },
+  modalButtonContent: {
+    height: 50,
+  },
+  modalButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

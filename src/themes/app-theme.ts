@@ -31,6 +31,10 @@ const LightTheme = {
     outlineVariant: '#C0C9C0',
     shadow: '#000000',
     scrim: '#000000',
+    success: '#008000',
+    warning: '#F4B400',
+    info: '#2196F3', 
+    
     inverseSurface: '#2C322E',
     inverseOnSurface: '#EDF2EC',
     inversePrimary: '#91D5AD',
@@ -74,6 +78,8 @@ const DarkTheme = {
     tertiaryContainer: '#643B44',
     onTertiaryContainer: '#FFD9DF',
     error: '#FFB4AB',
+    success: '#008000',
+
     onError: '#690005',
     errorContainer: '#93000A',
     onErrorContainer: '#FFDAD6',

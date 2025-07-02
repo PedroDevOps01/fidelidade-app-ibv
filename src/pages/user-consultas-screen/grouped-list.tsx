@@ -13,28 +13,49 @@ interface GroupedListProps {
 
 const GroupedList = ({ list, loading }: GroupedListProps) => {
   const { colors } = useTheme();
-
   const { currentProcedureMethod } = useConsultas();
   const { addSelectedExam } = useExames();
 
-  const renderAccordion = ({ item }: { item: [string, ConsultaReposta[]] }) => {
+  const renderAccordion = ({ item }: { item: [string, any] }) => {
     const [grupo, procedimentos] = item;
 
+    if (!Array.isArray(procedimentos)) {
+      console.warn(`❌ Erro: procedimentos inválido no grupo "${grupo}":`, procedimentos);
+      return null;
+    }
+
     return (
-      <List.Accordion title={grupo} id={grupo} style={[styles.groupContainer, { backgroundColor: colors.surface }]} titleStyle={[styles.accordionTitle, { color: colors.primary }]}>
-        {procedimentos.map(procedimento => (
+      <List.Accordion
+        title={grupo}
+        id={grupo}
+        style={[styles.groupContainer, { backgroundColor: colors.surface }]}
+        titleStyle={[styles.accordionTitle, { color: colors.primary }]}
+      >
+        {procedimentos.map((procedimento: ConsultaReposta) => (
           <List.Item
             key={procedimento.cod_procedimento}
-            title={<Text style={[styles.listItemTitle, { color: colors.onSurface }]}>{procedimento.nome}</Text>}
-            description={<Text style={[styles.listItemDescription, { color: colors.onSurfaceVariant }]}>{`Código: ${procedimento.cod_procedimento}`}</Text>}
-            style={[styles.listItem, { backgroundColor: colors.surface, borderBottomColor: colors.onSurfaceVariant }]}
+            title={
+              <Text style={[styles.listItemTitle, { color: colors.onSurface }]}>
+                {procedimento.nome}
+              </Text>
+            }
+            description={
+              <Text style={[styles.listItemDescription, { color: colors.onSurfaceVariant }]}>
+                {`Código: ${procedimento.cod_procedimento}`}
+              </Text>
+            }
+            style={[
+              styles.listItem,
+              {
+                backgroundColor: colors.surface,
+                borderBottomColor: colors.onSurfaceVariant,
+              },
+            ]}
             onPress={() => {
-              if (currentProcedureMethod == 'exame') {
+              if (currentProcedureMethod === 'exame') {
                 addSelectedExam(procedimento);
               } else {
-                navigate('user-procedure-details-screen', {
-                  procedimento,
-                });
+                navigate('user-procedure-details-screen', { procedimento });
               }
             }}
           />
@@ -43,22 +64,22 @@ const GroupedList = ({ list, loading }: GroupedListProps) => {
     );
   };
 
-  const groupedData = Object.entries(list); // Converte o objeto em um array para uso no FlatList
+  const groupedData = Object.entries(list).filter(
+    ([_, procedimentos]) => Array.isArray(procedimentos) && procedimentos.length > 0
+  );
 
-  return (
-    <>
-      {loading ? (
-        <LoadingFull title="Carregando..." />
-      ) : (
-        <FlatList
-          data={groupedData}
-          keyExtractor={item => item[0]} // O nome do grupo será a chave
-          renderItem={renderAccordion}
-          style={{ backgroundColor: colors.background }}
-          removeClippedSubviews={false}
-        />
-      )}
-    </>
+  console.log('✅ groupedData:', groupedData);
+
+  return loading ? (
+    <LoadingFull title="Carregando..." />
+  ) : (
+    <FlatList
+      data={groupedData}
+      keyExtractor={item => item[0]}
+      renderItem={renderAccordion}
+      style={{ backgroundColor: colors.background }}
+      removeClippedSubviews={false}
+    />
   );
 };
 
@@ -66,11 +87,16 @@ const styles = StyleSheet.create({
   groupContainer: {
     borderRadius: 0,
     marginVertical: 0,
-    elevation: 4,
+    elevation: 4, // sombra no Android
+    shadowColor: '#000', // sombra no iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
   },
   listItem: {
     paddingLeft: 20,
     marginTop: 0,
+    borderBottomWidth: 1,
   },
   accordionTitle: {
     fontSize: 18,

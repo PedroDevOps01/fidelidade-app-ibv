@@ -1,7 +1,6 @@
-import { Image, Platform, StyleSheet, Dimensions } from 'react-native'; // Removed ImageBackground
+import { Image, Platform, StyleSheet, Dimensions, View, TouchableOpacity } from 'react-native';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
 import { IconButton, Text, useTheme } from 'react-native-paper';
-import { View } from 'react-native';
 import { useLayoutEffect, useState } from 'react';
 import { formatDateToDDMMYYYY, log } from '../../utils/app-utils';
 
@@ -32,19 +31,20 @@ const UserPersonalCarteirinhaScreen = ({ navigation }: { navigation: any }) => {
   const toggleZoom = () => setIsZoomed(!isZoomed);
 
   const cardWidth = isZoomed ? windowHeight * 0.8 : windowWidth * 0.9;
+  const cardHeight = isZoomed ? windowHeight * 0.4 : windowWidth * 0.6;
 
   return (
-<View style={[styles.mainContainer, { backgroundColor: '#FEF7FF' }]}>
-      {/* Header branco com título */}
+    <View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
+      {/* Header */}
       <View style={[styles.header, isZoomed && styles.hidden]}>
         <IconButton
           icon="arrow-left"
           size={24}
-          iconColor="#000"
+          iconColor={colors.onBackground}
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         />
-        <Text style={styles.headerTitle}>Carteirinha</Text>
+        <Text style={[styles.headerTitle, { color: colors.onBackground }]}>Carteirinha</Text>
       </View>
 
       {/* Wrapper que rotaciona a carteirinha somente no zoom */}
@@ -52,65 +52,103 @@ const UserPersonalCarteirinhaScreen = ({ navigation }: { navigation: any }) => {
         <View
           style={[
             styles.cardContainer,
-            { width: cardWidth },
+            { 
+              width: cardWidth,
+              height: cardHeight,
+              backgroundColor: '#b183ff',
+              borderColor: '#b183ff',
+              borderWidth: 2,
+            },
             isZoomed && styles.zoomedCard,
           ]}
         >
+          {/* Efeito de gradiente */}
+          <View style={styles.gradientOverlay} />
+          
+          {/* Logo e informações */}
           <View style={styles.cardHeader}>
-            <Image
-              source={require('../../assets/images/app_icon1.png')}
-              style={[styles.cardLogo, isZoomed && styles.zoomedLogo]}
-              resizeMode="contain"
-            />
+            <View style={styles.logoContainer}>
+              <Image
+                source={require('../../assets/images/app_icon1.png')}
+                style={[styles.cardLogo, isZoomed && styles.zoomedLogo]}
+                resizeMode="contain"
+              />
+              <Text style={styles.appName}>AJUDDA</Text>
+            </View>
 
             <View style={styles.memberInfo}>
-              <Text style={[styles.memberType, isZoomed && styles.zoomedText]}>
-                {formatarNome(dadosUsuarioData.pessoaDados?.des_nome_pes)} - {dadosUsuarioData.pessoaDados?.des_descricao_tsi?.toUpperCase()}
-              </Text>
+              <View style={styles.infoRow}>
+                <Text style={[styles.infoLabel, isZoomed && styles.zoomedText]}>Nome:</Text>
+                <Text style={[styles.infoValue, isZoomed && styles.zoomedText]}>
+                  {formatarNome(dadosUsuarioData.pessoaDados?.des_nome_pes)}
+                </Text>
+              </View>
               
-            
-          <Text style={[styles.memberId, isZoomed && styles.zoomedText]}>
-            CPF: {dadosUsuarioData.pessoaDados?.cod_cpf_pes}
-          </Text>
-          <Text style={[styles.memberId, isZoomed && styles.zoomedText]}>
-            Nascimento: {formatDateToDDMMYYYY(dadosUsuarioData.pessoaDados?.dta_nascimento_pes ?? '')}
-          </Text>
-          
-          
-          <Text style={[styles.memberId, isZoomed && styles.zoomedText]}>
-            Endereço: {`${dadosUsuarioData.pessoaDados?.des_endereco_pda ?? ''}, ${dadosUsuarioData.pessoaDados?.des_bairro_pda ?? ''}, ${dadosUsuarioData.pessoaDados?.des_municipio_mun ?? ''} - ${dadosUsuarioData.pessoaDados?.des_estado_est ?? ''}`}
-          </Text>
-            
+              <View style={styles.infoRow}>
+                <Text style={[styles.infoLabel, isZoomed && styles.zoomedText]}>CPF:</Text>
+                <Text style={[styles.infoValue, isZoomed && styles.zoomedText]}>
+                  {dadosUsuarioData.pessoaDados?.cod_cpf_pes}
+                </Text>
+              </View>
               
+              <View style={styles.infoRow}>
+                <Text style={[styles.infoLabel, isZoomed && styles.zoomedText]}>Nascimento:</Text>
+                <Text style={[styles.infoValue, isZoomed && styles.zoomedText]}>
+                  {formatDateToDDMMYYYY(dadosUsuarioData.pessoaDados?.dta_nascimento_pes ?? '')}
+                </Text>
+              </View>
+              
+              <View style={styles.infoRow}>
+                <Text style={[styles.infoLabel, isZoomed && styles.zoomedText]}>Tipo:</Text>
+                <Text style={[styles.infoValue, isZoomed && styles.zoomedText]}>
+                  {dadosUsuarioData.pessoaDados?.des_descricao_tsi?.toUpperCase()}
+                </Text>
+              </View>
             </View>
           </View>
 
-          {/* Footer branco */}
+          {/* Footer */}
           <View style={[styles.cardFooter, isZoomed && styles.zoomedFooter]}>
             <Text style={[styles.matriculaId, isZoomed && styles.zoomedText]}>
-                Matrícula: {dadosUsuarioData.pessoaDados?.id_pessoa_pda}
-              </Text>
+              Matrícula: {dadosUsuarioData.pessoaDados?.id_pessoa_pda}
+            </Text>
+            <View style={styles.barcodeContainer}>
+              <View style={styles.barcodeLines} />
+              <View style={styles.barcodeLines} />
+              <View style={styles.barcodeLines} />
+              <View style={styles.barcodeLines} />
+              <View style={styles.barcodeLines} />
+              <View style={styles.barcodeLines} />
+              <View style={styles.barcodeLines} />
+              <View style={styles.barcodeLines} />
+            </View>
           </View>
+          
+          {/* Elementos decorativos */}
+          <View style={styles.decorativeCircle1} />
+          <View style={styles.decorativeCircle2} />
+          <View style={styles.decorativeCircle3} />
         </View>
       </View>
 
       {/* Botão de zoom carteirinha */}
-      {!isZoomed && (
-        <View style={styles.expandButtonContainer}>
-          <View style={styles.expandButton}>
-            <Text style={styles.expandirtext} onPress={toggleZoom}>Expandir</Text>
-            <IconButton icon="magnify-plus" size={24} iconColor="#fff" onPress={toggleZoom} />
-          </View>
-        </View>
-      )}
-      {isZoomed && (
-        <View style={styles.expandButtonContainer}>
-          <View style={styles.expandButton}>
-            <Text style={styles.expandirtext} onPress={toggleZoom}>Reduzir</Text>
-            <IconButton icon="magnify-minus" size={24} iconColor="#fff" onPress={toggleZoom} />
-          </View>
-        </View>
-      )}
+      <View style={styles.expandButtonContainer}>
+        <TouchableOpacity 
+          style={[styles.expandButton, { backgroundColor: colors.primary }]} 
+          onPress={toggleZoom}
+        >
+          <Text style={[styles.expandirtext, { color: colors.onPrimary }]}>
+            {isZoomed ? 'Reduzir' : 'Expandir'}
+          </Text>
+          <IconButton 
+            icon={isZoomed ? "magnify-minus" : "magnify-plus"} 
+            size={24} 
+            iconColor={colors.onPrimary} 
+          />
+        </TouchableOpacity>
+      </View>
+      
+     
     </View>
   );
 };
@@ -118,27 +156,21 @@ const UserPersonalCarteirinhaScreen = ({ navigation }: { navigation: any }) => {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
+    paddingTop: Platform.OS === 'ios' ? 40 : 0,
   },
   additionalInfoContainer: {
-    backgroundColor: '#FEF7FF',
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
     margin: 16,
     marginBottom: 0,
     padding: 16,
+    borderRadius: 12,
     elevation: 2,
-    marginTop: 0,
-   
   },
   header: {
-    backgroundColor: '#FEF7FF',
     height: 60,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 16,
-    elevation: 2,
-    
   },
   hidden: {
     display: 'none',
@@ -150,7 +182,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#000',
   },
   landscapeWrapper: {
     flex: 1,
@@ -161,111 +192,168 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '90deg' }],
   },
   cardContainer: {
-    backgroundColor: '#fff',
     overflow: 'hidden',
-    elevation: 4,
-    margin: 16,
-    borderRadius: 12,
+    elevation: 8,
+    borderRadius: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
     flexDirection: 'column',
+    position: 'relative',
+  },
+  gradientOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '100%',
+    backgroundColor: 'rgba(0,0,0,0.1)',
   },
   zoomedCard: {
-    
+    elevation: 12,
   },
   cardHeader: {
-    padding: 28,
+    padding: 20,
+    flex: 1,
     flexDirection: 'row',
+  },
+  logoContainer: {
     alignItems: 'center',
+    marginRight: 20,
+    justifyContent: 'center',
   },
   cardLogo: {
-    width: 60,
-    height: 60,
-    marginRight: 16,
-    borderRadius: 8,
+    width: 70,
+    height: 70,
+    borderRadius: 10,
+    marginBottom: 8,
   },
   zoomedLogo: {
-    width: 80,
-    height: 80,
+    width: 90,
+    height: 90,
+  },
+  appName: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
+    textAlign: 'center',
   },
   memberInfo: {
     flex: 1,
+    justifyContent: 'center',
   },
-  memberName: {
-    color: '#b183ff',
-    fontSize: 15,
-    fontWeight: 'bold',
-    marginBottom: 4,
+  infoRow: {
+    flexDirection: 'row',
+    marginBottom: 8,
   },
-  memberId: {
-    color: '#b183ff',
-    fontSize: 16,
-    opacity: 0.8,
-    marginBottom: 4,
+  infoLabel: {
+    color: '#e0d6ed',
+    fontSize: 14,
+    fontWeight: '600',
+    width: 90,
   },
-  matriculaId: {
+  infoValue: {
     color: '#fff',
-    fontSize: 22,
-    opacity: 0.8,
-    fontWeight: 600,
-    marginBottom: 4,
-  },
-  memberType: {
-    color: '#b183ff',
     fontSize: 16,
-    fontWeight: 600,
+    fontWeight: '600',
+    flex: 1,
   },
   zoomedText: {
-    fontSize: 22,
+    fontSize: 20,
   },
   expandirtext: {
-    fontSize: 14,
-    color: '#fff',
+    fontSize: 16,
     fontWeight: '600',
     marginLeft: 4,
   },
   expandButtonContainer: {
     alignItems: 'center',
-    marginVertical: 8,
+    marginVertical: 16,
   },
   expandButton: {
-    backgroundColor: '#b183ff',
-    borderRadius: 20,
-    paddingHorizontal: 5,
-    paddingVertical: 0,
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    elevation: 2,
   },
   cardFooter: {
-    backgroundColor: '#b183ff',
-    padding: 10,
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    padding: 12,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
+    flexDirection: 'row',
   },
   zoomedFooter: {
     padding: 15,
   },
-  footerText: {
+  matriculaId: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
+    marginRight: 10,
   },
-  zoomedFooterText: {
+  barcodeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 40,
+  },
+  barcodeLines: {
+    width: 4,
+    height: 30,
+    backgroundColor: '#fff',
+    marginHorizontal: 2,
+  },
+  decorativeCircle1: {
+    position: 'absolute',
+    top: -40,
+    right: -40,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  decorativeCircle2: {
+    position: 'absolute',
+    bottom: -50,
+    left: -30,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+  decorativeCircle3: {
+    position: 'absolute',
+    top: 30,
+    left: 30,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+  additionalTitle: {
     fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  additionalText: {
+    fontSize: 16,
+    marginBottom: 4,
   },
 });
+
 const formatarNome = (nomeCompleto?: string): string => {
   if (!nomeCompleto) return '';
 
   const partes = nomeCompleto.trim().split(/\s+/);
 
   if (partes.length === 1) {
-    return partes[0].toUpperCase(); // Apenas um nome
+    return partes[0].toUpperCase();
   }
 
   const primeiro = partes[0];
@@ -273,4 +361,5 @@ const formatarNome = (nomeCompleto?: string): string => {
 
   return `${primeiro} ${ultimo}`.toUpperCase();
 };
+
 export default UserPersonalCarteirinhaScreen;

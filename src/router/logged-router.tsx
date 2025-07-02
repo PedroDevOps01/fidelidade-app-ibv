@@ -114,7 +114,7 @@ const LoggedDrawerNavigator: React.FC = () => {
           title: 'Meus Agendamentos',
           tabBarBadge: selectedExams.length > 0 ? selectedExams.length : undefined,
           tabBarBadgeStyle: {
-            backgroundColor: 'red',
+            backgroundColor: '#4003ff',
             bottom: 20,
           },
         }}

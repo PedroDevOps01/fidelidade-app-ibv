@@ -9,7 +9,7 @@ const LoadingFull = ({title = "Carregando..."}: {title?: string}) => {
 
   return (
     <View style={[styles.loadingContainer, {backgroundColor: colors.background}]}>
-        <ActivityIndicator size="large" color="#006d36" />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={[styles.loadingText, {color: colors.onBackground}]}>{title}</Text>
       </View>
   )
