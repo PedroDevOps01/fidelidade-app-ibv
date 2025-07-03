@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
-    backgroundColor: '#F0F7FF',
+    backgroundColor: '#FFF',
   },
   heroImage: {
     width: 200,
@@ -176,11 +176,12 @@ const styles = StyleSheet.create({
     maxWidth: 300,
   },
   contentContainer: {
+    backgroundColor:'#e7d7ff',
     padding: 20,
     paddingBottom: 100,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#fff',
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,

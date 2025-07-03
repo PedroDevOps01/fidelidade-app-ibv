@@ -122,7 +122,7 @@ const ContratoParcelaDetailsCard = ({ item }: { item: ContratoParcelaDetails }) 
 
 const styles = StyleSheet.create({
   card: {
-    marginBottom: 16,
+    margin: 16,
     borderRadius: 12,
     elevation: 2,
     paddingVertical: 8,

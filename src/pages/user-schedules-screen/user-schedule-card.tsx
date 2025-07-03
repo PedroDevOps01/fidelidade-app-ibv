@@ -1,33 +1,52 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Card, Text, Avatar, Divider, Button } from 'react-native-paper';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Card, Text, Avatar, Button, useTheme, Icon } from 'react-native-paper';
 import { applyPhoneMask, formatDateToDDMMYYYY } from '../../utils/app-utils';
 
 const UserScheduleCard = ({ index, appointment, onPress }: { index: number; appointment: UserSchedule; onPress: (index: number) => void }) => {
-  return (
-    <Card style={styles.card} mode="elevated" onPress={() => onPress(index)}>
-      <Card.Title
-        title={appointment.nome_profissional}
-        subtitle={appointment.contato_paciente ? `Contato: ${applyPhoneMask(appointment.contato_paciente)}` : ''}
-        left={props => <Avatar.Image {...props} source={{ uri: appointment.fachada_profissional }} size={50} style={{backgroundColor: 'transparent'}} />}
-      />
-      <Card.Content>
-        <View style={{ flexDirection: 'row' }}>
-          <View style={{ flex: 5 }}>
-            <Text variant="titleMedium" style={styles.section}>
-              {formatDateToDDMMYYYY(appointment.data)}
-            </Text>
-            <Text variant="titleMedium" style={styles.section}>
-              {appointment.nome_procedimento.join(', ')}
-            </Text>
-          </View>
+  const { colors } = useTheme();
 
-          <View style={{ flex: 5, justifyContent: 'center', alignItems: 'flex-end' }}>
-            <Text variant="bodyLarge" style={{ fontWeight: 'bold' }}>
-              Ver mais
+  return (
+    <Card style={[styles.card]} mode="elevated">
+      <Card.Content style={styles.cardContent}>
+        <View style={styles.headerContainer}>
+          <Avatar.Image
+            source={{ uri: appointment.fachada_profissional }}
+            size={50}
+            style={[styles.avatar, { backgroundColor: 'transparent' }]}
+          />
+          <View style={styles.headerTextContainer}>
+            <Text variant="titleMedium" style={[styles.professionalName, { color: colors.onBackground }]}>
+              {appointment.nome_profissional}
+            </Text>
+            <Text variant="bodyMedium" style={[styles.contact, { color: colors.onSurfaceVariant }]}>
+              {appointment.contato_paciente ? `Contato: ${applyPhoneMask(appointment.contato_paciente)}` : ''}
             </Text>
           </View>
         </View>
+
+        <View style={styles.detailsContainer}>
+          <View style={styles.infoRow}>
+            <Icon source="calendar" size={20} color={colors.primary} />
+            <Text variant="bodyLarge" style={[styles.section, { color: colors.onBackground }]}>
+              {formatDateToDDMMYYYY(appointment.data)}
+            </Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Icon source="stethoscope" size={20} color={colors.primary} />
+            <Text variant="bodyLarge" style={[styles.section, { color: colors.onBackground }]}>
+              {appointment.nome_procedimento.join(', ')}
+            </Text>
+          </View>
+        </View>
+
+        <TouchableOpacity
+          style={[styles.buttonContainer, { backgroundColor: colors.primary }]}
+          onPress={() => onPress(index)}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.buttonText}>Ver mais</Text>
+        </TouchableOpacity>
       </Card.Content>
     </Card>
   );
@@ -35,17 +54,59 @@ const UserScheduleCard = ({ index, appointment, onPress }: { index: number; appo
 
 const styles = StyleSheet.create({
   card: {
-    margin: 10,
-    borderRadius: 10,
-    elevation: 3,
-    borderWidth: 0.3
+    marginHorizontal: 16,
+    marginVertical: 8,
+    borderRadius: 12,
+    elevation: 4, // Sombra suave para profundidade
+    borderWidth: 0.5,
+    borderColor: 'rgba(0, 0, 0, 0.1)', // Borda sutil
+  },
+  cardContent: {
+    padding: 16,
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  avatar: {
+    marginRight: 12,
+  },
+  headerTextContainer: {
+    flex: 1,
+  },
+  professionalName: {
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
+  contact: {
+    fontSize: 14,
+    marginTop: 4,
+  },
+  detailsContainer: {
+    marginBottom: 16,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 6,
   },
   section: {
-    marginTop: 8,
-    marginBottom: 8,
+    marginLeft: 8,
+    fontSize: 16,
   },
-  divider: {
-    marginVertical: 10,
+  buttonContainer: {
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 

@@ -155,7 +155,7 @@ const UserTelemedQueueScreen = () => {
   }, [positionInQueue]);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.onTertiary }]}>
+    <View style={[styles.container, { backgroundColor: '#e7d7ff' }]}>
       {loading ? (
         <LoadingFull title="Entrando na fila..." />
       ) : (
@@ -284,6 +284,7 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: '700',
     marginLeft: 10,
+    marginTop: 10,
   },
   queueCard: {
     borderRadius: 16,
@@ -363,6 +364,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   button: {
+    backgroundColor:'#fff',
     flex: 1,
     marginHorizontal: 5,
     borderRadius: 12,

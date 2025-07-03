@@ -46,14 +46,19 @@ const ContratoParcelaDetailScren = () => {
   }, []);
 
   return (
-    <View style={[styles.outerContainer, { backgroundColor: theme.colors.background }]}>
+    <View style={[styles.outerContainer, { backgroundColor: '#e7d7ff' }]}>
       {loading ? (
-        <ActivityIndicator size={60} />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size={60} color={theme.colors.primary} />
+          <Text style={styles.loadingText}>Carregando parcelas...</Text>
+        </View>
       ) : (
         <FlatList
           data={contratoParcelaDetails}
           keyExtractor={item => item.cod_numparcela_cpc.toString()}
-          renderItem={({ item }) => <ContratoParcelaDetailsCard item={item} key={item.id_contrato_parcela_config_cpc} />}
+          renderItem={({ item }) => (
+            <ContratoParcelaDetailsCard item={item} key={item.id_contrato_parcela_config_cpc} />
+          )}
           removeClippedSubviews={false}
         />
       )}
@@ -64,6 +69,16 @@ const ContratoParcelaDetailScren = () => {
 const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
   },
 });
 

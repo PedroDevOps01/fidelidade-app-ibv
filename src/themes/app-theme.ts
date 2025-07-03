@@ -7,6 +7,7 @@ const LightTheme = {
     primary: '#b183ff',
     surfaceTint: '#266A49',
     onPrimary: '#FFFFFF',
+    corpadrao: '#6a31ff',
     primaryContainer: '#b183ff',
     onPrimaryContainer: '#FFF',
     secondary: '#b183ff',

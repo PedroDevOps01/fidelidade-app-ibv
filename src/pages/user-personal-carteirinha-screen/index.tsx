@@ -30,7 +30,7 @@ const UserPersonalCarteirinhaScreen = ({ navigation }: { navigation: any }) => {
 
   const toggleZoom = () => setIsZoomed(!isZoomed);
 
-  const cardWidth = isZoomed ? windowHeight * 0.8 : windowWidth * 0.9;
+  const cardWidth = isZoomed ? windowHeight * 0.7 : windowWidth * 0.9;
   const cardHeight = isZoomed ? windowHeight * 0.4 : windowWidth * 0.6;
 
   return (
@@ -112,16 +112,7 @@ const UserPersonalCarteirinhaScreen = ({ navigation }: { navigation: any }) => {
             <Text style={[styles.matriculaId, isZoomed && styles.zoomedText]}>
               Matrícula: {dadosUsuarioData.pessoaDados?.id_pessoa_pda}
             </Text>
-            <View style={styles.barcodeContainer}>
-              <View style={styles.barcodeLines} />
-              <View style={styles.barcodeLines} />
-              <View style={styles.barcodeLines} />
-              <View style={styles.barcodeLines} />
-              <View style={styles.barcodeLines} />
-              <View style={styles.barcodeLines} />
-              <View style={styles.barcodeLines} />
-              <View style={styles.barcodeLines} />
-            </View>
+            
           </View>
           
           {/* Elementos decorativos */}
