@@ -514,7 +514,7 @@
 					"-lc++",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = br.com.henriquelabs.fidelidadedemoapp;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.gees.fidelidadeappajudda;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/fidelidadedemoapp.app/fidelidadedemoapp";
 			};
@@ -539,7 +539,7 @@
 					"-lc++",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = br.com.henriquelabs.fidelidadedemoapp;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.gees.fidelidadeappajudda;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/fidelidadedemoapp.app/fidelidadedemoapp";
 			};
