@@ -17,18 +17,18 @@ const PartnersScreen = ({ navigation }: { navigation: any }) => {
       discount: 'Até 30% OFF',
       category: 'Farmácia',
     },
-    {
-      name: 'Magalu',
-      image: require('../../assets/images/magalu.jpeg'),
-      discount: 'Frete Grátis',
-      category: 'E-commerce',
-    },
-    {
-      name: 'Espaçolaser Depilação',
-      image: require('../../assets/images/depi.jpeg'),
-      discount: '1ª Sessão Grátis',
-      category: 'Beleza',
-    },
+    // {
+    //   name: 'Magalu',
+    //   image: require('../../assets/images/magalu.jpeg'),
+    //   discount: 'Frete Grátis',
+    //   category: 'E-commerce',
+    // },
+    // {
+    //   name: 'Espaçolaser Depilação',
+    //   image: require('../../assets/images/depi.jpeg'),
+    //   discount: '1ª Sessão Grátis',
+    //   category: 'Beleza',
+    // },
   ];
 
   const handlePartnerPress = (partner: any) => {

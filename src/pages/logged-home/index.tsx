@@ -64,16 +64,16 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
       image: require('../../assets/images/paguemenos3.jpeg'),
       action: () => handleParceiroPress('paguemenos'),
     },
-    {
-      id: 'magalu',
-      image: require('../../assets/images/magalu.jpeg'),
-      action: () => handleParceiroPress('magalu'),
-    },
-    {
-      id: 'depi',
-      image: require('../../assets/images/depi.jpeg'),
-      action: () => handleParceiroPress('depi'),
-    },
+    // {
+    //   id: 'magalu',
+    //   image: require('../../assets/images/magalu.jpeg'),
+    //   action: () => handleParceiroPress('magalu'),
+    // },
+    // {
+    //   id: 'depi',
+    //   image: require('../../assets/images/depi.jpeg'),
+    //   action: () => handleParceiroPress('depi'),
+    // },
   ];
   const handleParceiroPress = (parceiroId: ParceiroId) => {
     setSelectedParceiro(parceiroId);
