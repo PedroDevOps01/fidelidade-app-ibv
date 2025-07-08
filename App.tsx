@@ -18,10 +18,10 @@ import notifee, { AndroidImportance } from '@notifee/react-native';
 
 // Firebase config
 const firebaseConfig = {
-  apiKey: 'AIzaSyDiibmSVa96Ax88mkcO89ps1tGb0FfIq28',
-  projectId: 'fidelidade-demo-app',
-  messagingSenderId: '114934414936',
-  appId: 'com.stg.ajudda',
+  apiKey: 'AIzaSyAnguOITNUNxP8QpbUJ3tLfENPBJkuS_wU',
+  projectId: 'app-gees',
+  messagingSenderId: '961576776441',
+  appId: '1:961576776441:android:d166b001970630a5502828',
 };
 
 initializeApp(firebaseConfig);

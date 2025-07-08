@@ -1,4 +1,4 @@
-package br.com.henriquelabs.fidelidadeappajudda
+package br.com.gees.fidelidadeappajudda
 
 import android.app.Application
 import com.facebook.react.PackageList

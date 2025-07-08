@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "114934414936",
-    "project_id": "fidelidade-demo-app",
-    "storage_bucket": "fidelidade-demo-app.firebasestorage.app"
+    "project_number": "961576776441",
+    "project_id": "app-gees",
+    "storage_bucket": "app-gees.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:114934414936:android:9bf3007b7dab6c9c8e942d",
+        "mobilesdk_app_id": "1:961576776441:android:d166b001970630a5502828",
         "android_client_info": {
-          "package_name": "br.com.henriquelabs.fidelidadeappajudda"
+          "package_name": "br.com.gees.fidelidadeappajudda"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCnqxu1UfyDUAD9q34NjqLZFgT7IPRcQlw"
+          "current_key": "AIzaSyAnguOITNUNxP8QpbUJ3tLfENPBJkuS_wU"
         }
       ],
       "services": {

@@ -77,12 +77,12 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "br.com.henriquelabs.fidelidadeappajudda"
+    namespace "br.com.gees.fidelidadeappajudda"
     defaultConfig {
-        applicationId "br.com.henriquelabs.fidelidadeappajudda"
+        applicationId "br.com.gees.fidelidadeappajudda"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 22
+        versionCode 23
         versionName "1.2"
     }
     signingConfigs {

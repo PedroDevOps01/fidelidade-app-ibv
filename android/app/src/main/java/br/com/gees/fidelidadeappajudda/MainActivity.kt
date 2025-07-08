@@ -1,4 +1,4 @@
-package br.com.henriquelabs.fidelidadeappajudda
+package br.com.gees.fidelidadeappajudda
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
