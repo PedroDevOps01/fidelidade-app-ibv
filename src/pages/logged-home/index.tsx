@@ -23,12 +23,12 @@ const parceirosInfo = {
   paguemenos: {
     nome: 'Pague Menos',
     descricao: 'Rede de farmácias com os melhores preços e descontos exclusivos para nossos clientes.',
-    beneficios: ['Descontos em medicamentos', 'Programa de fidelidade', 'Atendimento especializado'],
+    beneficios: ['Medicamentos de Marca/Similar tarjado de 15% de Desconto.', 'Medicamentos Genéricos tarjado de 30% de Desconto.'],
   },
   magalu: {
     nome: 'Magazine Luiza',
     descricao: 'Loja departamental com diversas categorias de produtos e entrega rápida.',
-    beneficios: ['Frete grátis para clientes premium', 'Ofertas exclusivas', 'Parcele em até 12x'],
+    beneficios: ['Frete grátis em Produtos', '10% OFF em Produtos', 'Parcele em até 12x'],
   },
   depi: {
     nome: 'Espaço Laser',
@@ -64,11 +64,11 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
       image: require('../../assets/images/paguemenos3.jpeg'),
       action: () => handleParceiroPress('paguemenos'),
     },
-    // {
-    //   id: 'magalu',
-    //   image: require('../../assets/images/magalu.jpeg'),
-    //   action: () => handleParceiroPress('magalu'),
-    // },
+    {
+      id: 'magalu',
+      image: require('../../assets/images/magalu.jpeg'),
+      action: () => handleParceiroPress('magalu'),
+    },
     // {
     //   id: 'depi',
     //   image: require('../../assets/images/depi.jpeg'),
@@ -317,6 +317,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
                 Nossos Parceiros
               </Text>
+
               <Button mode="text" compact labelStyle={{ fontSize: 12, color: colors.primary }} onPress={() => navigation.navigate('ParceirosScreen')}>
                 Ver todos
               </Button>
@@ -350,6 +351,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
                 Acesso rápido
               </Text>
+              <View style={[styles.titleDecorator, { backgroundColor: colors.primary }]} />
             </View>
             <FlatList
               data={card_data}
@@ -373,6 +375,8 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
                 Marcar Consultas
               </Text>
+
+              <View style={[styles.titleDecorator, { backgroundColor: colors.primary }]} />
             </View>
             {/* Carrossel de Promoções */}
             <View>
@@ -417,15 +421,15 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                 {userSchedules.length === 0 ? (
                   <Card mode="elevated" style={[styles.card, { backgroundColor: colors.surface }]} onPress={() => navigate('user-schedules')} contentStyle={{ borderRadius: 16 }}>
                     <Card.Content style={styles.emptyCardContent}>
-<Text
-  variant="titleMedium"
-  style={{
-    color: colors.onSurface,
-    marginTop: 10,
-    textAlign: 'center', // centraliza o texto
-  }}>
-  Nenhum agendamento
-</Text>
+                      <Text
+                        variant="titleMedium"
+                        style={{
+                          color: colors.onSurface,
+                          marginTop: 10,
+                          textAlign: 'center', // centraliza o texto
+                        }}>
+                        Nenhum agendamento
+                      </Text>
                       <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant, textAlign: 'center' }}>
                         Toque para agendar uma nova consulta
                       </Text>
@@ -510,8 +514,13 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                 style={[styles.card, { backgroundColor: colors.surface }]}
                 contentStyle={{ borderRadius: 16 }}>
                 <Card.Content style={styles.emptyCardContent}>
-                  <Text variant="titleMedium" style={{ color: colors.onSurface, marginTop: 10,     textAlign: 'center', // centraliza o texto
- }}>
+                  <Text
+                    variant="titleMedium"
+                    style={{
+                      color: colors.onSurface,
+                      marginTop: 10,
+                      textAlign: 'center', // centraliza o texto
+                    }}>
                     Nenhum atendimento realizado
                   </Text>
                   <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant, textAlign: 'center' }}>
@@ -727,6 +736,14 @@ const styles = StyleSheet.create({
     height: 250,
     borderRadius: 15,
     marginBottom: 15,
+  },
+  titleDecorator: {
+    position: 'absolute',
+    bottom: -4,
+    left: 0,
+    width: 40,
+    height: 3,
+    borderRadius: 2,
   },
   modalContent: {
     paddingHorizontal: 10,
