@@ -1,6 +1,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoggedHome from '../pages/logged-home';
+import PartnersScreen from '../pages/user-create-credit-card/partners-screen';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from 'react-native-paper';
 import { useDadosUsuario } from '../context/pessoa-dados-context';
@@ -10,14 +12,13 @@ import { useExames } from '../context/exames-context';
 import SchedulesStackNavigator from './schedules-stack-navigator';
 import ProfileStackNavigator from './profile-stack-navigator';
 import { MdvStackNavigator } from './mdv-stack-navigator';
-import ShoppingStackNavigator from './shopping-stack-navigator';
 
 const Tab = createBottomTabNavigator();
+const RootStack = createNativeStackNavigator();
 
-const LoggedDrawerNavigator: React.FC = () => {
+// Componente principal com a estrutura de navegação
+const MainTabs = () => {
   const { colors } = useTheme();
-  const { dadosUsuarioData } = useDadosUsuario();
-  const { cart } = useUserCart();
   const { selectedExams } = useExames();
 
   return (
@@ -38,8 +39,8 @@ const LoggedDrawerNavigator: React.FC = () => {
           backgroundColor: colors.background,
           borderTopWidth: 0.3,
           borderTopColor: colors.onSurfaceVariant,
-          height: Platform.OS == 'android' ? 60 : 90,
-          elevation: 0, // Remove sombra
+          height: Platform.OS === 'android' ? 60 : 90,
+          elevation: 0,
         },
         tabBarIcon: ({ color, size }) => {
           let iconName;
@@ -64,11 +65,9 @@ const LoggedDrawerNavigator: React.FC = () => {
           }
           return <Icon name={iconName} size={30} color={color} />;
         },
-
         tabBarActiveTintColor: colors.onPrimary,
         tabBarInactiveTintColor: colors.onSurfaceVariant,
         tabBarActiveBackgroundColor: colors.primary,
-
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
@@ -81,20 +80,8 @@ const LoggedDrawerNavigator: React.FC = () => {
           marginTop: 0,
           padding: 0,
         },
-      })}>
-      {/* <Tab.Screen
-        name="Shopping"
-        component={ShoppingStackNavigator}
-        options={{
-          headerShown: false,
-          title: 'Shopping',
-          tabBarBadge: cart.items_cart.length > 0 ? cart.items_cart.length : undefined,
-          tabBarBadgeStyle: {
-            backgroundColor: 'red',
-          },
-        }}
-      /> */}
-
+      })}
+    >
       <Tab.Screen
         name="Home"
         component={LoggedHome}
@@ -103,7 +90,6 @@ const LoggedDrawerNavigator: React.FC = () => {
           title: 'Bem Vindo!',
         }}
       />
-
       <Tab.Screen
         name="user-schedules"
         component={SchedulesStackNavigator}
@@ -119,7 +105,6 @@ const LoggedDrawerNavigator: React.FC = () => {
           },
         }}
       />
-
       <Tab.Screen
         name="user-data"
         component={ProfileStackNavigator}
@@ -129,7 +114,6 @@ const LoggedDrawerNavigator: React.FC = () => {
           title: 'Meus Dados',
         }}
       />
-
       <Tab.Screen
         name="user-mdv"
         component={MdvStackNavigator}
@@ -140,6 +124,37 @@ const LoggedDrawerNavigator: React.FC = () => {
         }}
       />
     </Tab.Navigator>
+  );
+};
+
+// Navigator raiz que gerencia as telas modais/stack
+const LoggedDrawerNavigator: React.FC = () => {
+  const { colors } = useTheme();
+
+  return (
+    <RootStack.Navigator
+      screenOptions={{
+        headerShown: false
+      }}
+    >
+      <RootStack.Screen
+        name="MainTabs"
+        component={MainTabs}
+      />
+      <RootStack.Screen
+        name="ParceirosScreen"
+        component={PartnersScreen}
+        options={{ 
+          presentation: 'modal', // ou 'card' se preferir
+          title: 'Nossos Parceiros',
+          headerShown: true,
+          headerTintColor: colors.onSurface,
+          headerStyle: {
+            backgroundColor: colors.surface,
+          },
+        }}
+      />
+    </RootStack.Navigator>
   );
 };
 

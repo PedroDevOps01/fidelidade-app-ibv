@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   content: {
-    marginTop:15,
+    marginTop:65,
     maxWidth: 600,
     width: '100%',
     alignSelf: 'center',

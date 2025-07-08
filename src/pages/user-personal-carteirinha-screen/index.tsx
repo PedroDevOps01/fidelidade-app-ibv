@@ -90,6 +90,10 @@ const UserPersonalCarteirinhaScreen = ({ navigation }: { navigation: any }) => {
                   {dadosUsuarioData.pessoaDados?.cod_cpf_pes}
                 </Text>
               </View>
+
+           
+
+
               
               <View style={styles.infoRow}>
                 <Text style={[styles.infoLabel, isZoomed && styles.zoomedText]}>Nascimento:</Text>
@@ -97,7 +101,12 @@ const UserPersonalCarteirinhaScreen = ({ navigation }: { navigation: any }) => {
                   {formatDateToDDMMYYYY(dadosUsuarioData.pessoaDados?.dta_nascimento_pes ?? '')}
                 </Text>
               </View>
-              
+               <View style={styles.infoRow}>
+                  <Text style={[styles.infoLabel, isZoomed && styles.zoomedText]}>Endereço: </Text>
+                  <Text style={[styles.infoValue, isZoomed && styles.zoomedText]}>
+                    {`${dadosUsuarioData.pessoaDados?.des_bairro_pda ?? ''}, ${dadosUsuarioData.pessoaDados?.des_municipio_mun ?? ''} - ${dadosUsuarioData.pessoaDados?.des_estado_est ?? ''}`}
+                  </Text>
+                </View>
               <View style={styles.infoRow}>
                 <Text style={[styles.infoLabel, isZoomed && styles.zoomedText]}>Tipo:</Text>
                 <Text style={[styles.infoValue, isZoomed && styles.zoomedText]}>
@@ -180,7 +189,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   landscapeRotate: {
-    transform: [{ rotate: '90deg' }],
+    transform: [{ rotate: '-90deg' }],
   },
   cardContainer: {
     overflow: 'hidden',

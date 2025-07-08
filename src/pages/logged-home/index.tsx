@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
-import { View, StyleSheet, FlatList, ScrollView, SafeAreaView, Animated, Dimensions } from 'react-native';
+import { View, StyleSheet, FlatList, ScrollView, SafeAreaView, Animated, Dimensions, Modal, TouchableWithoutFeedback } from 'react-native';
 import { Card, useTheme, Text, Portal, ActivityIndicator, Avatar, Button, IconButton } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import { card_data } from './card_data';
 import { promotion_data } from './promotion_data';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
 import PagarmeErrorsDialog from './pagarme-errors-dialog';
+import { TouchableOpacity } from 'react-native';
 import { navigate } from '../../router/navigationRef';
 import InadimplenciaDialog from './inadimplencias-dialog';
 import { useConsultas } from '../../context/consultas-context';
@@ -15,52 +16,83 @@ import { formatDateToDDMMYYYY, generateRequestHeader } from '../../utils/app-uti
 import MinimalCardComponent from './minimal-card-component';
 import BannerHorizontalItem from './banner-card-component';
 import LoadingFull from '../../components/loading-full';
+import { Image } from 'react-native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const parceirosInfo = {
+  paguemenos: {
+    nome: 'Pague Menos',
+    descricao: 'Rede de farmácias com os melhores preços e descontos exclusivos para nossos clientes.',
+    beneficios: ['Descontos em medicamentos', 'Programa de fidelidade', 'Atendimento especializado'],
+  },
+  magalu: {
+    nome: 'Magazine Luiza',
+    descricao: 'Loja departamental com diversas categorias de produtos e entrega rápida.',
+    beneficios: ['Frete grátis para clientes premium', 'Ofertas exclusivas', 'Parcele em até 12x'],
+  },
+  depi: {
+    nome: 'Espaço Laser',
+    descricao: 'Clínica especializada em depilação a laser e tratamentos estéticos.',
+    beneficios: ['Sessões com desconto', 'Pacotes promocionais', 'Profissionais qualificados'],
+  },
+} as const;
 
 const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
+  type ParceiroId = keyof typeof parceirosInfo;
+
   const { colors } = useTheme();
   const { dadosUsuarioData, userCreditCards, setCreditCards, userContracts, setContracts } = useDadosUsuario();
   const { authData } = useAuth();
   const { setUserSchedulesData, userSchedules } = useConsultas();
+  const [lastHistoricSchedule, setLastHistoricSchedule] = useState<UserSchedule | null>(null);
 
   const [pagarmeErrors, setPagarmeErrors] = useState<ErrorCadastroPagarme | null>();
-  const [pagarmeErrorsDialogVisible, setPagarmeErrorsDialogVisible] = useState<boolean>(false);  
+  const [pagarmeErrorsDialogVisible, setPagarmeErrorsDialogVisible] = useState<boolean>(false);
   const [inadimplenciasDialogVisible, setInadimplenciasDialogVisible] = useState<boolean>(false);
   const [schedulesLoading, setSchedulesLoading] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const scrollXPromo = useRef(new Animated.Value(0)).current;
   const scrollXConsultas = useRef(new Animated.Value(0)).current;
   const isLogged = !dadosUsuarioData.user.id_usuario_usr ? false : true;
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedParceiro, setSelectedParceiro] = useState<ParceiroId | null>(null);
 
   // Data for the "Mais Consultas" carousel with multiple items for carousel behavior
   const maisConsultasData = [
     {
-      title: 'Mais Consultas',
-      icon: 'calendar-plus',
-      action: () => navigate('user-schedules'),
-      description: 'Veja todas as opções de consultas',
+      id: 'paguemenos',
+      image: require('../../assets/images/paguemenos3.jpeg'),
+      action: () => handleParceiroPress('paguemenos'),
     },
     {
-      title: 'Agendamentos Realizados',
-      icon: 'calendar-today',
-      action: () => navigate('user-shcdules-history-screen'), // Placeholder, can be changed later
-      description: 'Explore Agendamentos Realizados',
+      id: 'magalu',
+      image: require('../../assets/images/magalu.jpeg'),
+      action: () => handleParceiroPress('magalu'),
     },
     {
-      title: 'Agendar Exames',
-      icon: 'test-tube',
-      action: () => navigate('user-schedules'), // Placeholder, can be changed later
-      description: 'Marque seus exames agora',
-    },
-    {
-      title: 'Indique e Ganhe',
-      icon: 'currency-usd',
-      action: () => navigate('user-mdv'), // Placeholder, can be changed later
-      description: 'Torne-se um Vendedor agora Mesmo!',
+      id: 'depi',
+      image: require('../../assets/images/depi.jpeg'),
+      action: () => handleParceiroPress('depi'),
     },
   ];
+  const handleParceiroPress = (parceiroId: ParceiroId) => {
+    setSelectedParceiro(parceiroId);
+    setModalVisible(true);
+  };
+  async function fetchLastHistoricSchedule(): Promise<void> {
+    const token = dadosUsuarioData.pessoaDados?.cod_token_pes!;
+    if (!token) return;
 
+    try {
+      const response = await api.get(`/integracao/listHistoricoAgendamentos?token_paciente=${token}`, generateRequestHeader(authData.access_token));
+      const data = response.data;
+      if (data.length > 0) {
+        setLastHistoricSchedule(data[0]); // Pega o mais recente (posição 0 da lista)
+      }
+    } catch (error) {
+      console.log('Erro ao buscar histórico mais recente:', error);
+    }
+  }
   useEffect(() => {
     if (dadosUsuarioData.pessoa?.cod_cep_pda != undefined && !dadosUsuarioData.pessoaAssinatura) {
       navigation.navigate('user-contracts-stack');
@@ -155,7 +187,12 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   }
 
   async function fetchAllData() {
-    Promise.allSettled([fetchCreditCards(dadosUsuarioData.pessoaDados?.id_pessoa_pes!), fetchContratos(dadosUsuarioData.user.id_pessoa_usr), fetchSchedules(authData.access_token)])
+    Promise.allSettled([
+      fetchCreditCards(dadosUsuarioData.pessoaDados?.id_pessoa_pes!),
+      fetchContratos(dadosUsuarioData.user.id_pessoa_usr),
+      fetchSchedules(authData.access_token),
+      fetchLastHistoricSchedule(), // <-- vírgula corrigida
+    ])
       .then(_ => {})
       .catch(err => {
         console.log('erro em alguma promise: ', err);
@@ -170,24 +207,20 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
       <View style={styles.indicatorContainer}>
         {promotion_data.map((_, i) => {
           const opacity = scrollXPromo.interpolate({
-            inputRange: [
-              (i - 1) * SCREEN_WIDTH,
-              i * SCREEN_WIDTH,
-              (i + 1) * SCREEN_WIDTH
-            ],
+            inputRange: [(i - 1) * SCREEN_WIDTH, i * SCREEN_WIDTH, (i + 1) * SCREEN_WIDTH],
             outputRange: [0.3, 1, 0.3],
-            extrapolate: 'clamp'
+            extrapolate: 'clamp',
           });
-          
+
           return (
-            <Animated.View 
+            <Animated.View
               key={`promo-indicator-${i}`}
               style={[
-                styles.indicator, 
-                { 
+                styles.indicator,
+                {
                   backgroundColor: colors.primary,
-                  opacity
-                }
+                  opacity,
+                },
               ]}
             />
           );
@@ -201,24 +234,20 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
       <View style={styles.indicatorContainer}>
         {maisConsultasData.map((_, i) => {
           const opacity = scrollXConsultas.interpolate({
-            inputRange: [
-              (i - 1) * (SCREEN_WIDTH * 0.9 + 10),
-              i * (SCREEN_WIDTH * 0.9 + 10),
-              (i + 1) * (SCREEN_WIDTH * 0.9 + 10)
-            ],
+            inputRange: [(i - 1) * (SCREEN_WIDTH * 0.9 + 10), i * (SCREEN_WIDTH * 0.9 + 10), (i + 1) * (SCREEN_WIDTH * 0.9 + 10)],
             outputRange: [0.3, 1, 0.3],
-            extrapolate: 'clamp'
+            extrapolate: 'clamp',
           });
-          
+
           return (
-            <Animated.View 
+            <Animated.View
               key={`consultas-indicator-${i}`}
               style={[
-                styles.indicator, 
-                { 
+                styles.indicator,
+                {
                   backgroundColor: colors.primary,
-                  opacity
-                }
+                  opacity,
+                },
               ]}
             />
           );
@@ -227,29 +256,27 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
     );
   };
 
-  const renderConsultasItem = ({ item }: { item: any }) => {
+  const renderConsultasItem = ({ item, index }: { item: any; index: number }) => {
     return (
-      <Card
-        mode="elevated"
-        style={[styles.card, { backgroundColor: colors.surface, width: SCREEN_WIDTH * 0.9, marginHorizontal: 5 }]}
+      <TouchableOpacity
+        activeOpacity={0.8}
         onPress={item.action}
-        contentStyle={{ borderRadius: 16 }}
-      >
-        <Card.Content style={styles.emptyCardContent}>
-          <Avatar.Icon 
-            size={36}
-            icon={item.icon}
-            color={colors.onPrimaryContainer}
-            style={{ backgroundColor: colors.primaryContainer, marginBottom: 8 }}
-          />
-          <Text variant="titleMedium" style={{ color: colors.onSurface, fontWeight: '600' }}>
-            {item.title}
-          </Text>
-          <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant, textAlign: 'center' }}>
-            {item.description}
-          </Text>
-        </Card.Content>
-      </Card>
+        style={{
+          width: SCREEN_WIDTH * 0.7,
+          marginRight: index === maisConsultasData.length - 1 ? 0 : 10,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <Image
+          source={item.image}
+          style={{
+            width: '100%',
+            height: 200,
+            borderRadius: 15,
+            backgroundColor: '#f0f0f0', // opcional, para destacar a borda da imagem
+          }}
+        />
+      </TouchableOpacity>
     );
   };
 
@@ -258,21 +285,18 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
       {loading ? (
         <LoadingFull title="Carregando..." />
       ) : (
-        <ScrollView 
-          style={[styles.container]} 
-          contentContainerStyle={{ paddingBottom: 30 }} 
-          showsVerticalScrollIndicator={false}
-        >
+        <ScrollView style={[styles.container]} contentContainerStyle={{ paddingBottom: 30 }} showsVerticalScrollIndicator={false}>
           {/* Header moderno com efeito de profundidade */}
-          <View style={[
-            styles.headerContainer, 
-            { 
-              backgroundColor: '#FEF7FF',
-              paddingBottom: 20,
-              paddingTop: 16,
-              elevation: 6,
-            }
-          ]}>
+          <View
+            style={[
+              styles.headerContainer,
+              {
+                backgroundColor: '#FEF7FF',
+                paddingBottom: 20,
+                paddingTop: 16,
+                elevation: 6,
+              },
+            ]}>
             <View style={styles.userInfoContainer}>
               <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
                 <Text variant="titleLarge" style={[styles.welcomeText, { color: '#b183ff', marginRight: 6 }]}>
@@ -289,6 +313,39 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
 
           {/* Seção de cards de acesso rápido */}
           <View style={styles.sectionContainer}>
+            <View style={styles.sectionHeader}>
+              <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
+                Nossos Parceiros
+              </Text>
+              <Button mode="text" compact labelStyle={{ fontSize: 12, color: colors.primary }} onPress={() => navigation.navigate('ParceirosScreen')}>
+                Ver todos
+              </Button>
+            </View>
+
+            <Animated.FlatList
+              data={maisConsultasData}
+              renderItem={renderConsultasItem}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              snapToInterval={SCREEN_WIDTH * 0.8}
+              decelerationRate="fast"
+              contentContainerStyle={{
+                paddingHorizontal: (SCREEN_WIDTH - SCREEN_WIDTH * 0.99) / 2,
+              }}
+              onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollXConsultas } } }], { useNativeDriver: true })}
+              scrollEventThrottle={16}
+              removeClippedSubviews={true}
+              snapToAlignment="start"
+              pagingEnabled={false}
+              initialNumToRender={3}
+              windowSize={5}
+              getItemLayout={(data, index) => ({
+                length: SCREEN_WIDTH * 0.7 + 10,
+                offset: (SCREEN_WIDTH * 0.7 + 10) * index,
+                index,
+              })}
+            />
+            {renderConsultasIndicator()}
             <View style={styles.sectionHeader}>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
                 Acesso rápido
@@ -327,16 +384,13 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                 showsHorizontalScrollIndicator={false}
                 snapToInterval={SCREEN_WIDTH * 0.9 + 10}
                 decelerationRate="fast"
-                             contentContainerStyle={{
-                marginTop: 16,
-                paddingVertical: 8,
-                paddingHorizontal: 2,
-                width: '100%',
-              }}
-                onScroll={Animated.event(
-                  [{ nativeEvent: { contentOffset: { x: scrollXPromo } } }],
-                  { useNativeDriver: true }
-                )}
+                contentContainerStyle={{
+                  marginTop: 16,
+                  paddingVertical: 8,
+                  paddingHorizontal: 2,
+                  width: '100%',
+                }}
+                onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollXPromo } } }], { useNativeDriver: true })}
                 scrollEventThrottle={16}
                 removeClippedSubviews={false}
               />
@@ -344,32 +398,6 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             </View>
 
             {/* Carrossel de Mais Consultas */}
-            <View style={{ marginTop: 16 }}>
-              <Text variant="titleSmall" style={[styles.subSectionTitle, { color: colors.onSurface }]}>
-                Outras Opções
-              </Text>
-              <Animated.FlatList
-                data={maisConsultasData}
-                renderItem={renderConsultasItem}
-                keyExtractor={item => item.title}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                snapToInterval={SCREEN_WIDTH * 0.9 + 10}
-                decelerationRate="fast"
-                contentContainerStyle={{
-                  marginTop: 10,
-                  paddingVertical: 8,
-                  paddingHorizontal: 8,
-                }}
-                onScroll={Animated.event(
-                  [{ nativeEvent: { contentOffset: { x: scrollXConsultas } } }],
-                  { useNativeDriver: true }
-                )}
-                scrollEventThrottle={16}
-                removeClippedSubviews={false}
-              />
-              {renderConsultasIndicator()}
-            </View>
           </View>
 
           {/* Seção de agendamentos com design moderno */}
@@ -378,12 +406,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
                 Próximos agendamentos
               </Text>
-              <Button 
-                mode="text" 
-                compact
-                labelStyle={{ fontSize: 12, color: colors.primary }}
-                onPress={() => navigate('user-schedules')}
-              >
+              <Button mode="text" compact labelStyle={{ fontSize: 12, color: colors.primary }} onPress={() => navigate('user-schedules')}>
                 Ver todos
               </Button>
             </View>
@@ -392,35 +415,27 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             ) : (
               <>
                 {userSchedules.length === 0 ? (
-                  <Card 
-                    mode="elevated" 
-                    style={[styles.card, { backgroundColor: colors.surface }]}
-                    onPress={() => navigate('user-schedules')}
-                    contentStyle={{ borderRadius: 16 }}
-                  >
+                  <Card mode="elevated" style={[styles.card, { backgroundColor: colors.surface }]} onPress={() => navigate('user-schedules')} contentStyle={{ borderRadius: 16 }}>
                     <Card.Content style={styles.emptyCardContent}>
-                      <Text variant="titleMedium" style={{ color: colors.onSurface, marginTop: 10 }}>
-                        Nenhum agendamento
-                      </Text>
+<Text
+  variant="titleMedium"
+  style={{
+    color: colors.onSurface,
+    marginTop: 10,
+    textAlign: 'center', // centraliza o texto
+  }}>
+  Nenhum agendamento
+</Text>
                       <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant, textAlign: 'center' }}>
                         Toque para agendar uma nova consulta
                       </Text>
                     </Card.Content>
                   </Card>
                 ) : (
-                  <Card
-                    onPress={() => navigate('user-schedules')}
-                    mode="elevated"
-                    style={[styles.card, { backgroundColor: colors.surface }]}
-                    contentStyle={{ borderRadius: 16 }}
-                  >
+                  <Card onPress={() => navigate('user-schedules')} mode="elevated" style={[styles.card, { backgroundColor: colors.surface }]} contentStyle={{ borderRadius: 16 }}>
                     <Card.Content>
                       <View style={styles.scheduleCardContent}>
-                        <Avatar.Image
-                          source={{ uri: userSchedules[0].fachada_profissional }}
-                          size={60}
-                          style={[styles.avatar, { backgroundColor: colors.background }]}
-                        />
+                        <Avatar.Image source={{ uri: userSchedules[0].fachada_profissional }} size={60} style={[styles.avatar, { backgroundColor: colors.background }]} />
                         <View style={styles.scheduleInfo}>
                           <Text variant="titleMedium" style={{ color: colors.onSurface, fontWeight: '600' }}>
                             {userSchedules[0].nome_procedimento?.join(', ') ?? userSchedules[0].nome_procedimento}
@@ -438,11 +453,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                             </View>
                           </View>
                         </View>
-                        <IconButton 
-                          icon="chevron-right" 
-                          size={24} 
-                          iconColor={colors.onSurfaceVariant}
-                        />
+                        <IconButton icon="chevron-right" size={24} iconColor={colors.onSurfaceVariant} />
                       </View>
                     </Card.Content>
                   </Card>
@@ -457,45 +468,58 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
                 Histórico de atendimentos
               </Text>
-              <Button 
-                mode="text" 
-                compact
-                labelStyle={{ fontSize: 12, color: colors.primary }}
-                onPress={() => navigate('user-shcdules-history-screen')}
-              >
+              <Button mode="text" compact labelStyle={{ fontSize: 12, color: colors.primary }} onPress={() => navigate('user-shcdules-history-screen')}>
                 Ver histórico
               </Button>
             </View>
-            <Card
-              onPress={() => navigate('user-shcdules-history-screen')}
-              mode="elevated"
-              style={[styles.card, { backgroundColor: colors.surface }]}
-              contentStyle={{ borderRadius: 16 }}
-            >
-              <Card.Content style={styles.historyCardContent}>
-                <View style={[styles.historyIcon, { backgroundColor: colors.primaryContainer, borderRadius: 12 }]}>
-                  <Avatar.Icon 
-                    size={36}
-                    icon="history"
-                    color={colors.onTertiary}
-                    style={{ backgroundColor: 'colors.primaryContainer' }}
-                  />
-                </View>
-                <View style={styles.historyText}>
-                  <Text variant="titleMedium" style={{ color: colors.onSurface, fontWeight: '600' }}>
-                    Seu histórico completo
+
+            {lastHistoricSchedule ? (
+              <Card
+                onPress={() => navigate('user-shcdules-history-screen')}
+                mode="elevated"
+                style={[styles.card, { backgroundColor: colors.surface }]}
+                contentStyle={{ borderRadius: 16 }}>
+                <Card.Content>
+                  <View style={styles.scheduleCardContent}>
+                    <Avatar.Image source={{ uri: lastHistoricSchedule.fachada_profissional }} size={60} style={[styles.avatar, { backgroundColor: colors.background }]} />
+                    <View style={styles.scheduleInfo}>
+                      <Text variant="titleMedium" style={{ color: colors.onSurface, fontWeight: '600' }}>
+                        {Array.isArray(lastHistoricSchedule.nome_procedimento) ? lastHistoricSchedule.nome_procedimento.join(', ') : lastHistoricSchedule.nome_procedimento}
+                      </Text>
+                      <View style={styles.professionalContainer}>
+                        <Text variant="bodyMedium" style={{ color: colors.primary, fontWeight: '500' }}>
+                          {lastHistoricSchedule.nome_profissional ?? 'Exame'}
+                        </Text>
+                      </View>
+                      <View style={styles.dateContainer}>
+                        <View style={[styles.dateBadge, { backgroundColor: colors.primaryContainer }]}>
+                          <Text variant="labelSmall" style={{ color: colors.onPrimaryContainer, fontWeight: 'bold' }}>
+                            {formatDateToDDMMYYYY(lastHistoricSchedule.data)}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                    <IconButton icon="chevron-right" size={24} iconColor={colors.onSurfaceVariant} />
+                  </View>
+                </Card.Content>
+              </Card>
+            ) : (
+              <Card
+                onPress={() => navigate('user-shcdules-history-screen')}
+                mode="elevated"
+                style={[styles.card, { backgroundColor: colors.surface }]}
+                contentStyle={{ borderRadius: 16 }}>
+                <Card.Content style={styles.emptyCardContent}>
+                  <Text variant="titleMedium" style={{ color: colors.onSurface, marginTop: 10,     textAlign: 'center', // centraliza o texto
+ }}>
+                    Nenhum atendimento realizado
                   </Text>
-                  <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant }}>
-                    Acesse todas as consultas anteriores
+                  <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant, textAlign: 'center' }}>
+                    Toque para visualizar o histórico quando disponível
                   </Text>
-                </View>
-                <IconButton 
-                  icon="chevron-right" 
-                  size={24} 
-                  iconColor={colors.onSurfaceVariant}
-                />
-              </Card.Content>
-            </Card>
+                </Card.Content>
+              </Card>
+            )}
           </View>
 
           <Portal>
@@ -518,6 +542,63 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
           </Portal>
         </ScrollView>
       )}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(false);
+        }}>
+        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+          <View style={styles.modalOverlay} />
+        </TouchableWithoutFeedback>
+
+        <View style={styles.modalContainer}>
+          {selectedParceiro && (
+            <>
+              <Image source={maisConsultasData.find(p => p.id === selectedParceiro)?.image} style={styles.modalImage} />
+
+              <View style={styles.modalContent}>
+                <Text variant="titleLarge" style={styles.modalTitle}>
+                  {parceirosInfo[selectedParceiro]?.nome}
+                </Text>
+
+                <Text variant="bodyMedium" style={styles.modalDescription}>
+                  {parceirosInfo[selectedParceiro]?.descricao}
+                </Text>
+
+                <Text variant="titleSmall" style={styles.modalSectionTitle}>
+                  Benefícios:
+                </Text>
+
+                {parceirosInfo[selectedParceiro]?.beneficios.map((beneficio, index) => (
+                  <View key={index} style={styles.benefitItem}>
+                    <IconButton icon="check-circle" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
+                    <Text variant="bodyMedium" style={styles.benefitText}>
+                      {beneficio}
+                    </Text>
+                  </View>
+                ))}
+
+                <Button
+                  mode="contained"
+                  onPress={() => {
+                    setModalVisible(false);
+                    navigation.navigate('ParceirosScreen');
+                  }}
+                  style={styles.modalButton}
+                  labelStyle={styles.modalButtonText}>
+                  Ver mais detalhes
+                </Button>
+
+                <Button mode="outlined" onPress={() => setModalVisible(false)} style={styles.modalCloseButton} labelStyle={styles.modalCloseButtonText}>
+                  Fechar
+                </Button>
+              </View>
+            </>
+          )}
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -575,11 +656,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 6,
   },
-  emptyCardContent: {
-    paddingVertical: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  emptyCardContent: {},
   scheduleCardContent: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -630,6 +707,74 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     marginHorizontal: 4,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    maxHeight: '90%',
+  },
+  modalImage: {
+    width: '100%',
+    height: 250,
+    borderRadius: 15,
+    marginBottom: 15,
+  },
+  modalContent: {
+    paddingHorizontal: 10,
+  },
+  modalTitle: {
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  modalDescription: {
+    marginBottom: 15,
+    textAlign: 'center',
+    color: '#666',
+  },
+  modalSectionTitle: {
+    fontWeight: 'bold',
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  benefitItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  benefitIcon: {
+    margin: 0,
+    marginRight: 8,
+    padding: 0,
+  },
+  benefitText: {
+    flex: 1,
+  },
+  modalButton: {
+    marginTop: 20,
+    borderRadius: 10,
+    paddingVertical: 8,
+  },
+  modalButtonText: {
+    fontWeight: 'bold',
+  },
+  modalCloseButton: {
+    marginTop: 10,
+    borderRadius: 10,
+    paddingVertical: 8,
+    borderWidth: 1,
+  },
+  modalCloseButtonText: {
+    fontWeight: 'bold',
   },
 });
 
