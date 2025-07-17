@@ -16,14 +16,14 @@ export default LoadingFull;
 
 const styles = StyleSheet.create({
   loadingContainer: {
-    position: 'absolute',
+    position: 'absolute', // cobre a tela
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#e7d7ff',
+    justifyContent: 'center', // centraliza vertical
+    alignItems: 'center',     // centraliza horizontal
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
     zIndex: 10,
   },
   loadingText: {

@@ -17,6 +17,7 @@ import MinimalCardComponent from './minimal-card-component';
 import BannerHorizontalItem from './banner-card-component';
 import LoadingFull from '../../components/loading-full';
 import { Image } from 'react-native';
+import { Platform } from 'react-native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const parceirosInfo = {
@@ -285,28 +286,36 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
       {loading ? (
         <LoadingFull title="Carregando..." />
       ) : (
-        <ScrollView style={[styles.container]} contentContainerStyle={{ paddingBottom: 30 }} showsVerticalScrollIndicator={false}>
+        <ScrollView style={[styles.container]} contentContainerStyle={{ paddingBottom: 10 }} showsVerticalScrollIndicator={false}>
           {/* Header moderno com efeito de profundidade */}
-          <View
-            style={[
-              styles.headerContainer,
-              {
-                backgroundColor: '#FEF7FF',
-                paddingBottom: 20,
-                paddingTop: 16,
-                elevation: 6,
-              },
-            ]}>
+      <View
+  style={[
+    styles.headerContainer,
+    {
+      backgroundColor: '#b183ff',
+      paddingBottom: 6,
+      paddingTop: 6,
+      elevation: 6,
+      ...(Platform.OS === 'android' ? { marginTop: 50 } : {}),
+    },
+  ]} // <-- fecha corretamente aqui
+>
+
             <View style={styles.userInfoContainer}>
               <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
-                <Text variant="titleLarge" style={[styles.welcomeText, { color: '#b183ff', marginRight: 6 }]}>
+                <Text variant="titleLarge" style={[styles.welcomeText, { color: '#FFFFFF', marginRight: 6 }]}>
                   {isLogged ? `Bem vind${dadosUsuarioData.pessoaDados?.des_sexo_biologico_pes === 'M' ? 'o' : 'a'},` : `Bem vindo!`}
                 </Text>
                 {isLogged && (
-                  <Text variant="titleLarge" style={[styles.userName, { color: '#b183ff' }]}>
+                  <Text variant="titleLarge" style={[styles.userName, { color: '#FFFFFF' }]}>
                     {dadosUsuarioData.pessoaDados?.des_genero_pes}!!
                   </Text>
                 )}
+              </View>
+
+              <View style={styles.logoContainer}>
+                <Image source={require('../../assets/images/logotransparente.png')} style={[styles.cardLogo]} resizeMode="contain" />
+
               </View>
             </View>
           </View>
@@ -621,11 +630,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 16,
     marginBottom: 20,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
   },
   userInfoContainer: {
     flexDirection: 'row',
+    paddingTop: 0,
     justifyContent: 'space-between',
     alignItems: 'center',
+    overflow: 'hidden',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+ cardLogo: {
+  width: 120,
+  height: 88,
+  borderRadius: 10,
+  marginTop: 0,  // opcional: empurra a imagem para cima
+},
+  appName: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
+    textAlign: 'center',
   },
   welcomeText: {
     fontSize: 25,
@@ -657,7 +690,6 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 20,
-    overflow: 'hidden',
     elevation: 2,
     marginBottom: 16,
     shadowColor: '#000',
@@ -729,7 +761,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
-    maxHeight: '90%',
+    maxHeight: '100%',
   },
   modalImage: {
     width: '100%',

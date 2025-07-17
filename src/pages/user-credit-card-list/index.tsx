@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10,
+    marginTop: -5,
   },
   cardLabel: {
     color: 'rgba(255,255,255,0.8)',

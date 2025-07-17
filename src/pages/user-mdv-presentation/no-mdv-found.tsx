@@ -177,7 +177,6 @@ const styles = StyleSheet.create({
   },
   benefitCard: {
     borderRadius: 16,
-    overflow: 'hidden',
   },
   mainCard: {
     borderRadius: 16,

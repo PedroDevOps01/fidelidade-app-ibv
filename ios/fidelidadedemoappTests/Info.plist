@@ -20,5 +20,9 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>Precisamos da sua localização para realizar o check-in</string>
+<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+<string>Precisamos da sua localização para realizar o check-in</string>
 </dict>
 </plist>

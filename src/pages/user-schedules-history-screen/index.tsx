@@ -22,10 +22,9 @@ const UserSchedulesHistoryScreen = () => {
   const [listItemIndex, setListItemIndex] = useState<number>(0);
 
   async function fetchSchedules() {
-
     const token = dadosUsuarioData.pessoaDados?.cod_token_pes!;
 
-    if(token == undefined) {
+    if (token == undefined) {
       CustomToast('Erro ao carregar os dados. Tente novamente mais tarde!', colors);
       return;
     }
@@ -69,12 +68,20 @@ const UserSchedulesHistoryScreen = () => {
       {loading ? (
         <LoadingFull />
       ) : (
-        <View style={{flex: 1, flexDirection: 'row'}}>
+        <View style={{ flex: 1, flexDirection: 'row' }}>
           {userSchedules.length > 0 ? (
             <FlatList
-            style={{ width: '100%' }}
+              style={{ width: '100%' }}
               data={userSchedules}
-              renderItem={({ item, index }) => <UserScheduleCard index={index} appointment={item} onPress={e => showModal(e)} />}
+              renderItem={({ item, index }) => (
+                <UserScheduleCard
+                  index={index}
+                  appointment={item}
+                  onPress={e => showModal(e)}
+                  showCheckinButton={false} // desabilita o botão check-in no histórico
+                  setGlobalLoading={setLoading} // se sua prop existir, mantenha aqui para evitar erro
+                />
+              )}
               refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchSchedules} />}
               removeClippedSubviews={false}
             />
@@ -94,7 +101,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   containerErrorComponent: {
     justifyContent: 'center',

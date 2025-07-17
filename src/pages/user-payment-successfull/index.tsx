@@ -1,10 +1,11 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Card, Text, Button, useTheme, IconButton } from 'react-native-paper';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { goHome, navigate, reset } from '../../router/navigationRef';
+import { StyleSheet, View, Dimensions, Animated, Easing } from 'react-native';
+import { Card, Text, Button, useTheme } from 'react-native-paper';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import { goHome } from '../../router/navigationRef';
 import { useConsultas } from '../../context/consultas-context';
 import { initialScheduleRequestState, useExames } from '../../context/exames-context';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 type UserPaymentSuccessfullRouteParams = {
   params: {
@@ -17,80 +18,171 @@ export default function UserPaymentSuccessfull() {
   const { currentProcedureMethod } = useConsultas();
   const { setScheduleRequestData, resetsetSelectedExamsState } = useExames();
   const route = useRoute<RouteProp<UserPaymentSuccessfullRouteParams>>();
+  
+  const scaleValue = React.useRef(new Animated.Value(0.5)).current;
+  const opacityValue = React.useRef(new Animated.Value(0)).current;
+  const checkmarkScale = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    // Animação de entrada do card
+    Animated.parallel([
+      Animated.spring(scaleValue, {
+        toValue: 1,
+        friction: 6,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityValue, {
+        toValue: 1,
+        duration: 300,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      })
+    ]).start(() => {
+      // Animação do checkmark após o card aparecer
+      Animated.spring(checkmarkScale, {
+        toValue: 1,
+        friction: 3,
+        useNativeDriver: true,
+      }).start();
+    });
+  }, []);
 
   const handlePress = () => {
-    if (currentProcedureMethod === 'exame') {
+    if (currentProcedureMethod === 'exame' || currentProcedureMethod === 'consulta') {
       setScheduleRequestData(initialScheduleRequestState);
       resetsetSelectedExamsState();
-      goHome();
     }
-
-    if (currentProcedureMethod === 'consulta') {
-      setScheduleRequestData(initialScheduleRequestState);
-      resetsetSelectedExamsState();
-      goHome();
-    } else {
-      goHome();
-    }
-
-    // if(route.params) {
-    //   console.log(route.params.name)
-    //   reset([{name: }], 0)
-    // }
+    goHome();
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Card mode="contained" style={styles.card}>
-        <View style={styles.iconContainer}>
-          <IconButton icon="check-circle" size={64} iconColor={colors.primary} style={styles.icon} />
-        </View>
+    <View style={[styles.container, { backgroundColor: 'rgba(0,0,0,0.7)' }]}>
+      <Animated.View 
+        style={[
+          styles.animatedContainer, 
+          { 
+            transform: [{ scale: scaleValue }],
+            opacity: opacityValue
+          }
+        ]}
+      >
+        <Card mode="elevated" style={[styles.card, { backgroundColor: colors.surface }]}>
+          
 
-        <Card.Content>
-          <Text style={styles.title}>Pagamento Realizado com Sucesso!</Text>
-          <Text style={styles.message}>Seu pagamento está sendo processado no momento. Agora, você pode continuar utilizando nossos serviços.</Text>
-        </Card.Content>
+          <Card.Content style={styles.content}>
+            <Text variant="headlineSmall" style={[styles.title, { color: colors.primary }]}>
+              Agendamento Confirmado!
+            </Text>
+            
+            <View style={styles.messageContainer}>
+              <Text variant="bodyMedium" style={[styles.message, { color: colors.onSurface }]}>
+                Seu pagamento foi processado com sucesso e seu agendamento está confirmado.
+              </Text>
+              <Text variant="bodyMedium" style={[styles.message, { color: colors.onSurface, marginTop: 8 }]}>
+                Você receberá um e-mail com todos os detalhes.
+              </Text>
+            </View>
+          </Card.Content>
 
-        <Button
-          mode="contained"
-          onPress={handlePress} // Substitua 'HomeScreen' pela rota desejada
-          style={{ marginTop: 10 }}>
-          Continuar
-        </Button>
-      </Card>
+          <Card.Actions style={styles.actions}>
+            <Button
+              mode="contained"
+              onPress={handlePress}
+              style={[styles.button, { backgroundColor: colors.primary }]}
+              labelStyle={styles.buttonLabel}
+              contentStyle={styles.buttonContent}
+            >
+              Voltar ao Início
+            </Button>
+          </Card.Actions>
+        </Card>
+      </Animated.View>
     </View>
   );
 }
+
+const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 16,
+    alignItems: 'center',
+    position: 'absolute',
+    width: width,
+    height: height,
+    zIndex: 100,
+  },
+  animatedContainer: {
+    width: '90%',
+    maxWidth: 400,
   },
   card: {
-    marginHorizontal: 16,
-    padding: 16,
-    borderRadius: 8,
+    borderRadius: 24,
+    padding: 24,
+    paddingTop: 40,
+    paddingBottom: 16,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
   },
   iconContainer: {
+    position: 'absolute',
+    top: -50,
+    alignSelf: 'center',
+  },
+  checkmarkBackground: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    borderWidth: 4,
+    borderColor: '#FFFFFF',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
   },
-  icon: {
-    backgroundColor: 'transparent',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
+  content: {
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    marginTop: 16,
     marginBottom: 8,
   },
-  message: {
-    fontSize: 16,
+  title: {
+    fontWeight: '800',
     textAlign: 'center',
-    color: '#666',
-    marginBottom: 20,
+    marginBottom: 16,
+    letterSpacing: 0.5,
   },
-  button: {},
+  messageContainer: {
+    marginVertical: 8,
+  },
+  message: {
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  actions: {
+    width: '100%',
+    paddingHorizontal: 0,
+    marginTop: 16,
+  },
+  button: {
+    width: '100%',
+    borderRadius: 12,
+    paddingVertical: 2,
+    elevation: 0,
+  },
+  buttonContent: {
+    height: 48,
+  },
+  buttonLabel: {
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
 });

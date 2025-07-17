@@ -26,7 +26,7 @@ const MainTabs = () => {
       backBehavior="initialRoute"
       initialRouteName={'Home'}
       screenOptions={({ route }) => ({
-        tabBarShowLabel: false,
+        tabBarShowLabel: true,
         tabBarHideOnKeyboard: true,
         headerTintColor: colors.onSurface,
         headerShown: false,
@@ -39,8 +39,9 @@ const MainTabs = () => {
           backgroundColor: colors.background,
           borderTopWidth: 0.3,
           borderTopColor: colors.onSurfaceVariant,
-          height: Platform.OS === 'android' ? 60 : 90,
+          height: Platform.OS === 'android' ? 85 : 90,
           elevation: 0,
+          paddingBottom: Platform.OS === 'android' ? 25 : 20,
         },
         tabBarIcon: ({ color, size }) => {
           let iconName;
@@ -63,7 +64,7 @@ const MainTabs = () => {
             default:
               iconName = 'circle';
           }
-          return <Icon name={iconName} size={30} color={color} />;
+          return <Icon name={iconName} size={24} color={color} />;
         },
         tabBarActiveTintColor: colors.onPrimary,
         tabBarInactiveTintColor: colors.onSurfaceVariant,
@@ -71,13 +72,14 @@ const MainTabs = () => {
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
+          marginBottom: Platform.OS === 'android' ? 0 : 4,
         },
         tabBarItemStyle: {
-          paddingVertical: 5,
+          paddingVertical: 8,
           borderRadius: 0,
         },
         tabBarIconStyle: {
-          marginTop: 0,
+          marginTop: 4,
           padding: 0,
         },
       })}

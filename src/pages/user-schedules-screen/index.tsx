@@ -131,7 +131,14 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
           {userSchedules.length > 0 ? (
             <FlatList
               data={userSchedules}
-              renderItem={({ item, index }) => <UserScheduleCard index={index} appointment={item} onPress={e => showModal(e)} />}
+renderItem={({ item, index }) => (
+  <UserScheduleCard 
+    index={index}
+    appointment={item}
+    onPress={e => showModal(e)}
+    setGlobalLoading={setLoading} 
+  />
+)}
               refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchSchedules} />}
               removeClippedSubviews={false}
             />

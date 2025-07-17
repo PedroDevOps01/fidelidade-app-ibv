@@ -20,6 +20,11 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>Precisamos da sua localização para realizar o check-in</string>
+<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+<string>Precisamos da sua localização para realizar o check-in</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>

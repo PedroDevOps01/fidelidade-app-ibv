@@ -4,6 +4,7 @@ import { List, Text, useTheme } from 'react-native-paper';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
 import { navigate } from '../../router/navigationRef';
 import { useFocusEffect } from '@react-navigation/native';
+import { Platform } from 'react-native';
 
 const UserDataScreen = ({ navigation }: { navigation: any }) => {
   const theme = useTheme();
@@ -19,9 +20,16 @@ const UserDataScreen = ({ navigation }: { navigation: any }) => {
 
   return (
     <SafeAreaView style={[styles.outerContainer, { backgroundColor: theme.colors.background }]}>
-      <Text variant="titleLarge" style={{ marginTop: 10, fontWeight: 'bold', paddingHorizontal: 16 }}>
-        Meus Dados
-      </Text>
+      <Text
+  variant="titleLarge"
+  style={{
+    marginTop: Platform.OS === 'ios' ? 10 : 60,
+    fontWeight: 'bold',
+    paddingHorizontal: 16
+  }}
+>
+  Meus Dados
+</Text>
       <View style={styles.innerContainer}>
         <List.Section>
           <List.Item
