@@ -1,13 +1,23 @@
 import { Share, View } from 'react-native';
 import { Button, Text, useTheme } from 'react-native-paper';
 
-export default function CopyMdvLink({id}: {id: number}) {
+type Props = {
+  id: number;
+  codigoPromocional?: string; // valor opcional
+};
+
+export default function CopyMdvLink({ id, codigoPromocional }: Props) {
   const { colors } = useTheme();
 
   const shareMessage = async () => {
+    const baseURL = codigoPromocional
+      ? `http://3.215.147.199/${codigoPromocional}`
+      : 'http://3.215.147.199';
+    const linkCompartilhado = `${baseURL}/fidelidade-ajudda/planos/${id}`;
+
     try {
       const result = await Share.share({
-        message:`http://3.215.147.199/fidelidade-ajudda/planos/${id}`, // Alguns apps dão preferência para esse campo
+        message: linkCompartilhado,
       });
 
       if (result.action === Share.sharedAction) {
@@ -21,9 +31,10 @@ export default function CopyMdvLink({id}: {id: number}) {
   };
 
   return (
-    <View style={{ height: 'auto', paddingVertical: 20, borderRadius: 12, padding: 12, overflow: 'hidden', backgroundColor: colors.surfaceVariant }}>
-      {/* Título do gráfico */}
-      <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.onSurface, marginBottom: 10 }}>Meu link de venda</Text>
+    <View style={{ width: '100%', paddingVertical: 20, borderRadius: 12, padding: 12, overflow: 'hidden', backgroundColor: colors.surface }}>
+      <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.onSurface, marginBottom: 10 }}>
+        Meu link de venda
+      </Text>
 
       <Button key={'get_all_money'} mode="contained" onPress={shareMessage}>
         Compartilhar link

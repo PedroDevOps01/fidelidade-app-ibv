@@ -58,7 +58,7 @@ const SalesChart = ({
         borderRadius: 12,
         padding: 12,
         overflow: "hidden",
-        backgroundColor: colors.surfaceVariant,
+        backgroundColor: colors.surface,
       }}
     >
       {loading ? (

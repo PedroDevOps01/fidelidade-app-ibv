@@ -59,7 +59,14 @@ export default function TotalSalesValue({ salesData, currentMdv }: { salesData: 
   console.log('availableAmount', availableAmount);
 
   return (
-    <View style={{ height: 'auto', paddingVertical: 20, borderRadius: 12, padding: 12, overflow: 'hidden', backgroundColor: colors.surfaceVariant }}>
+    <View style={{
+        height: "auto",
+        paddingVertical: 20,
+        borderRadius: 12,
+        padding: 12,
+        overflow: "hidden",
+        backgroundColor: colors.surface,
+      }}>
       {/* Título do gráfico */}
       <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.onSurface, marginBottom: 10 }}>
         {availableAmount == 0 ? 'Sem vendas registradas!' : `Valor total disponível para saque \n${maskBrazilianCurrency(availableAmount)}`}

@@ -1,93 +1,152 @@
-import React from 'react';
-import { View, StyleSheet, SafeAreaView, TouchableOpacity, Dimensions } from 'react-native';
-import { Text, useTheme, Card, Title, Button } from 'react-native-paper';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, StyleSheet, SafeAreaView, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
+import { Text, useTheme, Card, Button, IconButton } from 'react-native-paper';
 import { Image } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { ScrollView } from 'react-native'; // Adicione essa importação
+import { useAuth } from '../../context/AuthContext';
+import { api } from '../../network/api';
+import { generateRequestHeader } from '../../utils/app-utils';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
+interface Parceiro {
+  id_parceiro_prc: number;
+  des_nome_fantasia_prc: string;
+  des_razao_social_prc: string;
+  des_endereco_prc: string;
+  des_complemento_prc: string;
+  des_bairro_prc: string;
+  des_municipio_mun: string;
+  des_email_responsavel_prc: string;
+  des_nome_responsavel_prc: string;
+  des_endereco_web_prc: string;
+  cod_documento_prc: string;
+  num_celular_prc: string;
+  num_telefone_prc: string;
+  img_parceiro_prc: string | null;
+  is_ativo_prc: number;
+  is_parceiro_padrao_prc: number;
+  dth_cadastro_prc: string;
+  dth_alteracao_prc: string;
+  id_municipio_prc: number;
+}
+
 const PartnersScreen = ({ navigation }: { navigation: any }) => {
   const { colors } = useTheme();
+  const { authData } = useAuth();
+  const [parceiros, setParceiros] = useState<Parceiro[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const partnerData = [
-    {
-      name: 'Pague Menos',
-      image: require('../../assets/images/paguemenos.jpeg'),
-      discount: 'Até 30% OFF',
-      category: 'Farmácia',
-    },
-    {
-      name: 'Magalu',
-      image: require('../../assets/images/magalu.jpeg'),
-      discount: '10% OFF em Produtos',
-      category: 'E-commerce',
-    },
-    // {
-    //   name: 'Espaçolaser Depilação',
-    //   image: require('../../assets/images/depi.jpeg'),
-    //   discount: '1ª Sessão Grátis',
-    //   category: 'Beleza',
-    // },
-  ];
+  // Map API data to partnerData structure
+  const partnerData = parceiros.map(parceiro => ({
+    name: parceiro.des_nome_fantasia_prc,
+    image: parceiro.img_parceiro_prc
+      ? { uri: `${parceiro.img_parceiro_prc}` }
+      : require('../../assets/images/logonova.png'),
+    // Fallback for discount and category (adjust based on API data or backend updates)
+    discount: 'Desconto Exclusivo', // Placeholder, as API doesn't provide discount
+    category: parceiro.des_municipio_mun || 'Parceiro', // Use municipality or a default
+  }));
 
   const handlePartnerPress = (partner: any) => {
-    // Navegação para detalhes do parceiro ou ação comercial
     console.log('Parceiro selecionado:', partner.name);
+    // Add navigation or modal logic if needed, similar to LoggedHome
   };
 
+  async function fetchParceiros(): Promise<void> {
+    try {
+      setLoading(true);
+      const response = await api.get('/parceiro/app', generateRequestHeader(authData.access_token));
+      const dataApi = response.data;
+
+      if (dataApi && dataApi.response && dataApi.response.data && dataApi.response.data.length > 0) {
+        console.log('Parceiros encontrados:', dataApi.response.data);
+        setParceiros(dataApi.response.data);
+      } else {
+        setError('Nenhum parceiro encontrado');
+        console.log('Nenhum parceiro encontrado');
+      }
+    } catch (error: any) {
+      setError('Erro ao buscar parceiros: ' + error.message);
+      console.error('Erro ao buscar parceiros:', error.message, error.response?.data);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      if (authData.access_token) {
+        fetchParceiros();
+      }
+    }, [authData]),
+  );
+
   return (
-    
-      <SafeAreaView style={{ flex: 1,backgroundColor: '#e7d7ff'}}>
-  <View style={styles.header}>
-    <Text style={styles.headerSubtitle}>Descontos exclusivos para você</Text>
-  </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#e7d7ff' }}>
+      <View style={styles.header}>
+        <Text style={styles.headerSubtitle}>Descontos exclusivos para você</Text>
+      </View>
 
-  {/* ENVOLVE AQUI COM SCROLLVIEW */}
-  <ScrollView contentContainerStyle={{ paddingBottom: 30 }}>
-    <View style={styles.container}>
-      {partnerData.map((item, index) => (
-        <TouchableOpacity 
-          key={index} 
-          onPress={() => handlePartnerPress(item)}
-          activeOpacity={0.9}
-        >
-          <Card style={styles.card}>
-            <Card.Content>
-              <View style={styles.cardHeader}>
-                <Text style={styles.partnerCategory}>{item.category}</Text>
-                <View style={styles.discountBadge}>
-                  <Icon name="tag" size={14} color="#fff" />
-                  <Text style={styles.discountText}>{item.discount}</Text>
-                </View>
-              </View>
-              
-              <Image
-                source={item.image}
-style={[styles.partnerImage, { borderRadius: 15 }]}
-              />
-              
-              <Text style={styles.partnerName}>{item.name}</Text>
-          
-            </Card.Content>
-          </Card>
-        </TouchableOpacity>
-      ))}
-    </View>
+      <ScrollView contentContainerStyle={{ paddingBottom: 30 }}>
+        <View style={styles.container}>
+          {loading ? (
+            <Text style={{ textAlign: 'center', color: colors.onSurface, marginVertical: 20 }}>
+              Carregando parceiros...
+            </Text>
+          ) : error ? (
+            <Text style={{ textAlign: 'center', color: 'red', marginVertical: 20 }}>
+              {error}
+            </Text>
+          ) : partnerData.length === 0 ? (
+            <Text style={{ textAlign: 'center', color: colors.onSurfaceVariant, marginVertical: 20 }}>
+              Nenhum parceiro disponível no momento
+            </Text>
+          ) : (
+            partnerData.map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => handlePartnerPress(item)}
+                activeOpacity={0.9}
+              >
+                <Card style={styles.card}>
+                  <Card.Content>
+                    <View style={styles.cardHeader}>
+                      <Text style={styles.partnerCategory}>{item.category}</Text>
+                      <View style={styles.discountBadge}>
+                        <Icon name="tag" size={14} color="#fff" />
+                        <Text style={styles.discountText}>{item.discount}</Text>
+                      </View>
+                    </View>
 
-    {/* Deixe o footer DENTRO do ScrollView também, se quiser que role junto */}
-    {/* <View style={styles.footer}>
-      <Text style={styles.footerText}>Quer ser nosso parceiro?</Text>
-      <Button 
-        mode="outlined" 
-        style={styles.becomePartnerButton}
-        labelStyle={styles.becomePartnerLabel}
-      >
-        Fale Conosco
-      </Button>
-    </View> */}
-  </ScrollView>
-</SafeAreaView>
+                    <Image
+                      source={item.image}
+                      style={[styles.partnerImage, { borderRadius: 15 }]}
+                    />
+
+                    <Text style={styles.partnerName}>{item.name}</Text>
+                  </Card.Content>
+                </Card>
+              </TouchableOpacity>
+            ))
+          )}
+        </View>
+
+        {/* Footer (uncomment if needed) */}
+        {/* <View style={styles.footer}>
+          <Text style={styles.footerText}>Quer ser nosso parceiro?</Text>
+          <Button
+            mode="outlined"
+            style={styles.becomePartnerButton}
+            labelStyle={styles.becomePartnerLabel}
+          >
+            Fale Conosco
+          </Button>
+        </View> */}
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -144,12 +203,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   partnerImage: {
-  width: '50%',
-  height: 160,
-  marginVertical: 10,
-  alignSelf: 'center',
-},
-
+    width: '50%',
+    height: 160,
+    marginVertical: 10,
+    alignSelf: 'center',
+  },
   partnerName: {
     fontSize: 20,
     fontWeight: 'bold',

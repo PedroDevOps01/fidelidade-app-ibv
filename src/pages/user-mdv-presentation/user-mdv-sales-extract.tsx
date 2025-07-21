@@ -1,6 +1,6 @@
-import { Button, Card, Icon, IconButton, Menu, Text, useTheme } from 'react-native-paper';
+import { Button, Card, Icon, IconButton, Text, useTheme } from 'react-native-paper';
 import { useAuth } from '../../context/AuthContext';
-import { RefreshControl, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { RefreshControl, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { useEffect, useState } from 'react';
 import { goBack } from '../../router/navigationRef';
 import ModalContainer from '../../components/modal';
@@ -11,6 +11,7 @@ import dayjs from 'dayjs';
 import { formatDateToDDMMYYYY, generateRequestHeader, maskBrazilianCurrency } from '../../utils/app-utils';
 import CustomToast from '../../components/custom-toast';
 import { FlashList } from '@shopify/flash-list';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 type ExtractDates = {
   created_since: Date | null;
@@ -49,26 +50,50 @@ export default function UserMdvSalesExtract() {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [periodModalVisible, setPeriodModalVisible] = useState<boolean>(false);
-  const [menuVisible, setMenuVisible] = useState(false);
   const [mdvExtractData, setMdvExtractData] = useState<MdvExtractData[]>([]);
-
   const [dates, setDates] = useState<ExtractDates>({
     created_since: null,
     created_until: null,
   });
 
-  function handlePaymentMethod(method: string) {
+  const renderPaymentMethodIcon = (method: string) => {
     switch (method) {
       case "credit_card":
-        return "Cartão de Crédito";
+        return <MaterialCommunityIcons name="credit-card" size={20} color="#5D5FEF" />;
       case "pix":
-        return "PIX";
+        return <MaterialCommunityIcons name="qrcode" size={20} color="#5D5FEF" />;
+      default:
+        return <MaterialCommunityIcons name="cash" size={20} color="#5D5FEF" />;
     }
-  }
+  };
+
+  const renderStatusBadge = (status: string) => {
+    const isPaid = status === "paid";
+    return (
+      <View style={[
+        styles.statusBadge, 
+        { 
+          backgroundColor: isPaid ? '#E8F5E9' : '#FFF8E1',
+          borderColor: isPaid ? '#4CAF50' : '#FFC107'
+        }
+      ]}>
+        <MaterialCommunityIcons 
+          name={isPaid ? "check-circle" : "clock"} 
+          size={16} 
+          color={isPaid ? '#4CAF50' : '#FFC107'} 
+        />
+        <Text style={[
+          styles.statusText,
+          { color: isPaid ? '#4CAF50' : '#FFC107' }
+        ]}>
+          {isPaid ? "Pago" : "Aguardando"}
+        </Text>
+      </View>
+    );
+  };
 
   async function fetchExtract() {
     setLoading(true);
-
     try {
       const { recipient_id } = route.params;
       let qry = `/dashboard/extratoRecebedor?recipient_id=${recipient_id}`;
@@ -94,108 +119,162 @@ export default function UserMdvSalesExtract() {
   }
 
   useEffect(() => {
-    (async () => {
-      await fetchExtract()
-    })()
-  }, [])
+    fetchExtract();
+  }, [dates]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={{ paddingHorizontal: 16, marginTop: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* Header */}
+      <View style={[styles.header, { backgroundColor: colors.surface }]}>
         <IconButton
-          icon={'arrow-left'}
-          style={{ margin: 0, padding: 0 }}
-          onPress={() => {
-            goBack();
-          }}
+          icon="arrow-left"
+          size={24}
+          onPress={goBack}
+          style={styles.backButton}
         />
-
-        <Text variant="titleLarge" style={{ fontWeight: 'bold' }}>
-          Minhas vendas
+        <Text variant="titleLarge" style={[styles.headerTitle, { color: colors.onSurface }]}>
+          Extrato de Vendas
         </Text>
-
-        <Menu
-          visible={menuVisible}
-          onDismiss={() => setMenuVisible(false)}
-          anchor={
-            <TouchableOpacity onPress={() => setMenuVisible(true)}>
-              <Icon source={'menu'} size={30} />
-            </TouchableOpacity>
-          }>
-          <Menu.Item
-            onPress={() => {
-              setMenuVisible(false);
-              setPeriodModalVisible(true);
-            }}
-            title="Período"
-          />
-        </Menu>
+        
       </View>
 
+      {/* Active Filter Indicator */}
+      {(dates.created_since || dates.created_until) && (
+        <View style={[styles.activeFilterContainer, { backgroundColor: colors.secondaryContainer }]}>
+          <Text style={[styles.activeFilterText, { color: colors.onSecondaryContainer }]}>
+            Período: {dates.created_since ? formatDateToDDMMYYYY(dates.created_since) : 'Início'} - 
+            {dates.created_until ? formatDateToDDMMYYYY(dates.created_until) : 'Fim'}
+          </Text>
+          <TouchableOpacity onPress={() => setDates({ created_since: null, created_until: null })}>
+            <MaterialCommunityIcons 
+              name="close" 
+              size={20} 
+              color={colors.onSecondaryContainer} 
+            />
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Transaction List */}
       <FlashList
         data={mdvExtractData}
+        estimatedItemSize={100}
+        keyExtractor={(item) => item.id.toString()}
         refreshControl={
           <RefreshControl
             refreshing={loading}
-            onRefresh={() => {
-              fetchExtract();
-            }}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+            onRefresh={fetchExtract}
           />
         }
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            <MaterialCommunityIcons 
+              name="receipt-text-remove-outline" 
+              size={64} 
+              color={colors.outline} 
+            />
+            <Text variant="titleMedium" style={[styles.emptyText, { color: colors.onSurfaceVariant }]}>
+              Nenhuma transação encontrada
+            </Text>
+            <Text variant="bodyMedium" style={[styles.emptySubtext, { color: colors.onSurfaceVariant }]}>
+              {dates.created_since || dates.created_until 
+                ? "Tente ajustar o período selecionado" 
+                : "Suas transações aparecerão aqui"}
+            </Text>
+          </View>
+        }
         renderItem={({ item }) => (
-          <Card style={{ borderRadius: 0, elevation: 0, backgroundColor: colors.surface }}>
+          <Card style={[styles.transactionCard, { backgroundColor: colors.surface }]}>
             <Card.Content>
-              <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{dayjs(item.created_at).format('DD/MM/YYYY')}</Text>
-              <Text style={{fontSize: 16 }}>Forma de pagamento: {handlePaymentMethod(item.payment_method)}</Text>
-              <Text style={{fontSize: 16 }}>Status: {item.status == "paid" ? "Pago" : "Aguardando pagamento"}</Text>
-              <Text style={{fontSize: 16 }}>Valor: {maskBrazilianCurrency(item.amount)}</Text>
+              <View style={styles.transactionHeader}>
+                <View style={styles.dateContainer}>
+                  <MaterialCommunityIcons 
+                    name="calendar" 
+                    size={16} 
+                    color={colors.onSurfaceVariant} 
+                  />
+                  <Text style={[styles.dateText, { color: colors.onSurface }]}>
+                    {dayjs(item.created_at).format('DD/MM/YYYY - HH:mm')}
+                  </Text>
+                </View>
+                <Text style={[styles.amountText, { color: colors.onSurface }]}>
+                  {maskBrazilianCurrency(item.amount)}
+                </Text>
+              </View>
+
+              <View style={styles.transactionDetails}>
+                <View style={styles.detailRow}>
+                  {renderPaymentMethodIcon(item.payment_method)}
+                  <Text style={[styles.methodText, { color: colors.onSurface }]}>
+                    {item.payment_method === "credit_card" ? "Cartão de Crédito" : "PIX"}
+                  </Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  {renderStatusBadge(item.status)}
+                </View>
+              </View>
+
+              <View style={[styles.transactionFooter, { borderTopColor: colors.outline }]}>
+                <Text style={[styles.idText, { color: colors.onSurfaceVariant }]}>
+                  ID: {item.charge_id}
+                </Text>
+              </View>
             </Card.Content>
           </Card>
         )}
-        removeClippedSubviews={false}
       />
 
+      {/* Period Filter Modal */}
       <ModalContainer visible={periodModalVisible} handleVisible={() => setPeriodModalVisible(false)}>
-        <View>
-          <Text variant="labelLarge">Data inicial</Text>
-          <CustomDatePicker
-            value={dates.created_since}
-            onChange={(e, date) => {
-              if (date) setDates(prev => ({ ...prev, created_since: date }));
-            }}
-            mode="date"
-            label="Data"
-          />
-        </View>
-        <View>
-          <Text variant="labelLarge">Data final</Text>
-          <CustomDatePicker
-            value={dates.created_until}
-            onChange={(e, date) => {
-              if (date) setDates(prev => ({ ...prev, created_until: date }));
-            }}
-            mode="date"
-            label="Data"
-          />
+        <Text variant="titleMedium" style={[styles.modalTitle, { color: colors.onSurface }]}>
+          Filtrar por Período
+        </Text>
+        
+        <View style={styles.datePickersContainer}>
+          <View style={styles.dateInputContainer}>
+            <Text variant="labelMedium" style={[styles.dateLabel, { color: colors.onSurfaceVariant }]}>
+              Data Inicial
+            </Text>
+            <CustomDatePicker
+              value={dates.created_since}
+              onChange={(e, date) => date && setDates(prev => ({ ...prev, created_since: date }))}
+              mode="date"
+            />
+          </View>
+          
+          <View style={styles.dateInputContainer}>
+            <Text variant="labelMedium" style={[styles.dateLabel, { color: colors.onSurfaceVariant }]}>
+              Data Final
+            </Text>
+            <CustomDatePicker
+              value={dates.created_until}
+              onChange={(e, date) => date && setDates(prev => ({ ...prev, created_until: date }))}
+              mode="date"
+            />
+          </View>
         </View>
 
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
-          <Button
-            style={{ width: '45%' }}
-            mode="outlined"
-            onPress={() => {
-              setPeriodModalVisible(false);
-            }}>
-            Voltar
+        <View style={styles.modalButtons}>
+          <Button 
+            mode="outlined" 
+            style={[styles.modalButton, { borderColor: colors.primary }]}
+            onPress={() => setPeriodModalVisible(false)}
+            textColor={colors.primary}>
+            Cancelar
           </Button>
-          <Button
-            style={{ width: '45%' }}
-            mode="contained"
+          <Button 
+            mode="contained" 
+            style={styles.modalButton}
             onPress={() => {
               setPeriodModalVisible(false);
               fetchExtract();
-            }}>
-            Consultar
+            }}
+            buttonColor={colors.primary}
+            textColor={colors.onPrimary}>
+            Aplicar Filtro
           </Button>
         </View>
       </ModalContainer>
@@ -207,42 +286,138 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  cardContainer: { height: 'auto', paddingVertical: 20, borderRadius: 12, padding: 12, overflow: 'hidden' },
-  textCard: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
-  dropdown: {
-    height: 50,
-    borderColor: 'gray',
-    borderWidth: 0.5,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    marginTop: 35,
+  },
+  backButton: {
+    margin: 0,
+  },
+  headerTitle: {
+    fontWeight: '700',
+    fontSize: 18,
+    flex: 1,
+    textAlign: 'center',
+    marginHorizontal: 8,
+  },
+  filterButton: {
+    padding: 8,
     borderRadius: 8,
-    paddingHorizontal: 8,
   },
-  icon: {
-    marginRight: 5,
+  activeFilterContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+    margin: 16,
+    borderRadius: 8,
   },
-  label: {
-    position: 'absolute',
-    backgroundColor: 'white',
-    left: 22,
-    top: 8,
-    zIndex: 999,
-    paddingHorizontal: 8,
+  activeFilterText: {
+    fontWeight: '500',
     fontSize: 14,
   },
-  placeholderStyle: {
+  transactionCard: {
+    marginHorizontal: 16,
+    marginVertical: 8,
+    borderRadius: 12,
+    elevation: 1,
+  },
+  transactionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  dateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dateText: {
+    fontSize: 14,
+    marginLeft: 8,
+    fontWeight: '500',
+  },
+  amountText: {
     fontSize: 16,
+    fontWeight: '700',
   },
-  selectedTextStyle: {
-    fontSize: 16,
+  transactionDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 8,
   },
-  iconStyle: {
-    width: 20,
-    height: 20,
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  inputSearchStyle: {
-    height: 40,
-    fontSize: 16,
+  methodText: {
+    fontSize: 14,
+    marginLeft: 8,
   },
-  iconContainer: {
-    position: 'relative',
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  statusText: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginLeft: 4,
+  },
+  transactionFooter: {
+    marginTop: 12,
+    paddingTop: 8,
+    borderTopWidth: 1,
+  },
+  idText: {
+    fontSize: 12,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+    marginTop: 32,
+  },
+  emptyText: {
+    marginTop: 16,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  emptySubtext: {
+    marginTop: 8,
+    textAlign: 'center',
+    opacity: 0.8,
+  },
+  modalTitle: {
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  datePickersContainer: {
+    gap: 20,
+    marginVertical: 16,
+  },
+  dateInputContainer: {
+    gap: 8,
+  },
+  dateLabel: {
+    opacity: 0.8,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 24,
+  },
+  modalButton: {
+    flex: 1,
+    marginHorizontal: 6,
+    borderRadius: 8,
   },
 });

@@ -13,6 +13,8 @@ import CopyMdvLink from './charts/copy-mdv-link';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import ModalContainer from '../../components/modal';
 import CustomDatePicker from '../../components/custom-date-picker';
+import { TextInput } from 'react-native-paper';
+
 import dayjs from 'dayjs';
 
 type DashboardDates = {
@@ -24,7 +26,10 @@ export default function UserMdvHome() {
   const { colors } = useTheme();
   const { dadosUsuarioData } = useDadosUsuario();
   const { authData } = useAuth();
+  const [codigoPromocional, setCodigoPromocional] = useState<string | undefined>(undefined);
 
+  const [modalCodigoVisible, setModalCodigoVisible] = useState(false);
+  const [inputCodigo, setInputCodigo] = useState('');
   const [loading, setLoading] = useState<boolean>(false);
   const [periodModalVisible, setPeriodModalVisible] = useState<boolean>(false);
   const [menuVisible, setMenuVisible] = useState(false);
@@ -79,132 +84,174 @@ export default function UserMdvHome() {
   useFocusEffect(handleFocusEffect);
 
   return (
-    <ScrollView
-      contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}
-      refreshControl={
-        <RefreshControl
-          refreshing={loading}
-          onRefresh={() => {
-            fetchMonthlySales();
-          }}
-        />
-      }>
-      <View style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Text variant="titleLarge" style={{ fontWeight: 'bold' }}>
-          Minhas vendas
+<ScrollView
+  style={{ flex: 1 }}
+  contentContainerStyle={{
+    padding: 16,
+    paddingBottom: 0, // ou remova completamente
+    minHeight: '100%', // força o conteúdo a ocupar pelo menos a tela toda
+    backgroundColor: colors.background,
+  }}
+  refreshControl={
+    <RefreshControl
+      colors={[colors.primary]}
+      tintColor={colors.primary}
+      onRefresh={fetchMonthlySales}
+    />
+  }
+>
+      {/* Header Modernizado */}
+      <View style={styles.header}>
+        <Text variant="titleLarge" style={styles.headerTitle}>
+          Minhas Vendas
+        </Text>
+      </View>
+
+      {/* Filtros */}
+      <View style={styles.filtersContainer}>
+        <View style={[styles.filterCard, { backgroundColor: colors.surface }]}>
+          <Text variant="labelMedium" style={[styles.filterLabel, { color: colors.onSurfaceVariant }]}>
+            NÍVEL DE VENDEDOR
+          </Text>
+          <Dropdown
+            style={[
+              styles.dropdown,
+              {
+                backgroundColor: colors.primary,
+                borderColor: isFocus ? colors.primary : colors.outline,
+              },
+            ]}
+            placeholderStyle={styles.placeholderStyle}
+            selectedTextStyle={[styles.selectedTextStyle, { color: colors.onTertiary }]}
+            iconStyle={[styles.iconStyle, { color: colors.onTertiary }]}
+            data={data!}
+            labelField="label"
+            valueField="value"
+            placeholder={!isFocus ? 'Selecione' : '...'}
+            value={value ?? data![0]}
+            onFocus={() => setIsFocus(true)}
+            onBlur={() => setIsFocus(false)}
+            onChange={item => {
+              setValue(item.value);
+              setIsFocus(false);
+            }}
+          />
+        </View>
+      </View>
+      <TouchableOpacity onPress={() => setPeriodModalVisible(true)} style={[styles.dateFilterButton, { backgroundColor: colors.primary }]}>
+        <Icon source="calendar" size={20} color={colors.onTertiary} />
+        <Text variant="labelMedium" style={{ color: colors.onTertiary, marginLeft: 8 }}>
+          Filtro Data: {dates.startDate ? formatDate(dates.startDate) : 'Início'} - {dates.endDate ? formatDate(dates.endDate) : 'Fim'}
+        </Text>
+      </TouchableOpacity>
+      {/* Dashboard de Métricas */}
+      <View style={styles.metricsContainer}>
+        <TotalSalesValue salesData={totalSales} currentMdv={value} />
+
+        <View style={styles.chartContainer}>
+          <SalesChart salesData={totalSales} loading={loading} />
+        </View>
+      </View>
+
+      {/* Ações Rápidas */}
+      <View style={styles.actionsContainer}>
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: colors.surface }]}
+          onPress={() => navigate('user-mdv-sales-extract', { recipient_id: dadosUsuarioData.pessoaMdv?.filter(e => e.id_usuario_mdv_umv == value)[0].cod_recipients_umv })}>
+          <Icon source="file-document" size={24} color={colors.primary} />
+          <Text variant="labelLarge" style={[styles.actionText, { color: colors.primary }]}>
+            Meu Extrato
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: colors.surface }]}
+          onPress={() => {
+            setInputCodigo(codigoPromocional ?? '');
+            setModalCodigoVisible(true);
+          }}>
+          <Icon source="ticket" size={24} color={colors.primary} />
+          <Text variant="labelLarge" style={[styles.actionText, { color: colors.primary }]}>
+            Código Promocional
+          </Text>
+        </TouchableOpacity>
+
+        <CopyMdvLink id={value} codigoPromocional={codigoPromocional} />
+      </View>
+
+      {/* Modal de Código Promocional */}
+      <ModalContainer visible={modalCodigoVisible} handleVisible={() => setModalCodigoVisible(false)}>
+        <Text variant="titleMedium" style={styles.modalTitle}>
+          Código Promocional
         </Text>
 
-        <Menu
-          visible={menuVisible}
-          onDismiss={() => setMenuVisible(false)}
-          anchor={
-            <TouchableOpacity onPress={() => setMenuVisible(true)}>
-              <Icon source={'menu'} size={30} />
-            </TouchableOpacity>
-          }>
-          <Menu.Item
-            onPress={() => {
-              setMenuVisible(false);
-              setPeriodModalVisible(true);
-            }}
-            title="Período"
-          />
-        </Menu>
-      </View>
-
-      <View style={[styles.cardContainer, { backgroundColor: colors.surfaceVariant, marginVertical: 10 }]}>
-        <Text style={[styles.textCard, { color: colors.onSurface, marginBottom: 10 }]}>Nível de vendedor:</Text>
-        <Dropdown
-          style={[styles.dropdown, { borderColor: colors.primary, backgroundColor: colors.primary }]}
-          placeholderStyle={styles.placeholderStyle}
-          selectedTextStyle={[styles.selectedTextStyle, { color: colors.onPrimary }]}
-          iconStyle={styles.iconStyle}
-          data={data!}
-          labelField="label"
-          valueField="value"
-          placeholder={!isFocus ? 'Select item' : '...'}
-          searchPlaceholder="Search..."
-          value={value ?? data![0]}
-          onFocus={() => setIsFocus(true)}
-          onBlur={() => setIsFocus(false)}
-          onChange={item => {
-            setValue(item.value);
-            setIsFocus(false);
-          }}
+        <TextInput
+          mode="outlined"
+          label="Digite seu código"
+          value={inputCodigo}
+          onChangeText={setInputCodigo}
+          style={styles.textInput}
+          outlineColor={colors.outline}
+          activeOutlineColor={colors.primary}
         />
-      </View>
 
-      <View style={{ gap: 10 }}>
-        <SalesChart salesData={totalSales} loading={loading} />
-        <View style={[styles.cardContainer, { backgroundColor: colors.surfaceVariant }]}>
-          <Text style={[styles.textCard, { color: colors.onSurface, marginBottom: 10 }]}>Meu Extrato</Text>
+        <View style={styles.modalActions}>
+          <Button mode="outlined" style={styles.modalButton} onPress={() => setModalCodigoVisible(false)}>
+            Cancelar
+          </Button>
           <Button
-            key={'get_extract'}
             mode="contained"
-            onPress={() => {
-              navigate('user-mdv-sales-extract', { recipient_id: dadosUsuarioData.pessoaMdv?.filter(e => e.id_usuario_mdv_umv == value)[0].cod_recipients_umv });
+            style={styles.modalButton}
+            onPress={async () => {
+              setLoading(true);
+              const novoCodigo = await enviarCodigoPromo(value, inputCodigo, authData.access_token);
+              setLoading(false);
+              setModalCodigoVisible(false);
+
+              if (novoCodigo) {
+                setCodigoPromocional(novoCodigo);
+                setInputCodigo(novoCodigo);
+              }
             }}>
-            Consultar extrato
+            Salvar
           </Button>
         </View>
-        <TotalSalesValue salesData={totalSales} currentMdv={value} />
-        <CopyMdvLink id={value} />
+      </ModalContainer>
 
-        {/* <View style={[styles.cardContainer, { backgroundColor: colors.surfaceVariant }]}>
-            <Text style={[styles.textCard, { color: colors.onSurface, marginBottom: 10 }]}>Meus dados Bancários</Text>
-
-            <Button
-              key={'get_all_money'}
-              mode="contained"
-              onPress={() => {
-                navigate('user-mdv-bank-list');
-              }}>
-              Consultar meus dados bancários
-            </Button>
-          </View> */}
-      </View>
-
+      {/* Modal de Período */}
       <ModalContainer visible={periodModalVisible} handleVisible={() => setPeriodModalVisible(false)}>
-        <View>
-          <Text variant="labelLarge">Data inicial</Text>
-          <CustomDatePicker
-            value={dates.startDate}
-            onChange={(e, date) => {
-              if (date) setDates(prev => ({ ...prev, startDate: date }));
-            }}
-            mode="date"
-            label="Data"
-          />
-        </View>
-        <View>
-          <Text variant="labelLarge">Data final</Text>
-          <CustomDatePicker
-            value={dates.endDate}
-            onChange={(e, date) => {
-              if (date) setDates(prev => ({ ...prev, endDate: date }));
-            }}
-            mode="date"
-            label="Data"
-          />
+        <Text variant="titleMedium" style={styles.modalTitle}>
+          Selecionar Período
+        </Text>
+
+        <View style={styles.datePickerContainer}>
+          <View style={styles.dateInput}>
+            <Text variant="bodyMedium" style={styles.dateLabel}>
+              Data Inicial
+            </Text>
+            <CustomDatePicker value={dates.startDate} onChange={(e, date) => date && setDates(prev => ({ ...prev, startDate: date }))} mode="date" />
+          </View>
+
+          <View style={styles.dateInput}>
+            <Text variant="bodyMedium" style={styles.dateLabel}>
+              Data Final
+            </Text>
+            <CustomDatePicker value={dates.endDate} onChange={(e, date) => date && setDates(prev => ({ ...prev, endDate: date }))} mode="date" />
+          </View>
         </View>
 
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
-          <Button
-            style={{ width: '45%' }}
-            mode="outlined"
-            onPress={() => {
-              setPeriodModalVisible(false);
-            }}>
-            Voltar
+        <View style={styles.modalActions}>
+          <Button mode="outlined" style={styles.modalButton} onPress={() => setPeriodModalVisible(false)}>
+            Cancelar
           </Button>
           <Button
-            style={{ width: '45%' }}
             mode="contained"
+            style={styles.modalButton}
             onPress={() => {
               setPeriodModalVisible(false);
               fetchMonthlySales();
             }}>
-            Consultar
+            Aplicar
           </Button>
         </View>
       </ModalContainer>
@@ -212,46 +259,149 @@ export default function UserMdvHome() {
   );
 }
 
+// Função auxiliar para formatar datas (mantida)
+const formatDate = (date: Date) => dayjs(date).format('DD/MM/YY');
+
+// Estilos Atualizados (com adições para o novo modal)
 const styles = StyleSheet.create({
-  container: {
+
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+    marginTop: 50,
+  },
+  headerTitle: {
+    fontWeight: '700',
+    fontSize: 22,
+  },
+  menuButton: {
+    padding: 8,
+  },
+  filtersContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: 20,
+  },
+  filterCard: {
+    flex: 1,
+    borderRadius: 16,
     padding: 16,
+    elevation: 2,
   },
-  cardContainer: { height: 'auto', paddingVertical: 20, borderRadius: 12, padding: 12, overflow: 'hidden' },
-  textCard: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+  filterLabel: {
+    marginBottom: 8,
+    opacity: 0.8,
+  },
+  dateFilterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginLeft: 15,
+    alignSelf: 'flex-start',
+  },
   dropdown: {
-    height: 50,
-    borderColor: 'gray',
-    borderWidth: 0.5,
-    borderRadius: 8,
-    paddingHorizontal: 8,
-  },
-  icon: {
-    marginRight: 5,
-  },
-  label: {
-    position: 'absolute',
-    backgroundColor: 'white',
-    left: 22,
-    top: 8,
-    zIndex: 999,
-    paddingHorizontal: 8,
-    fontSize: 14,
+    height: 40,
+    borderRadius: 12,
+    paddingHorizontal: 12,
   },
   placeholderStyle: {
-    fontSize: 16,
+    fontSize: 14,
+    color: '#999',
   },
   selectedTextStyle: {
-    fontSize: 16,
+    fontSize: 14,
+    fontWeight: '500',
   },
   iconStyle: {
+    color: '#FFFFFF',
     width: 20,
     height: 20,
   },
-  inputSearchStyle: {
-    height: 40,
-    fontSize: 16,
+  metricsContainer: {
+    gap: 20,
+    marginBottom: 24,
   },
-  iconContainer: {
-    position: 'relative',
+  chartContainer: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    elevation: 3,
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 16,
+    marginBottom: 16,
+  },
+  actionButton: {
+    flex: 1,
+    minWidth: 150,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 16,
+    padding: 16,
+    elevation: 1,
+  },
+  actionText: {
+    marginLeft: 12,
+    fontWeight: '500',
+  },
+  modalTitle: {
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  datePickerContainer: {
+    gap: 20,
+  },
+  dateInput: {
+    gap: 8,
+  },
+  dateLabel: {
+    opacity: 0.8,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 32,
+  },
+  modalButton: {
+    flex: 1,
+    marginHorizontal: 6,
+    borderRadius: 12,
+  },
+  textInput: {
+    backgroundColor: '#FEF7FF',
+    marginBottom: 20,
   },
 });
+
+async function enviarCodigoPromo(id: number, codigo: string, token: string) {
+  try {
+    console.log('enviarCodigoPromo chamado com:', { id, codigo }); // <-- log aqui
+
+    const response = await api.post('/usuario-mdv/relatorio/receberCodigoPromo', { id, codigo }, generateRequestHeader(token));
+    console.log('Resposta do servidor:', response.data); // <-- log resposta
+
+    if (response.data.success) {
+      Alert.alert('Sucesso', response.data.mensagem);
+      return response.data.codigoPromocional; // Retorna o código válido
+    }
+  } catch (error: any) {
+    console.error('Erro ao enviar código promocional:', error); // <-- log erro
+
+    if (error.response && error.response.data.errors) {
+      const mensagens = Object.values(error.response.data.errors).flat().join('\n');
+      Alert.alert('Erro de validação', mensagens);
+    } else if (error.response && error.response.data.message) {
+      Alert.alert('Erro', error.response.data.message);
+    } else {
+      Alert.alert('Erro', 'Erro ao validar código promocional.');
+    }
+  }
+}

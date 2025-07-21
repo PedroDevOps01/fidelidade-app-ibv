@@ -20,34 +20,39 @@ import { Image } from 'react-native';
 import { Platform } from 'react-native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const parceirosInfo = {
-  paguemenos: {
-    nome: 'Pague Menos',
-    descricao: 'Rede de farmácias com os melhores preços e descontos exclusivos para nossos clientes.',
-    beneficios: ['Medicamentos de Marca/Similar tarjado de 15% de Desconto.', 'Medicamentos Genéricos tarjado de 30% de Desconto.'],
-  },
-  magalu: {
-    nome: 'Magazine Luiza',
-    descricao: 'Loja departamental com diversas categorias de produtos e entrega rápida.',
-    beneficios: ['Frete grátis em Produtos', '10% OFF em Produtos', 'Parcele em até 12x'],
-  },
-  depi: {
-    nome: 'Espaço Laser',
-    descricao: 'Clínica especializada em depilação a laser e tratamentos estéticos.',
-    beneficios: ['Sessões com desconto', 'Pacotes promocionais', 'Profissionais qualificados'],
-  },
-} as const;
+
+interface Parceiro {
+  id_parceiro_prc: number;
+  des_nome_fantasia_prc: string;
+  des_razao_social_prc: string;
+  des_endereco_prc: string;
+  des_complemento_prc: string;
+  des_bairro_prc: string;
+  des_municipio_mun: string;
+  des_email_responsavel_prc: string;
+  des_nome_responsavel_prc: string;
+  des_endereco_web_prc: string;
+  cod_documento_prc: string;
+  num_celular_prc: string;
+  num_telefone_prc: string;
+  img_parceiro_prc: string | null;
+  is_ativo_prc: number;
+  is_parceiro_padrao_prc: number;
+  dth_cadastro_prc: string;
+  dth_alteracao_prc: string;
+  id_municipio_prc: number;
+}
 
 const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
-  type ParceiroId = keyof typeof parceirosInfo;
-
   const { colors } = useTheme();
   const { dadosUsuarioData, userCreditCards, setCreditCards, userContracts, setContracts } = useDadosUsuario();
   const { authData } = useAuth();
   const { setUserSchedulesData, userSchedules } = useConsultas();
   const [lastHistoricSchedule, setLastHistoricSchedule] = useState<UserSchedule | null>(null);
+  const [parceiros, setParceiros] = useState<Parceiro[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  const [pagarmeErrors, setPagarmeErrors] = useState<ErrorCadastroPagarme | null>();
+  const [pagarmeErrors, setPagarmeErrors] = useState<ErrorCadastroPagarme | null>(null);
   const [pagarmeErrorsDialogVisible, setPagarmeErrorsDialogVisible] = useState<boolean>(false);
   const [inadimplenciasDialogVisible, setInadimplenciasDialogVisible] = useState<boolean>(false);
   const [schedulesLoading, setSchedulesLoading] = useState<boolean>(false);
@@ -56,30 +61,21 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   const scrollXConsultas = useRef(new Animated.Value(0)).current;
   const isLogged = !dadosUsuarioData.user.id_usuario_usr ? false : true;
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedParceiro, setSelectedParceiro] = useState<ParceiroId | null>(null);
+  const [selectedParceiroId, setSelectedParceiroId] = useState<number | null>(null);
 
-  // Data for the "Mais Consultas" carousel with multiple items for carousel behavior
-  const maisConsultasData = [
-    {
-      id: 'paguemenos',
-      image: require('../../assets/images/paguemenos3.jpeg'),
-      action: () => handleParceiroPress('paguemenos'),
-    },
-    {
-      id: 'magalu',
-      image: require('../../assets/images/magalu.jpeg'),
-      action: () => handleParceiroPress('magalu'),
-    },
-    // {
-    //   id: 'depi',
-    //   image: require('../../assets/images/depi.jpeg'),
-    //   action: () => handleParceiroPress('depi'),
-    // },
-  ];
-  const handleParceiroPress = (parceiroId: ParceiroId) => {
-    setSelectedParceiro(parceiroId);
+  // Map API data to carousel items
+  const maisConsultasData = parceiros.map(parceiro => ({
+    id: parceiro.id_parceiro_prc.toString(),
+    
+    image: parceiro.img_parceiro_prc ? { uri: `${parceiro.img_parceiro_prc}` } : require('../../assets/images/logonova.png'),
+    action: () => handleParceiroPress(parceiro.id_parceiro_prc),
+  }));
+
+  const handleParceiroPress = (parceiroId: number) => {
+    setSelectedParceiroId(parceiroId);
     setModalVisible(true);
   };
+
   async function fetchLastHistoricSchedule(): Promise<void> {
     const token = dadosUsuarioData.pessoaDados?.cod_token_pes!;
     if (!token) return;
@@ -88,17 +84,48 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
       const response = await api.get(`/integracao/listHistoricoAgendamentos?token_paciente=${token}`, generateRequestHeader(authData.access_token));
       const data = response.data;
       if (data.length > 0) {
-        setLastHistoricSchedule(data[0]); // Pega o mais recente (posição 0 da lista)
+        setLastHistoricSchedule(data[0]);
       }
     } catch (error) {
       console.log('Erro ao buscar histórico mais recente:', error);
     }
   }
+useFocusEffect(
+    useCallback(() => {
+      fetchParceiros(); // Always fetch partners when view is focused
+    }, []),
+  );
   useEffect(() => {
     if (dadosUsuarioData.pessoa?.cod_cep_pda != undefined && !dadosUsuarioData.pessoaAssinatura) {
       navigation.navigate('user-contracts-stack');
     }
   }, [dadosUsuarioData]);
+
+  async function fetchParceiros(): Promise<void> {
+    try {
+        setLoading(true);
+        const headers = isLogged ? generateRequestHeader(authData.access_token) : {
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            },
+        };
+        const response = await api.get('/parceiro/app', headers);
+        const dataApi = response.data;
+        if (dataApi && dataApi.response && dataApi.response.data && dataApi.response.data.length > 0) {
+            console.log('Parceiros encontrados:', dataApi.response.data);
+            setParceiros(dataApi.response.data);
+        } else {
+            setError('Nenhum parceiro encontrado');
+            console.log('Nenhum parceiro encontrado');
+        }
+    } catch (error: any) {
+        setError('Erro ao buscar parceiros: ' + error.message);
+        console.error('Erro ao buscar parceiros:', error.message, error.response?.data);
+    } finally {
+        setLoading(false);
+    }
+}
 
   useFocusEffect(
     useCallback(() => {
@@ -188,15 +215,17 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   }
 
   async function fetchAllData() {
+    setLoading(true);
     Promise.allSettled([
       fetchCreditCards(dadosUsuarioData.pessoaDados?.id_pessoa_pes!),
       fetchContratos(dadosUsuarioData.user.id_pessoa_usr),
       fetchSchedules(authData.access_token),
-      fetchLastHistoricSchedule(), // <-- vírgula corrigida
+      fetchLastHistoricSchedule(),
+      fetchParceiros(),
     ])
       .then(_ => {})
       .catch(err => {
-        console.log('erro em alguma promise: ', err);
+        console.log('Erro em alguma promise: ', err);
       })
       .finally(() => {
         setLoading(false);
@@ -274,7 +303,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             width: '100%',
             height: 200,
             borderRadius: 15,
-            backgroundColor: '#f0f0f0', // opcional, para destacar a borda da imagem
+            backgroundColor: '#f0f0f0',
           }}
         />
       </TouchableOpacity>
@@ -287,20 +316,21 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
         <LoadingFull title="Carregando..." />
       ) : (
         <ScrollView style={[styles.container]} contentContainerStyle={{ paddingBottom: 10 }} showsVerticalScrollIndicator={false}>
-          {/* Header moderno com efeito de profundidade */}
-      <View
-  style={[
-    styles.headerContainer,
-    {
-      backgroundColor: '#b183ff',
-      paddingBottom: 6,
-      paddingTop: 6,
-      elevation: 6,
-      ...(Platform.OS === 'android' ? { marginTop: 50 } : {}),
-    },
-  ]} // <-- fecha corretamente aqui
->
+          {/* Error Display */}
+          {error && <Text style={{ color: 'red', textAlign: 'center', marginVertical: 10 }}>{error}</Text>}
 
+          {/* Header */}
+          <View
+            style={[
+              styles.headerContainer,
+              {
+                backgroundColor: '#b183ff',
+                paddingBottom: 6,
+                paddingTop: 6,
+                elevation: 6,
+                ...(Platform.OS === 'android' ? { marginTop: 50 } : {}),
+              },
+            ]}>
             <View style={styles.userInfoContainer}>
               <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
                 <Text variant="titleLarge" style={[styles.welcomeText, { color: '#FFFFFF', marginRight: 6 }]}>
@@ -315,47 +345,52 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
 
               <View style={styles.logoContainer}>
                 <Image source={require('../../assets/images/logotransparente.png')} style={[styles.cardLogo]} resizeMode="contain" />
-
               </View>
             </View>
           </View>
 
-          {/* Seção de cards de acesso rápido */}
+          {/* Parceiros Section */}
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
                 Nossos Parceiros
               </Text>
-
               <Button mode="text" compact labelStyle={{ fontSize: 12, color: colors.primary }} onPress={() => navigation.navigate('ParceirosScreen')}>
                 Ver todos
               </Button>
             </View>
+            {parceiros.length > 0 && (
+              <>
+                <Animated.FlatList
+                  data={maisConsultasData}
+                  renderItem={renderConsultasItem}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  snapToInterval={SCREEN_WIDTH * 0.8}
+                  decelerationRate="fast"
+                  contentContainerStyle={{
+                    paddingHorizontal: (SCREEN_WIDTH - SCREEN_WIDTH * 0.99) / 2,
+                  }}
+                  onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollXConsultas } } }], { useNativeDriver: true })}
+                  scrollEventThrottle={16}
+                  removeClippedSubviews={true}
+                  snapToAlignment="start"
+                  pagingEnabled={false}
+                  initialNumToRender={3}
+                  windowSize={5}
+                  getItemLayout={(data, index) => ({
+                    length: SCREEN_WIDTH * 0.7 + 10,
+                    offset: (SCREEN_WIDTH * 0.7 + 10) * index,
+                    index,
+                  })}
+                />
+                {renderConsultasIndicator()}
+              </>
+            )}
+          </View>
 
-            <Animated.FlatList
-              data={maisConsultasData}
-              renderItem={renderConsultasItem}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              snapToInterval={SCREEN_WIDTH * 0.8}
-              decelerationRate="fast"
-              contentContainerStyle={{
-                paddingHorizontal: (SCREEN_WIDTH - SCREEN_WIDTH * 0.99) / 2,
-              }}
-              onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollXConsultas } } }], { useNativeDriver: true })}
-              scrollEventThrottle={16}
-              removeClippedSubviews={true}
-              snapToAlignment="start"
-              pagingEnabled={false}
-              initialNumToRender={3}
-              windowSize={5}
-              getItemLayout={(data, index) => ({
-                length: SCREEN_WIDTH * 0.7 + 10,
-                offset: (SCREEN_WIDTH * 0.7 + 10) * index,
-                index,
-              })}
-            />
-            {renderConsultasIndicator()}
+          {/* Acesso Rápido Section */}
+          <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
                 Acesso rápido
@@ -378,42 +413,32 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             />
           </View>
 
-          {/* Seção de consultas com dois carrosséis */}
+          {/* Consultas Section */}
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
                 Marcar Consultas
               </Text>
-
               <View style={[styles.titleDecorator, { backgroundColor: colors.primary }]} />
             </View>
-            {/* Carrossel de Promoções */}
             <View>
               <Animated.FlatList
                 data={promotion_data}
                 renderItem={({ item }) => <BannerHorizontalItem item={item} colors={colors} />}
-                keyExtractor={item => item.title}
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                snapToInterval={SCREEN_WIDTH * 0.9 + 10}
-                decelerationRate="fast"
                 contentContainerStyle={{
                   marginTop: 16,
                   paddingVertical: 8,
-                  paddingHorizontal: 2,
                   width: '100%',
                 }}
-                onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollXPromo } } }], { useNativeDriver: true })}
-                scrollEventThrottle={16}
-                removeClippedSubviews={false}
+                
               />
               {renderPromoIndicator()}
             </View>
-
-            {/* Carrossel de Mais Consultas */}
           </View>
 
-          {/* Seção de agendamentos com design moderno */}
+          {/* Próximos Agendamentos Section */}
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
@@ -435,7 +460,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                         style={{
                           color: colors.onSurface,
                           marginTop: 10,
-                          textAlign: 'center', // centraliza o texto
+                          textAlign: 'center',
                         }}>
                         Nenhum agendamento
                       </Text>
@@ -475,7 +500,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             )}
           </View>
 
-          {/* Seção de histórico com design moderno */}
+          {/* Histórico de Atendimentos Section */}
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
@@ -528,7 +553,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                     style={{
                       color: colors.onSurface,
                       marginTop: 10,
-                      textAlign: 'center', // centraliza o texto
+                      textAlign: 'center',
                     }}>
                     Nenhum atendimento realizado
                   </Text>
@@ -572,47 +597,59 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
         </TouchableWithoutFeedback>
 
         <View style={styles.modalContainer}>
-          {selectedParceiro && (
+          {selectedParceiroId && (
             <>
-              <Image source={maisConsultasData.find(p => p.id === selectedParceiro)?.image} style={styles.modalImage} />
-
-              <View style={styles.modalContent}>
-                <Text variant="titleLarge" style={styles.modalTitle}>
-                  {parceirosInfo[selectedParceiro]?.nome}
-                </Text>
-
-                <Text variant="bodyMedium" style={styles.modalDescription}>
-                  {parceirosInfo[selectedParceiro]?.descricao}
-                </Text>
-
-                <Text variant="titleSmall" style={styles.modalSectionTitle}>
-                  Benefícios:
-                </Text>
-
-                {parceirosInfo[selectedParceiro]?.beneficios.map((beneficio, index) => (
-                  <View key={index} style={styles.benefitItem}>
-                    <IconButton icon="check-circle" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
-                    <Text variant="bodyMedium" style={styles.benefitText}>
-                      {beneficio}
-                    </Text>
-                  </View>
-                ))}
-
-                <Button
-                  mode="contained"
-                  onPress={() => {
-                    setModalVisible(false);
-                    navigation.navigate('ParceirosScreen');
-                  }}
-                  style={styles.modalButton}
-                  labelStyle={styles.modalButtonText}>
-                  Ver mais detalhes
-                </Button>
-
-                <Button mode="outlined" onPress={() => setModalVisible(false)} style={styles.modalCloseButton} labelStyle={styles.modalCloseButtonText}>
-                  Fechar
-                </Button>
-              </View>
+              {(() => {
+                const selectedParceiro = parceiros.find(p => p.id_parceiro_prc === selectedParceiroId);
+                return selectedParceiro ? (
+                  <>
+                    <Image
+                      source={
+                        selectedParceiro.img_parceiro_prc
+                          ? { uri: `${selectedParceiro.img_parceiro_prc}` }
+                          : require('../../assets/images/logonova.png')
+                      }
+                      style={styles.modalImage}
+                    />
+                    <View style={styles.modalContent}>
+                      <Text variant="titleLarge" style={styles.modalTitle}>
+                        {selectedParceiro.des_nome_fantasia_prc}
+                      </Text>
+                      <Text variant="bodyMedium" style={styles.modalDescription}>
+                        {selectedParceiro.des_razao_social_prc} - {selectedParceiro.des_endereco_prc}, {selectedParceiro.des_bairro_prc}, {selectedParceiro.des_municipio_mun}
+                      </Text>
+                      <Text variant="titleSmall" style={styles.modalSectionTitle}>
+                        Contato:
+                      </Text>
+                      <View style={styles.benefitItem}>
+                        <IconButton icon="email" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
+                        <Text variant="bodyMedium" style={styles.benefitText}>
+                          {selectedParceiro.des_email_responsavel_prc}
+                        </Text>
+                      </View>
+                      <View style={styles.benefitItem}>
+                        <IconButton icon="phone" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
+                        <Text variant="bodyMedium" style={styles.benefitText}>
+                          {selectedParceiro.num_celular_prc || selectedParceiro.num_telefone_prc}
+                        </Text>
+                      </View>
+                      <Button
+                        mode="contained"
+                        onPress={() => {
+                          setModalVisible(false);
+                          navigation.navigate('ParceirosScreen');
+                        }}
+                        style={styles.modalButton}
+                        labelStyle={styles.modalButtonText}>
+                        Ver mais detalhes
+                      </Button>
+                      <Button mode="outlined" onPress={() => setModalVisible(false)} style={styles.modalCloseButton} labelStyle={styles.modalCloseButtonText}>
+                        Fechar
+                      </Button>
+                    </View>
+                  </>
+                ) : null;
+              })()}
             </>
           )}
         </View>
@@ -648,12 +685,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
- cardLogo: {
-  width: 120,
-  height: 88,
-  borderRadius: 10,
-  marginTop: 0,  // opcional: empurra a imagem para cima
-},
+  cardLogo: {
+    width: 120,
+    height: 88,
+    borderRadius: 10,
+    marginTop: 0,
+  },
   appName: {
     color: '#fff',
     fontWeight: 'bold',
@@ -669,7 +706,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   sectionContainer: {
-    marginBottom: 24,
+    marginBottom: 14,
     paddingHorizontal: 16,
   },
   sectionHeader: {
