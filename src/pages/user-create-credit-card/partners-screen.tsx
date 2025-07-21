@@ -50,6 +50,12 @@ const PartnersScreen = ({ navigation }: { navigation: any }) => {
     category: parceiro.des_municipio_mun || 'Parceiro', // Use municipality or a default
   }));
 
+
+  useFocusEffect(
+  useCallback(() => {
+    fetchParceiros(); // Always fetch partners when view is focused
+  }, []),
+);
   const handlePartnerPress = (partner: any) => {
     console.log('Parceiro selecionado:', partner.name);
     // Add navigation or modal logic if needed, similar to LoggedHome
