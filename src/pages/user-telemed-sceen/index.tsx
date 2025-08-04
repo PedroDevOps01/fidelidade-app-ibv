@@ -85,7 +85,7 @@ const UserTelemedScreen = () => {
       </ModalContainer>
       
       
-      <ScrollView contentContainerStyle={styles.contentContainer}>
+      <ScrollView contentContainerStyle={[styles.contentContainer, { flexGrow: 1 }]}>
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             

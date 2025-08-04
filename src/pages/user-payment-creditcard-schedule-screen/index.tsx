@@ -7,7 +7,6 @@ import LoadingFull from '../../components/loading-full';
 import { api } from '../../network/api';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
 import Carousel, { ICarouselInstance } from 'react-native-reanimated-carousel';
-import { useSharedValue } from 'react-native-reanimated';
 import UserCreditCard from '../user-create-credit-card/user-credit-card';
 import { navigate } from '../../router/navigationRef';
 import { generateRequestHeader, getCurrentDate, maskBrazilianCurrency } from '../../utils/app-utils';

@@ -14,6 +14,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import ModalContainer from '../../components/modal';
 import CustomDatePicker from '../../components/custom-date-picker';
 import { TextInput } from 'react-native-paper';
+import {useLayoutEffect} from "react";
 
 import dayjs from 'dayjs';
 
@@ -22,7 +23,7 @@ type DashboardDates = {
   endDate: Date | null;
 };
 
-export default function UserMdvHome() {
+export default function UserMdvHome({navigation}: {navigation: any}) {
   const { colors } = useTheme();
   const { dadosUsuarioData } = useDadosUsuario();
   const { authData } = useAuth();
@@ -37,9 +38,16 @@ export default function UserMdvHome() {
   const [dates, setDates] = useState<DashboardDates>({
     startDate: null,
     endDate: null,
+
   });
 
   const [totalSales, setTotalSales] = useState<Sale[]>([]);
+ useLayoutEffect(() => {
+    navigation.setOptions({ headerShown: true,
+                title: 'Minhas Vendas',
+
+     });
+  }, [navigation]);
 
   const data = dadosUsuarioData.pessoaMdv?.map(e => {
     let tipo = '';
@@ -100,12 +108,7 @@ export default function UserMdvHome() {
     />
   }
 >
-      {/* Header Modernizado */}
-      <View style={styles.header}>
-        <Text variant="titleLarge" style={styles.headerTitle}>
-          Minhas Vendas
-        </Text>
-      </View>
+
 
       {/* Filtros */}
       <View style={styles.filtersContainer}>
@@ -156,7 +159,7 @@ export default function UserMdvHome() {
       {/* Ações Rápidas */}
       <View style={styles.actionsContainer}>
         <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: colors.surface }]}
+          style={[styles.actionButton, { backgroundColor: colors.surface, borderColor: colors.primary,  }]}
           onPress={() => navigate('user-mdv-sales-extract', { recipient_id: dadosUsuarioData.pessoaMdv?.filter(e => e.id_usuario_mdv_umv == value)[0].cod_recipients_umv })}>
           <Icon source="file-document" size={24} color={colors.primary} />
           <Text variant="labelLarge" style={[styles.actionText, { color: colors.primary }]}>
@@ -164,8 +167,8 @@ export default function UserMdvHome() {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: colors.surface }]}
+        {/* <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: colors.surface, borderColor: colors.primary, }]}
           onPress={() => {
             setInputCodigo(codigoPromocional ?? '');
             setModalCodigoVisible(true);
@@ -174,7 +177,7 @@ export default function UserMdvHome() {
           <Text variant="labelLarge" style={[styles.actionText, { color: colors.primary }]}>
             Código Promocional
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <CopyMdvLink id={value} codigoPromocional={codigoPromocional} />
       </View>
@@ -338,15 +341,17 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   actionButton: {
-    flex: 1,
-    minWidth: 150,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 16,
-    padding: 16,
-    elevation: 1,
-  },
+  flex: 1,
+  minWidth: 120,
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: 16,
+  padding: 12,
+  elevation: 1,
+
+  borderWidth: 1, // largura da borda
+},
   actionText: {
     marginLeft: 12,
     fontWeight: '500',

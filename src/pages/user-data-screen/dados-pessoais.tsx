@@ -651,9 +651,9 @@ const UserPersonalDataScreen = ({ navigation }: { navigation: any }) => {
             Meus Contratos
           </Button> */}
 
-          <Button icon={'logout'} textColor={colors.error} mode="outlined" style={[styles.button, { borderColor: colors.error }]} onPress={handleLogout}>
+          {/* <Button icon={'logout'} textColor={colors.error} mode="outlined" style={[styles.button, { borderColor: colors.error }]} onPress={handleLogout}>
             Sair
-          </Button>
+          </Button> */}
 
           <Button mode="contained" style={styles.button} onPress={handleSubmit(onSubmit, onError)}>
             Salvar

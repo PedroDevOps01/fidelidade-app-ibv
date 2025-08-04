@@ -12,6 +12,7 @@ import { useExames } from '../context/exames-context';
 import SchedulesStackNavigator from './schedules-stack-navigator';
 import ProfileStackNavigator from './profile-stack-navigator';
 import { MdvStackNavigator } from './mdv-stack-navigator';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createNativeStackNavigator();
@@ -20,6 +21,7 @@ const RootStack = createNativeStackNavigator();
 const MainTabs = () => {
   const { colors } = useTheme();
   const { selectedExams } = useExames();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tab.Navigator
@@ -39,9 +41,9 @@ const MainTabs = () => {
           backgroundColor: colors.background,
           borderTopWidth: 0.3,
           borderTopColor: colors.onSurfaceVariant,
-          height: Platform.OS === 'android' ? 85 : 90,
+          height: 60 + insets.bottom, // altura base + safe area inferior
+          paddingBottom: insets.bottom,
           elevation: 0,
-          paddingBottom: Platform.OS === 'android' ? 25 : 20,
         },
         tabBarIcon: ({ color, size }) => {
           let iconName;
@@ -72,7 +74,6 @@ const MainTabs = () => {
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
-          marginBottom: Platform.OS === 'android' ? 0 : 4,
         },
         tabBarItemStyle: {
           paddingVertical: 8,
@@ -82,8 +83,7 @@ const MainTabs = () => {
           marginTop: 4,
           padding: 0,
         },
-      })}
-    >
+      })}>
       <Tab.Screen
         name="Home"
         component={LoggedHome}
@@ -103,7 +103,6 @@ const MainTabs = () => {
           tabBarBadge: selectedExams.length > 0 ? selectedExams.length : undefined,
           tabBarBadgeStyle: {
             backgroundColor: '#4003ff',
-            bottom: 20,
           },
         }}
       />
@@ -112,17 +111,22 @@ const MainTabs = () => {
         component={ProfileStackNavigator}
         options={{
           tabBarLabel: 'Perfil',
-          headerShadowVisible: false,
+          headerShown: false,
+
+          headerShadowVisible: true,
           title: 'Meus Dados',
         }}
       />
+
       <Tab.Screen
         name="user-mdv"
         component={MdvStackNavigator}
         options={{
           tabBarLabel: 'Vendas',
-          headerShadowVisible: false,
-          title: 'Indique e ganhe',
+          headerShown: false,
+
+          headerShadowVisible: true,
+          title: 'Minhas Vendas',
         }}
       />
     </Tab.Navigator>
@@ -136,19 +140,15 @@ const LoggedDrawerNavigator: React.FC = () => {
   return (
     <RootStack.Navigator
       screenOptions={{
-        headerShown: false
-      }}
-    >
-      <RootStack.Screen
-        name="MainTabs"
-        component={MainTabs}
-      />
+        headerShown: false,
+      }}>
+      <RootStack.Screen name="MainTabs" component={MainTabs} />
       <RootStack.Screen
         name="ParceirosScreen"
         component={PartnersScreen}
-        options={{ 
+        options={{
           presentation: 'modal', // ou 'card' se preferir
-          title: 'Nossos Parceiros',
+          title: 'Nossos Parceiros/Credenciados',
           headerShown: true,
           headerTintColor: colors.onSurface,
           headerStyle: {

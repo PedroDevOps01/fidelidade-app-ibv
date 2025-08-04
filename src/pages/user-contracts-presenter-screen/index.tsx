@@ -1,4 +1,4 @@
-import { Text, useTheme } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 import { Dimensions, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../network/api';
@@ -43,11 +43,6 @@ export default function ContractsPresenterScreen() {
         <LoadingFull />
       ) : (
         <FlatList
-          ListHeaderComponent={() => (
-            <Text variant="headlineLarge" style={{ marginTop: 2, marginBottom: 40, fontWeight: 'bold' }}>
-              Confira nossos planos
-            </Text>
-          )}
           data={plans}
           style={{ width: Dimensions.get('window').width }}
           contentContainerStyle={{ padding: 16 }}

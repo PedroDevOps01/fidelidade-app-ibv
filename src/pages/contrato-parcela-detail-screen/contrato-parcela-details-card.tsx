@@ -66,7 +66,7 @@ const ContratoParcelaDetailsCard = ({ item }: { item: ContratoParcelaDetails }) 
         <View style={styles.valueRow}>
           <Text variant="bodyMedium">Valor:</Text>
           <Text variant="titleMedium" style={styles.valueText}>
-            R$ {convertToReais(item.vlr_parcela_cpc)}
+            {convertToReais(item.vlr_parcela_cpc)}
           </Text>
         </View>
         
@@ -75,7 +75,7 @@ const ContratoParcelaDetailsCard = ({ item }: { item: ContratoParcelaDetails }) 
           <View style={styles.valueRow}>
             <Text variant="bodyMedium">Valor pago:</Text>
             <Text variant="bodyMedium" style={{ color: colors.success }}>
-              R$ {convertToReais(item.valor_pago)}
+              {convertToReais(item.valor_pago)}
             </Text>
           </View>
         )}

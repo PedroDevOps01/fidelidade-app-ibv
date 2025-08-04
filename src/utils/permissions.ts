@@ -9,11 +9,15 @@ export async function requestPermissions(): Promise<string> {
         android: [
           PERMISSIONS.ANDROID.CAMERA,
           PERMISSIONS.ANDROID.RECORD_AUDIO,
-          PERMISSIONS.ANDROID.POST_NOTIFICATIONS
+          PERMISSIONS.ANDROID.POST_NOTIFICATIONS, 
           // PERMISSIONS.ANDROID.READ_MEDIA_IMAGES
+          PERMISSIONS.ANDROID.ACCESS_BACKGROUND_LOCATION, // <- nova permissão
+
         ],
         ios: [PERMISSIONS.IOS.CAMERA, PERMISSIONS.IOS.MICROPHONE, 
           // PERMISSIONS.IOS.PHOTO_LIBRARY
+                    PERMISSIONS.IOS.LOCATION_ALWAYS, // <- nova permissão
+
         ],
       }) || [];
 

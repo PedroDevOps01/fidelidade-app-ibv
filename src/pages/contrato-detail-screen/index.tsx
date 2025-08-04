@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
-import { ActivityIndicator, List, Text, useTheme, Divider } from 'react-native-paper';
+import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Text, useTheme } from 'react-native-paper';
 import dayjs from 'dayjs';
 import { maskBrazilianCurrency } from '../../utils/app-utils';
 import { navigate } from '../../router/navigationRef';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 interface ContratosDetailScreenProps {
   contrato: ContratoResponse;
@@ -13,11 +14,38 @@ interface ContratosDetailScreenProps {
 const ContratosDetailScreen = ({ contrato, title }: ContratosDetailScreenProps) => {
   const theme = useTheme();
   const [loading, setLoading] = useState<boolean>(false);
+  console.log('Contrato Details:', contrato);
+  const getIcon = (icon: string) => {
+    switch (icon) {
+      case 'Sistema': return 'monitor';
+      case 'APP': return 'cellphone';
+      default: return 'help-circle';
+    }
+  };
+
+  const renderDetailItem = (icon: string, title: string, value: string, action?: () => void, isLink = false) => {
+    return (
+      <TouchableOpacity 
+        style={styles.detailItem} 
+        onPress={action}
+        activeOpacity={action ? 0.7 : 1}
+      >
+        <View style={styles.iconContainer}>
+          <Icon name={icon} size={24} color={theme.colors.onTertiary} />
+        </View>
+        <View style={styles.textContainer}>
+          <Text style={styles.itemTitle}>{title}</Text>
+          <Text style={[styles.itemValue, isLink && styles.linkText]}>{value}</Text>
+        </View>
+        {action && <Icon name="chevron-right" size={24} color="#999" />}
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return (
       <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
   }
@@ -25,118 +53,158 @@ const ContratosDetailScreen = ({ contrato, title }: ContratosDetailScreenProps) 
   if (!contrato) {
     return (
       <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
-        <Text>Nenhum dado disponível</Text>
+        <Text style={styles.emptyText}>Nenhum dado disponível</Text>
       </View>
     );
   }
 
-  function getIcon(icon: string) {
-    switch (icon) {
-      case 'Sistema':
-        return <List.Icon icon="monitor" />;
-      case 'APP':
-        return <List.Icon icon="cellphone" />;
-      default:
-        return <List.Icon icon="help-circle" />;
-    }
-  }
-
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
-        <List.Section>
-          <Divider />
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {/* Header */}
+  
 
-          <List.Item title="Nome do Cliente" description={contrato.des_nome_pes} left={() => <List.Icon icon="account" />} style={styles.listItem} />
-          <Divider />
-
-          <List.Item title="Nome do Plano" description={contrato.des_nome_pla} left={() => <List.Icon icon="briefcase" />} style={styles.listItem} />
-          <Divider />
-
-          <List.Item
-            title="Quantidade de Parcelas"
-            description={`${contrato.qtd_parcelas_ctt} (Ver parcelas)`}
-            left={() => <List.Icon icon="file-document-multiple-outline" />}
-            right={() => <List.Icon icon="arrow-right" />}
-            onPress={() => {
-              navigate('contrato-parcela-details', {
-                idContrato: contrato.id_contrato_ctt,
-              });
-            }}
-            style={styles.listItem}
+        {/* Status Card */}
+        <View style={[
+          styles.statusCard,
+          { 
+            backgroundColor: contrato.is_ativo_ctt ? '#E8F5E9' : '#FFEBEE',
+            borderLeftColor: contrato.is_ativo_ctt ? theme.colors.primary : theme.colors.error
+          }
+        ]}>
+          <Icon 
+            name={contrato.is_ativo_ctt ? 'check-circle' : 'close-circle'} 
+            size={24} 
+            color={contrato.is_ativo_ctt ? theme.colors.primary : theme.colors.error} 
           />
-          <Divider />
+          <Text style={styles.statusText}>
+            {contrato.is_ativo_ctt ? 'Plano Ativo' : 'Plano Inativo'}
+          </Text>
+        </View>
 
-          <List.Item
-            title="Valor Inicial"
-            description={`R$: ${maskBrazilianCurrency(contrato.vlr_inicial_ctt)}`}
-            left={() => <List.Icon icon="currency-usd" />}
-            style={styles.listItem}
-          />
-          <Divider />
+        {/* User Info Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Informações do Titular</Text>
+          {renderDetailItem('account', 'Nome do Cliente', contrato.des_nome_pes)}
+          {renderDetailItem('calendar', 'Data de Cadastro', dayjs(contrato.dth_cadastro_ctt).format('DD/MM/YYYY'))}
+        </View>
 
-          <List.Item
-            title="Status do Contrato"
-            description={contrato.is_ativo_ctt ? 'Ativo' : 'Inativo'}
-            left={() =>
-              contrato.is_ativo_ctt ? (
-                <List.Icon icon="check-circle-outline" color={theme.colors.primary} />
-              ) : (
-                <List.Icon icon="checkbox-blank-circle-outline" color={theme.colors.error} />
-              )
-            }
-            style={styles.listItem}
-          />
-          <Divider />
+        {/* Plan Details Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Detalhes do Plano</Text>
+          {renderDetailItem('currency-usd', 'Valor Inicial', `R$ ${maskBrazilianCurrency(contrato.vlr_inicial_ctt)}`)}
+          {renderDetailItem(
+            'file-document-multiple-outline', 
+            'Parcelas', 
+            `${contrato.qtd_parcelas_ctt} (Ver parcelas)`,
+            () => navigate('contrato-parcela-details', { idContrato: contrato.id_contrato_ctt }),
+            true
+          )}
+          {renderDetailItem(getIcon(contrato.des_origem_ori), 'Origem', contrato.des_origem_ori)}
+          {renderDetailItem('card-text-outline', 'Descrição', contrato.des_descricao_tsi)}
+        </View>
 
-          <List.Item
-            title="Data de Cadastro"
-            description={dayjs(contrato.dth_cadastro_ctt).format('DD/MM/YYYY')}
-            left={() => <List.Icon icon="calendar" />}
-            style={styles.listItem}
-          />
-          <Divider />
-
-          <List.Item title="Origem" description={contrato.des_origem_ori} left={() => getIcon(contrato.des_origem_ori)} style={styles.listItem} />
-          <Divider />
-
-          <List.Item title="Descrição" description={contrato.des_descricao_tsi} left={() => <List.Icon icon="card-text-outline" />} style={styles.listItem} />
-
-          {/* <List.Item
-            title="Dependentes"
-            description={`Ver dependentes`}
-            left={() => <List.Icon icon="account-multiple"  />}
-            right={() => <List.Icon icon="arrow-right" />}
-            onPress={() => {
-              navigate('user-dependents-screen');
-            }}
-            style={styles.listItem}
-          /> */}
-        </List.Section>
-      </View>
-    </ScrollView>
+        {/* Dependents Section */}
+        {/* <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Dependentes</Text>
+          {renderDetailItem(
+            'account-multiple', 
+            'Ver dependentes', 
+            'Gerenciar dependentes',
+            () => navigate('user-dependents-screen'),
+            true
+          )}
+        </View> */}
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  container: {
-    flex: 1,
-    margin: 0,
-    padding: 16,
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
   },
-  title: {
+  scrollContainer: {
+    padding: 20,
+  },
+  header: {
+    marginBottom: 24,
+  },
+  headerTitle: {
+    fontSize: 18,
+    color: '#666',
+    marginBottom: 4,
+  },
+  planName: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
+    color: '#333',
   },
-  listItem: {
-    paddingVertical: 12,
+  statusCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 24,
+    borderLeftWidth: 4,
+  },
+  statusText: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginLeft: 12,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 16,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f5f5f5',
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#b183ff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  itemTitle: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 2,
+  },
+  itemValue: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+  },
+  linkText: {
+    color: '#1a73e8',
   },
 });
 

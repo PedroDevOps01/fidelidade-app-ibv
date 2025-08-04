@@ -7,14 +7,14 @@ import { api } from '../../network/api';
 import { generateRequestHeader } from '../../utils/app-utils';
 import { useAuth } from '../../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { requestPermissions } from '../../utils/permissions';
 
 type Props = {
   index: number;
   appointment: UserSchedule;
   onPress: (index: number) => void;
   setGlobalLoading: (value: boolean) => void;
-    showCheckinButton?: boolean; // <-- adicionado aqui
-
+  showCheckinButton?: boolean; // <-- adicionado aqui
 };
 
 const UserScheduleCard = (props: Props) => {
@@ -104,18 +104,25 @@ const UserScheduleCard = (props: Props) => {
     }
   };
 
- const handleChecking = async () => {
+  const handleChecking = async () => {
+  try {
+    await requestPermissions();
+  } catch (err) {
+    Alert.alert('Permissões necessárias', String(err));
+    return;
+  }
+
   const dataAtual = new Date();
-dataAtual.setHours(0, 0, 0, 0);
+  dataAtual.setHours(0, 0, 0, 0);
 
-const [ano, mes, dia] = appointment.data.split('-'); // ou 'dd/mm/yyyy' se necessário
-const dataAgendamento = new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
-dataAgendamento.setHours(0, 0, 0, 0);
+  const [ano, mes, dia] = appointment.data.split('-');
+  const dataAgendamento = new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
+  dataAgendamento.setHours(0, 0, 0, 0);
 
-if (dataAtual.getTime() !== dataAgendamento.getTime()) {
-  Alert.alert('Check-in não permitido', 'Você só pode fazer o check-in na data do agendamento.');
-  return;
-}
+  if (dataAtual.getTime() !== dataAgendamento.getTime()) {
+    Alert.alert('Check-in não permitido', 'Você só pode fazer o check-in na data do agendamento.');
+    return;
+  }
 
   setGlobalLoading(true);
 
@@ -135,8 +142,9 @@ if (dataAtual.getTime() !== dataAgendamento.getTime()) {
         clinicCoords.latitude,
         clinicCoords.longitude
       );
+
       console.log(`Distância do usuário até a clínica: ${distance} metros`);
-      console.log(`Coordenadas do usuário: ${userCoords.latitude}, ${userCoords.longitude}`);
+
       if (distance <= 600) {
         Alert.alert('Check-in permitido', 'Você está dentro da área permitida.');
         await validarCodigoAgendamento();
@@ -154,9 +162,6 @@ if (dataAtual.getTime() !== dataAgendamento.getTime()) {
     { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
   );
 };
-
-
-
 
   return (
     <Card style={[styles.card]} mode="elevated">
@@ -194,19 +199,19 @@ if (dataAtual.getTime() !== dataAgendamento.getTime()) {
           </TouchableOpacity>
 
           {showCheckinButton && (
-  <TouchableOpacity
-    style={[styles.buttonContainer, { backgroundColor: checkinRealizado ? '#4CAF50' : colors.primary, flex: 1 }]}
-    activeOpacity={0.8}
-    onPress={() => {
-      if (checkinRealizado) {
-        Alert.alert('Já na Sala de Espera', 'Você já realizou o check-in e está na sala de espera.');
-      } else {
-        handleChecking();
-      }
-    }}>
-    <Text style={styles.buttonText}>{checkinRealizado ? 'Sala de Espera' : 'Check-in'}</Text>
-  </TouchableOpacity>
-)}
+            <TouchableOpacity
+              style={[styles.buttonContainer, { backgroundColor: checkinRealizado ? '#4CAF50' : colors.primary, flex: 1 }]}
+              activeOpacity={0.8}
+              onPress={() => {
+                if (checkinRealizado) {
+                  Alert.alert('Já na Sala de Espera', 'Você já realizou o check-in e está na sala de espera.');
+                } else {
+                  handleChecking();
+                }
+              }}>
+              <Text style={styles.buttonText}>{checkinRealizado ? 'Sala de Espera' : 'Check-in'}</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </Card.Content>
     </Card>

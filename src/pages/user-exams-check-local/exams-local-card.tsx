@@ -12,25 +12,32 @@ interface ExamsLocalsCardProps {
 
 const ExamsLocalsCard: React.FC<ExamsLocalsCardProps> = ({ data, onPress }) => {
   const { colors } = useTheme();
-
   const [visible, setIsVisible] = useState(false);
 
   return (
-    <View style={styles.card}>
-      <ImageViewerPreview type="large" uri={data.fachada_empresa} onLong={() => {}} />
+    <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.outline }]}>
+      <ImageViewerPreview 
+        type="large" 
+        uri={data.fachada_empresa} 
+        onLong={() => {}}
+      />
 
       <Card.Title
         title={data.empresa}
+        titleNumberOfLines={2}
         subtitle={`${data.endereco}, ${data.numero} - ${data.bairro}, ${data.cidade} - ${data.estado}`}
-        titleStyle={styles.title}
-        subtitleStyle={styles.subtitle}
+        titleStyle={[styles.title, { color: colors.onSurface }]}
+        subtitleStyle={[styles.subtitle, { color: colors.onSurfaceVariant }]}
         subtitleNumberOfLines={2}
+        style={styles.cardHeader}
       />
 
-      <Card.Content>
-        <Divider style={styles.divider} />
+      <Card.Content style={styles.cardContent}>
+        <Divider style={[styles.divider, { backgroundColor: colors.outlineVariant }]} />
 
-        <Text style={styles.sectionTitle}>Procedimentos</Text>
+        <Text variant="titleSmall" style={[styles.sectionTitle, { color: colors.onSurface }]}>
+          Procedimentos
+        </Text>
 
         <FlatList
           data={data.procedimentos}
@@ -38,15 +45,34 @@ const ExamsLocalsCard: React.FC<ExamsLocalsCardProps> = ({ data, onPress }) => {
           renderItem={({ item }) => (
             <List.Item
               title={item.nome}
-              description={`Assinatura: ${maskBrazilianCurrency(item.valor_assinatura)}\nParticular: ${maskBrazilianCurrency(item.valor_particular)}`}
-              left={props => <Avatar.Icon {...props} icon="medical-bag" style={{ backgroundColor: colors.primary }} color={colors.onPrimary} />}
+              titleNumberOfLines={2}
+              description={`Assinante: ${maskBrazilianCurrency(item.valor_assinatura)}\nParticular: ${maskBrazilianCurrency(item.valor_particular)}`}
+              descriptionStyle={{ color: colors.onSurfaceVariant }}
+              left={props => (
+                <Avatar.Icon 
+                  {...props} 
+                  icon="medical-bag" 
+                  style={{ backgroundColor: colors.primaryContainer }} 
+                  color={colors.onPrimaryContainer} 
+                  size={40}
+                />
+              )}
+              style={styles.listItem}
             />
           )}
+          scrollEnabled={false}
           removeClippedSubviews={false}
+          ItemSeparatorComponent={() => <View style={[styles.listSeparator, { backgroundColor: colors.surfaceVariant }]} />}
         />
 
-        <Button mode="contained" key={'continue'} onPress={() => onPress(data)}>
-          Continuar
+        <Button 
+          mode="contained" 
+          onPress={() => onPress(data)}
+          style={styles.actionButton}
+          labelStyle={styles.actionButtonLabel}
+          contentStyle={styles.actionButtonContent}
+        >
+          Selecionar Local
         </Button>
       </Card.Content>
     </View>
@@ -55,33 +81,74 @@ const ExamsLocalsCard: React.FC<ExamsLocalsCardProps> = ({ data, onPress }) => {
 
 const styles = StyleSheet.create({
   card: {
-    margin: 12,
-    borderRadius: 8,
-    borderWidth: 0.5,
-    padding: 10,
-    elevation: 0,
+    marginHorizontal: 16,
+    marginVertical: 8,
+    borderRadius: 12,
+    overflow: 'hidden',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
-  image: {
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
+  cardImage: {
+    width: '100%',
+    height: 160,
+  },
+  cardHeader: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
+  cardContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 10,
+    fontWeight: '600',
+    lineHeight: 24,
+    letterSpacing: 0.15,
   },
   subtitle: {
     fontSize: 14,
-    color: 'gray',
+    lineHeight: 20,
+    letterSpacing: 0.25,
+    opacity: 0.8,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '500',
     marginTop: 8,
-    marginBottom: 4,
+    marginBottom: 12,
+    letterSpacing: 0.1,
   },
   divider: {
-    marginVertical: 8,
+    height: StyleSheet.hairlineWidth,
+    marginVertical: 12,
+    opacity: 0.8,
+  },
+  listItem: {
+    paddingHorizontal: 0,
+    paddingVertical: 8,
+  },
+  listSeparator: {
+    height: StyleSheet.hairlineWidth,
+    opacity: 0.08,
+    marginVertical: 4,
+  },
+  actionButton: {
+    borderRadius: 8,
+    marginTop: 16,
+    elevation: 0,
+  },
+  actionButtonLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    letterSpacing: 0.1,
+    paddingVertical: 2,
+  },
+  actionButtonContent: {
+    height: 44,
   },
 });
 

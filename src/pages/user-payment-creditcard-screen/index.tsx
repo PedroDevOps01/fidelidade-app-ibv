@@ -7,7 +7,6 @@ import LoadingFull from '../../components/loading-full';
 import { api } from '../../network/api';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
 import Carousel, { ICarouselInstance } from 'react-native-reanimated-carousel';
-import { useSharedValue } from 'react-native-reanimated';
 import UserCreditCard from '../user-create-credit-card/user-credit-card';
 import { navigate } from '../../router/navigationRef';
 import { generateRequestHeader, getCurrentDate, maskBrazilianCurrency } from '../../utils/app-utils';
@@ -19,7 +18,7 @@ export default function UserPaymentCreditCardScreen() {
   const { dadosUsuarioData } = useDadosUsuario();
   const { width } = useWindowDimensions();
   const ref = React.useRef<ICarouselInstance>(null);
-  const progress = useSharedValue<number>(0);
+  // const progress = useSharedValue<number>(0);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingPayment, setLoadingPayment] = useState<boolean>(false);

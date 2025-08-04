@@ -12,6 +12,7 @@ import { formatDateToDDMMYYYY, generateRequestHeader, maskBrazilianCurrency } fr
 import CustomToast from '../../components/custom-toast';
 import { FlashList } from '@shopify/flash-list';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useLayoutEffect} from "react";
 
 type ExtractDates = {
   created_since: Date | null;
@@ -43,7 +44,7 @@ type MdvExtractData = {
   created_at: string;
 };
 
-export default function UserMdvSalesExtract() {
+export default function UserMdvSalesExtract({navigation}: {navigation: any}) {
   const { authData } = useAuth();
   const { colors } = useTheme();
   const route = useRoute<RouteProp<UserMdvSalesExtractRouteParams, 'params'>>();
@@ -55,6 +56,10 @@ export default function UserMdvSalesExtract() {
     created_since: null,
     created_until: null,
   });
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
+
 
   const renderPaymentMethodIcon = (method: string) => {
     switch (method) {
@@ -290,7 +295,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    marginTop: 35,
   },
   backButton: {
     margin: 0,
@@ -299,6 +303,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 18,
     flex: 1,
+    justifyContent: 'center',
     textAlign: 'center',
     marginHorizontal: 8,
   },

@@ -18,6 +18,7 @@ import BannerHorizontalItem from './banner-card-component';
 import LoadingFull from '../../components/loading-full';
 import { Image } from 'react-native';
 import { Platform } from 'react-native';
+import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -41,6 +42,9 @@ interface Parceiro {
   dth_cadastro_prc: string;
   dth_alteracao_prc: string;
   id_municipio_prc: number;
+  des_parceiro_prc: string | null;
+  num_cred_prc: string | null;
+  cred_ativo_prc: '0' | '1' | null;
 }
 
 const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
@@ -50,8 +54,8 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   const { setUserSchedulesData, userSchedules } = useConsultas();
   const [lastHistoricSchedule, setLastHistoricSchedule] = useState<UserSchedule | null>(null);
   const [parceiros, setParceiros] = useState<Parceiro[]>([]);
+  const [parceirosCredenciados, setParceirosCredenciados] = useState<Parceiro[]>([]);
   const [error, setError] = useState<string | null>(null);
-
   const [pagarmeErrors, setPagarmeErrors] = useState<ErrorCadastroPagarme | null>(null);
   const [pagarmeErrorsDialogVisible, setPagarmeErrorsDialogVisible] = useState<boolean>(false);
   const [inadimplenciasDialogVisible, setInadimplenciasDialogVisible] = useState<boolean>(false);
@@ -59,21 +63,39 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const scrollXPromo = useRef(new Animated.Value(0)).current;
   const scrollXConsultas = useRef(new Animated.Value(0)).current;
+  const scrollXCredenciados = useRef(new Animated.Value(0)).current;
   const isLogged = !dadosUsuarioData.user.id_usuario_usr ? false : true;
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalCredenciadosVisible, setModalCredenciadosVisible] = useState(false);
   const [selectedParceiroId, setSelectedParceiroId] = useState<number | null>(null);
+  const [selectedParceiroCredenciadoId, setSelectedParceiroCredenciadoId] = useState<number | null>(null);
+  const requestLocationPermission = async () => {
+    const result = await request(Platform.OS === 'ios' ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
+    console.log('Resultado da permissão:', result);
+  };
 
-  // Map API data to carousel items
+  // Map API data to carousel items for all partners
   const maisConsultasData = parceiros.map(parceiro => ({
     id: parceiro.id_parceiro_prc.toString(),
-    
     image: parceiro.img_parceiro_prc ? { uri: `${parceiro.img_parceiro_prc}` } : require('../../assets/images/logonova.png'),
     action: () => handleParceiroPress(parceiro.id_parceiro_prc),
+  }));
+
+  // Map API data to carousel items for accredited partners
+  const maisConsultasCredenciadosData = parceirosCredenciados.map(parceiro => ({
+    id: parceiro.id_parceiro_prc.toString(),
+    image: parceiro.img_parceiro_prc ? { uri: `${parceiro.img_parceiro_prc}` } : require('../../assets/images/logonova.png'),
+    action: () => handleParceiroCredenciadoPress(parceiro.id_parceiro_prc),
   }));
 
   const handleParceiroPress = (parceiroId: number) => {
     setSelectedParceiroId(parceiroId);
     setModalVisible(true);
+  };
+
+  const handleParceiroCredenciadoPress = (parceiroId: number) => {
+    setSelectedParceiroCredenciadoId(parceiroId);
+    setModalCredenciadosVisible(true);
   };
 
   async function fetchLastHistoricSchedule(): Promise<void> {
@@ -83,6 +105,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
     try {
       const response = await api.get(`/integracao/listHistoricoAgendamentos?token_paciente=${token}`, generateRequestHeader(authData.access_token));
       const data = response.data;
+      // console.log('Histórico de agendamentos:', data);
       if (data.length > 0) {
         setLastHistoricSchedule(data[0]);
       }
@@ -90,42 +113,63 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
       console.log('Erro ao buscar histórico mais recente:', error);
     }
   }
-useFocusEffect(
-    useCallback(() => {
-      fetchParceiros(); // Always fetch partners when view is focused
-    }, []),
-  );
-  useEffect(() => {
-    if (dadosUsuarioData.pessoa?.cod_cep_pda != undefined && !dadosUsuarioData.pessoaAssinatura) {
-      navigation.navigate('user-contracts-stack');
-    }
-  }, [dadosUsuarioData]);
 
   async function fetchParceiros(): Promise<void> {
     try {
-        setLoading(true);
-        const headers = isLogged ? generateRequestHeader(authData.access_token) : {
+      const headers = isLogged
+        ? generateRequestHeader(authData.access_token)
+        : {
             headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
             },
-        };
-        const response = await api.get('/parceiro/app', headers);
-        const dataApi = response.data;
-        if (dataApi && dataApi.response && dataApi.response.data && dataApi.response.data.length > 0) {
-            console.log('Parceiros encontrados:', dataApi.response.data);
-            setParceiros(dataApi.response.data);
-        } else {
-            setError('Nenhum parceiro encontrado');
-            console.log('Nenhum parceiro encontrado');
-        }
+          };
+      const response = await api.get('/parceiro/app', headers);
+      const dataApi = response.data;
+      if (dataApi && dataApi.response && dataApi.response.data && dataApi.response.data.length > 0) {
+        // console.log('Parceiros encontrados:', dataApi.response.data);
+        setParceiros(dataApi.response.data);
+      } else {
+        console.log('Nenhum parceiro encontrado');
+      }
     } catch (error: any) {
-        setError('Erro ao buscar parceiros: ' + error.message);
-        console.error('Erro ao buscar parceiros:', error.message, error.response?.data);
+      console.error('Erro ao buscar parceiros:', error.message, error.response?.data);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-}
+  }
+
+  async function fetchParceirosCredenciados(): Promise<void> {
+    try {
+      setLoading(true);
+      const headers = isLogged
+        ? generateRequestHeader(authData.access_token)
+        : {
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+            },
+          };
+      const response = await api.get('/parceiro/appcred', headers);
+      const dataApi = response.data;
+      if (dataApi && dataApi.response && dataApi.response.data && dataApi.response.data.length > 0) {
+        // console.log('Parceiros credenciados encontrados:', dataApi.response.data);
+        setParceirosCredenciados(dataApi.response.data);
+      } else {
+        console.log('Nenhum parceiro credenciado encontrado');
+      }
+    } catch (error: any) {
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchParceiros();
+      fetchParceirosCredenciados(); // Fetch accredited partners when view is focused
+    }, []),
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -134,17 +178,11 @@ useFocusEffect(
       }
     }, [dadosUsuarioData, authData]),
   );
-
-  useFocusEffect(
-    useCallback(() => {
-      if (dadosUsuarioData.errorCadastroPagarme) {
-        setPagarmeErrorsDialogVisible(true);
-      }
-      if (dadosUsuarioData.pessoaAssinatura?.inadimplencia.length! > 0) {
-        setInadimplenciasDialogVisible(true);
-      }
-    }, [dadosUsuarioData]),
-  );
+  useEffect(() => {
+    if (dadosUsuarioData.pessoa?.cod_cep_pda != undefined && !dadosUsuarioData.pessoaAssinatura) {
+      navigation.navigate('user-contracts-stack');
+    }
+  }, [dadosUsuarioData]);
 
   async function fetchSchedules(access_token: string): Promise<void> {
     const token = dadosUsuarioData.pessoaDados?.cod_token_pes!;
@@ -156,7 +194,6 @@ useFocusEffect(
 
       try {
         const response = await api.get(`/integracao/listAgendamentos?token_paciente=${token}`, generateRequestHeader(access_token));
-
         if (response.status == 200) {
           const { data } = response;
           setUserSchedulesData(data);
@@ -202,7 +239,6 @@ useFocusEffect(
 
       try {
         const resp = await api.get(`/contrato?id_pessoa_ctt=${id_pessoa_usr}`, generateRequestHeader(authData.access_token));
-
         if (resp.status == 200) {
           const { data: content } = resp;
           setContracts(content.response.data);
@@ -222,6 +258,7 @@ useFocusEffect(
       fetchSchedules(authData.access_token),
       fetchLastHistoricSchedule(),
       fetchParceiros(),
+      fetchParceirosCredenciados(),
     ])
       .then(_ => {})
       .catch(err => {
@@ -286,6 +323,33 @@ useFocusEffect(
     );
   };
 
+  const renderCredenciadosIndicator = () => {
+    return (
+      <View style={styles.indicatorContainer}>
+        {maisConsultasCredenciadosData.map((_, i) => {
+          const opacity = scrollXCredenciados.interpolate({
+            inputRange: [(i - 1) * (SCREEN_WIDTH * 0.9 + 10), i * (SCREEN_WIDTH * 0.9 + 10), (i + 1) * (SCREEN_WIDTH * 0.9 + 10)],
+            outputRange: [0.3, 1, 0.3],
+            extrapolate: 'clamp',
+          });
+
+          return (
+            <Animated.View
+              key={`credenciados-indicator-${i}`}
+              style={[
+                styles.indicator,
+                {
+                  backgroundColor: colors.primary,
+                  opacity,
+                },
+              ]}
+            />
+          );
+        })}
+      </View>
+    );
+  };
+
   const renderConsultasItem = ({ item, index }: { item: any; index: number }) => {
     return (
       <TouchableOpacity
@@ -303,7 +367,31 @@ useFocusEffect(
             width: '100%',
             height: 200,
             borderRadius: 15,
-            backgroundColor: '#f0f0f0',
+            backgroundColor: '#fff', // <-- alterado para branco
+          }}
+        />
+      </TouchableOpacity>
+    );
+  };
+
+  const renderCredenciadosItem = ({ item, index }: { item: any; index: number }) => {
+    return (
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={item.action}
+        style={{
+          width: SCREEN_WIDTH * 0.7,
+          marginRight: index === maisConsultasCredenciadosData.length - 1 ? 0 : 10,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <Image
+          source={item.image}
+          style={{
+            width: '100%',
+            height: 200,
+            borderRadius: 15,
+            backgroundColor: '#fff', // <-- alterado para branco
           }}
         />
       </TouchableOpacity>
@@ -320,33 +408,13 @@ useFocusEffect(
           {error && <Text style={{ color: 'red', textAlign: 'center', marginVertical: 10 }}>{error}</Text>}
 
           {/* Header */}
-          <View
-            style={[
-              styles.headerContainer,
-              {
-                backgroundColor: '#b183ff',
-                paddingBottom: 6,
-                paddingTop: 6,
-                elevation: 6,
-                ...(Platform.OS === 'android' ? { marginTop: 50 } : {}),
-              },
-            ]}>
-            <View style={styles.userInfoContainer}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
-                <Text variant="titleLarge" style={[styles.welcomeText, { color: '#FFFFFF', marginRight: 6 }]}>
-                  {isLogged ? `Bem vind${dadosUsuarioData.pessoaDados?.des_sexo_biologico_pes === 'M' ? 'o' : 'a'},` : `Bem vindo!`}
-                </Text>
-                {isLogged && (
-                  <Text variant="titleLarge" style={[styles.userName, { color: '#FFFFFF' }]}>
-                    {dadosUsuarioData.pessoaDados?.des_genero_pes}!!
-                  </Text>
-                )}
-              </View>
-
-              <View style={styles.logoContainer}>
-                <Image source={require('../../assets/images/logotransparente.png')} style={[styles.cardLogo]} resizeMode="contain" />
-              </View>
+          <View style={styles.userInfoResponsive}>
+            <View style={styles.textContainer}>
+              <Text style={styles.welcomeText}>{isLogged ? `Bem vind${dadosUsuarioData.pessoaDados?.des_sexo_biologico_pes === 'M' ? 'o' : 'a'},` : `Bem vindo!`}</Text>
+              {isLogged && <Text style={styles.nameText}>{dadosUsuarioData.pessoaDados?.des_genero_pes}!!</Text>}
             </View>
+
+            <Image source={require('../../assets/images/logotransparente.png')} style={styles.responsiveLogo} resizeMode="contain" />
           </View>
 
           {/* Parceiros Section */}
@@ -355,7 +423,7 @@ useFocusEffect(
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
                 Nossos Parceiros
               </Text>
-              <Button mode="text" compact labelStyle={{ fontSize: 12, color: colors.primary }} onPress={() => navigation.navigate('ParceirosScreen')}>
+              <Button mode="text" compact labelStyle={{ fontSize: 12, color: colors.primary }} onPress={() => navigation.navigate('ParceirosScreen', { partnerType: 'regular' })}>
                 Ver todos
               </Button>
             </View>
@@ -432,11 +500,56 @@ useFocusEffect(
                   paddingVertical: 8,
                   width: '100%',
                 }}
-                
+                onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollXPromo } } }], { useNativeDriver: true })}
+                scrollEventThrottle={16}
               />
               {renderPromoIndicator()}
             </View>
           </View>
+
+          {/* Parceiros Credenciados Section */}
+          {/* <View style={styles.sectionContainer}>
+            <View style={styles.sectionHeader}>
+              <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
+                Parceiros Credenciados
+              </Text>
+              <Button
+                mode="text"
+                compact
+                labelStyle={{ fontSize: 12, color: colors.primary }}
+                onPress={() => navigation.navigate('ParceirosScreen', { partnerType: 'accredited' })}>
+                Ver todos
+              </Button>
+            </View>
+            {parceirosCredenciados.length > 0 && (
+              <>
+                <Animated.FlatList
+                  data={maisConsultasCredenciadosData}
+                  renderItem={renderCredenciadosItem}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  snapToInterval={SCREEN_WIDTH * 0.8}
+                  decelerationRate="fast"
+                  contentContainerStyle={{
+                    paddingHorizontal: (SCREEN_WIDTH - SCREEN_WIDTH * 0.99) / 2,
+                  }}
+                  onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollXCredenciados } } }], { useNativeDriver: true })}
+                  scrollEventThrottle={16}
+                  removeClippedSubviews={true}
+                  snapToAlignment="start"
+                  pagingEnabled={false}
+                  initialNumToRender={3}
+                  windowSize={5}
+                  getItemLayout={(data, index) => ({
+                    length: SCREEN_WIDTH * 0.7 + 10,
+                    offset: (SCREEN_WIDTH * 0.7 + 10) * index,
+                    index,
+                  })}
+                />
+                {renderCredenciadosIndicator()}
+              </>
+            )}
+          </View> */}
 
           {/* Próximos Agendamentos Section */}
           <View style={styles.sectionContainer}>
@@ -583,77 +696,169 @@ useFocusEffect(
               }}
             />
           </Portal>
+
+          {/* Modal for Parceiros */}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => {
+              setModalVisible(false);
+            }}>
+            <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+              <View style={styles.modalOverlay} />
+            </TouchableWithoutFeedback>
+
+            <View style={styles.modalContainer}>
+              {selectedParceiroId && (
+                <>
+                  {(() => {
+                    const selectedParceiro = parceiros.find(p => p.id_parceiro_prc === selectedParceiroId);
+                    return selectedParceiro ? (
+                      <>
+                        <Image
+                          source={selectedParceiro.img_parceiro_prc ? { uri: `${selectedParceiro.img_parceiro_prc}` } : require('../../assets/images/logonova.png')}
+                          style={styles.modalImage}
+                        />
+                        <View style={styles.modalContent}>
+                          <Text variant="titleLarge" style={styles.modalTitle}>
+                            {selectedParceiro.des_nome_fantasia_prc}
+                          </Text>
+                          <Text variant="bodyMedium" style={styles.modalDescription}>
+                            {selectedParceiro.des_razao_social_prc} - {selectedParceiro.des_endereco_prc}, {selectedParceiro.des_bairro_prc}, {selectedParceiro.des_municipio_mun}
+                          </Text>
+                          <Text variant="titleSmall" style={styles.modalSectionTitle}>
+                            Contato:
+                          </Text>
+                          <View style={styles.benefitItem}>
+                            <IconButton icon="email" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
+                            <Text variant="bodyMedium" style={styles.benefitText}>
+                              {selectedParceiro.des_email_responsavel_prc}
+                            </Text>
+                          </View>
+                          <View style={styles.benefitItem}>
+                            <IconButton icon="phone" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
+                            <Text variant="bodyMedium" style={styles.benefitText}>
+                              {selectedParceiro.num_celular_prc || selectedParceiro.num_telefone_prc}
+                            </Text>
+                          </View>
+                          <Text variant="titleSmall" style={styles.modalSectionTitle}>
+                            Dados:
+                          </Text>
+
+                          <View style={styles.benefitItem}>
+                            <IconButton icon="card-text" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
+                            <Text variant="bodyMedium" style={styles.benefitText}>
+                              Descrição: {selectedParceiro.des_parceiro_prc || 'N/A'}
+                            </Text>
+                          </View>
+                          <Button
+                            mode="contained"
+                            onPress={() => {
+                              setModalVisible(false);
+                              navigation.navigate('ParceirosScreen', { partnerType: 'regular' });
+                            }}
+                            style={styles.modalButton}
+                            labelStyle={styles.modalButtonText}>
+                            Ver mais detalhes
+                          </Button>
+                          <Button mode="outlined" onPress={() => setModalVisible(false)} style={styles.modalCloseButton} labelStyle={styles.modalCloseButtonText}>
+                            Fechar
+                          </Button>
+                        </View>
+                      </>
+                    ) : null;
+                  })()}
+                </>
+              )}
+            </View>
+          </Modal>
+
+          {/* Modal for Parceiros Credenciados */}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalCredenciadosVisible}
+            onRequestClose={() => {
+              setModalCredenciadosVisible(false);
+            }}>
+            <TouchableWithoutFeedback onPress={() => setModalCredenciadosVisible(false)}>
+              <View style={styles.modalOverlay} />
+            </TouchableWithoutFeedback>
+
+            <View style={styles.modalContainer}>
+              {selectedParceiroCredenciadoId && (
+                <>
+                  {(() => {
+                    const selectedParceiro = parceirosCredenciados.find(p => p.id_parceiro_prc === selectedParceiroCredenciadoId);
+                    console.log('Selected Credenciado:', selectedParceiro);
+                    return selectedParceiro ? (
+                      <>
+                        <Image
+                          source={selectedParceiro.img_parceiro_prc ? { uri: `${selectedParceiro.img_parceiro_prc}` } : require('../../assets/images/logonova.png')}
+                          style={styles.modalImage}
+                        />
+                        <View style={styles.modalContent}>
+                          <Text variant="titleLarge" style={styles.modalTitle}>
+                            {selectedParceiro.des_nome_fantasia_prc}
+                          </Text>
+                          <Text variant="bodyMedium" style={styles.modalDescription}>
+                            {selectedParceiro.des_razao_social_prc} - {selectedParceiro.des_endereco_prc}, {selectedParceiro.des_bairro_prc}, {selectedParceiro.des_municipio_mun}
+                          </Text>
+                          <Text variant="titleSmall" style={styles.modalSectionTitle}>
+                            Contato:
+                          </Text>
+                          <View style={styles.benefitItem}>
+                            <IconButton icon="email" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
+                            <Text variant="bodyMedium" style={styles.benefitText}>
+                              {selectedParceiro.des_email_responsavel_prc}
+                            </Text>
+                          </View>
+                          <View style={styles.benefitItem}>
+                            <IconButton icon="phone" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
+                            <Text variant="bodyMedium" style={styles.benefitText}>
+                              {selectedParceiro.num_celular_prc || selectedParceiro.num_telefone_prc}
+                            </Text>
+                          </View>
+                          <Text variant="titleSmall" style={styles.modalSectionTitle}>
+                            Dados:
+                          </Text>
+                          <View style={styles.benefitItem}>
+                            <IconButton icon="card-text" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
+                            <Text variant="bodyMedium" style={styles.benefitText}>
+                              Nº Credenciamento: {selectedParceiro.num_cred_prc || 'N/A'}
+                            </Text>
+                          </View>
+
+                          <View style={styles.benefitItem}>
+                            <IconButton icon="card-text" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
+                            <Text variant="bodyMedium" style={styles.benefitText}>
+                              Descrição: {selectedParceiro.des_parceiro_prc || 'N/A'}
+                            </Text>
+                          </View>
+                          <Button
+                            mode="contained"
+                            onPress={() => {
+                              setModalCredenciadosVisible(false);
+                              navigation.navigate('ParceirosScreen', { partnerType: 'accredited' });
+                            }}
+                            style={styles.modalButton}
+                            labelStyle={styles.modalButtonText}>
+                            Ver mais detalhes
+                          </Button>
+                          <Button mode="outlined" onPress={() => setModalCredenciadosVisible(false)} style={styles.modalCloseButton} labelStyle={styles.modalCloseButtonText}>
+                            Fechar
+                          </Button>
+                        </View>
+                      </>
+                    ) : null;
+                  })()}
+                </>
+              )}
+            </View>
+          </Modal>
         </ScrollView>
       )}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(false);
-        }}>
-        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-          <View style={styles.modalOverlay} />
-        </TouchableWithoutFeedback>
-
-        <View style={styles.modalContainer}>
-          {selectedParceiroId && (
-            <>
-              {(() => {
-                const selectedParceiro = parceiros.find(p => p.id_parceiro_prc === selectedParceiroId);
-                return selectedParceiro ? (
-                  <>
-                    <Image
-                      source={
-                        selectedParceiro.img_parceiro_prc
-                          ? { uri: `${selectedParceiro.img_parceiro_prc}` }
-                          : require('../../assets/images/logonova.png')
-                      }
-                      style={styles.modalImage}
-                    />
-                    <View style={styles.modalContent}>
-                      <Text variant="titleLarge" style={styles.modalTitle}>
-                        {selectedParceiro.des_nome_fantasia_prc}
-                      </Text>
-                      <Text variant="bodyMedium" style={styles.modalDescription}>
-                        {selectedParceiro.des_razao_social_prc} - {selectedParceiro.des_endereco_prc}, {selectedParceiro.des_bairro_prc}, {selectedParceiro.des_municipio_mun}
-                      </Text>
-                      <Text variant="titleSmall" style={styles.modalSectionTitle}>
-                        Contato:
-                      </Text>
-                      <View style={styles.benefitItem}>
-                        <IconButton icon="email" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
-                        <Text variant="bodyMedium" style={styles.benefitText}>
-                          {selectedParceiro.des_email_responsavel_prc}
-                        </Text>
-                      </View>
-                      <View style={styles.benefitItem}>
-                        <IconButton icon="phone" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
-                        <Text variant="bodyMedium" style={styles.benefitText}>
-                          {selectedParceiro.num_celular_prc || selectedParceiro.num_telefone_prc}
-                        </Text>
-                      </View>
-                      <Button
-                        mode="contained"
-                        onPress={() => {
-                          setModalVisible(false);
-                          navigation.navigate('ParceirosScreen');
-                        }}
-                        style={styles.modalButton}
-                        labelStyle={styles.modalButtonText}>
-                        Ver mais detalhes
-                      </Button>
-                      <Button mode="outlined" onPress={() => setModalVisible(false)} style={styles.modalCloseButton} labelStyle={styles.modalCloseButtonText}>
-                        Fechar
-                      </Button>
-                    </View>
-                  </>
-                ) : null;
-              })()}
-            </>
-          )}
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 };
@@ -697,15 +902,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
-  welcomeText: {
-    fontSize: 25,
-    fontWeight: '500',
-  },
+
   userName: {
     fontSize: 25,
     fontWeight: '700',
   },
   sectionContainer: {
+
+    marginTop:10,
     marginBottom: 14,
     paddingHorizontal: 16,
   },
@@ -861,6 +1065,42 @@ const styles = StyleSheet.create({
   },
   modalCloseButtonText: {
     fontWeight: 'bold',
+  },
+
+  userInfoResponsive: {
+    flexDirection: 'row',
+    backgroundColor: '#b183ff',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    paddingHorizontal: 16,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+
+  textContainer: {
+    flexShrink: 1,
+    maxWidth: '70%',
+  },
+
+  welcomeText: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: '500',
+    marginBottom: 2,
+  },
+
+  nameText: {
+    fontSize: 20,
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+
+  responsiveLogo: {
+     width: 120,
+    height: 88,
+    borderRadius: 10,
+    marginTop: 0,
   },
 });
 

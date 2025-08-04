@@ -8,6 +8,7 @@ const { width: windowWidth, height: windowHeight } = Dimensions.get('window');
 
 const UserPersonalCarteirinhaScreen = ({ navigation }: { navigation: any }) => {
   const { dadosUsuarioData } = useDadosUsuario();
+  console.log('Dados do usuário:', dadosUsuarioData);
   const { colors } = useTheme();
   const [isZoomed, setIsZoomed] = useState(false);
 
@@ -19,10 +20,7 @@ const UserPersonalCarteirinhaScreen = ({ navigation }: { navigation: any }) => {
   return (
     <View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={[styles.header, isZoomed && styles.hidden]}>
-        <IconButton icon="arrow-left" size={24} iconColor={colors.onBackground} style={styles.backButton} onPress={() => navigation.goBack()} />
-        <Text style={[styles.headerTitle, { color: colors.onBackground }]}>Carteirinha Digital</Text>
-      </View>
+      
 
       {/* Wrapper que rotaciona a carteirinha somente no zoom */}
       <View style={[
@@ -79,7 +77,7 @@ const UserPersonalCarteirinhaScreen = ({ navigation }: { navigation: any }) => {
           {/* Rodapé (como em cartões de crédito) */}
           <View style={[styles.cardFooter, isZoomed && styles.zoomedFooter]}>
             <Text style={[styles.footerText, isZoomed && styles.zoomedFooterText]}>
-              Matrícula: {dadosUsuarioData.pessoaDados?.cod_token_pes}
+              Matrícula: {dadosUsuarioData.pessoaDados?.id_pessoa_pes}
             </Text>
           </View>
 
@@ -111,7 +109,7 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'ios' ? 40 : 0,
   },
   header: {
-    height: Platform.OS === 'android' ? 130 : 80, // aplica 130 apenas no Android
+    height: Platform.OS === 'android' ? 80 : 80, // aplica 130 apenas no Android
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

@@ -18,7 +18,7 @@ import TelepetStackNavigator from './telepet-stack-navigator';
 import ContractsStackNavigator from './contracts-stack-navigator';
 import { useDadosUsuario } from '../context/pessoa-dados-context';
 import ParceiroLoggedDrawerNavigator from './parceiro-router';
-
+import PdfViewerScreen from '../pages/register-step-four/PdfViewerScreen';
 const RegistrationRouter = ({ initialRoute }: { initialRoute: string }) => {
   const theme = useTheme();
   const { dadosUsuarioData } = useDadosUsuario();
@@ -68,7 +68,8 @@ const RegistrationRouter = ({ initialRoute }: { initialRoute: string }) => {
         <Stack.Screen name="new-contract-stack" component={NewContractStackNavigator} options={{ headerShown: false }} />
         <Stack.Screen name="user-shcdules-history-screen" component={UserSchedulesHistoryScreen} options={{ headerShown: true, title: 'Meus agendamentos' }} />
         <Stack.Screen name="parceiro-produto-router" component={ParceiroProdutoCreateScreen} options={{ headerShown: true, title: 'Criar Produto' }} />
-      
+        <Stack.Screen name="PdfViewerScreen" component={PdfViewerScreen} options={{ headerShown: true, title: 'Termo de Adesão' }} />
+
         
       
       

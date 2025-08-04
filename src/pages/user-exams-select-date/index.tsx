@@ -25,7 +25,6 @@ export default function UserExamsSelectDate() {
   const [date, setDate] = useState<Date>(new Date());
   const [show, setShow] = useState<boolean>(false);
 
-  // Calcula as datas mínimas e máximas
   const today = new Date();
   const maxDate = new Date();
   maxDate.setDate(today.getDate() + 14);
@@ -57,62 +56,79 @@ export default function UserExamsSelectDate() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Card style={[styles.card, {     backgroundColor: '#FFFFFF',
- }]} mode="elevated">
-        <Card.Cover 
-          source={{ uri: item.fachada_empresa }} 
-          style={styles.image} 
-          theme={{ colors: { outline: 'transparent' }}} 
-        />
-        
-        <Card.Title 
-          title={item.empresa} 
-          titleStyle={styles.cardTitle}
-          subtitle={`${item.cidade} - ${item.estado}`}
-          subtitleStyle={{ color: colors.onSurfaceVariant }}
-        />
-        
-        <Card.Content style={{backgroundColor: '#FFFFFF'}}>
-          <View style={styles.infoSection}>
-            <MaterialIcons name="location-on" size={20} color={colors.primary} style={styles.icon} />
-            <View>
-              <Text variant="bodyMedium" style={styles.sectionTitle}>
-                Endereço
-              </Text>
-              <Text style={styles.infoText}>
-                {`${item.endereco}, ${item.numero}\n${item.bairro}, ${item.cidade} - ${item.estado}`}
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <Card style={[styles.card, { backgroundColor: colors.surface }]} mode="elevated">
+          <Card.Title 
+            title={item.empresa} 
+            titleStyle={[styles.cardTitle, { color: colors.onSurface }]}
+            subtitle={`${item.cidade} - ${item.estado}`}
+            subtitleStyle={[styles.cardSubtitle, { color: colors.onSurfaceVariant }]}
+            titleNumberOfLines={2}
+          />
+          
+          <Card.Content style={styles.cardContent}>
+            <View style={styles.infoSection}>
+              <MaterialIcons 
+                name="location-on" 
+                size={24} 
+                color={colors.primary} 
+                style={styles.icon} 
+              />
+              <View style={styles.infoTextContainer}>
+                <Text variant="titleSmall" style={[styles.sectionTitle, { color: colors.onSurface }]}>
+                  Endereço
+                </Text>
+                <Text variant="bodyMedium" style={[styles.infoText, { color: colors.onSurfaceVariant }]}>
+                  {`${item.endereco}, ${item.numero}`}
+                </Text>
+                <Text variant="bodyMedium" style={[styles.infoText, { color: colors.onSurfaceVariant }]}>
+                  {`${item.bairro}, ${item.cidade} - ${item.estado}`}
+                </Text>
+              </View>
+            </View>
+
+            <Divider style={[styles.divider, { backgroundColor: colors.outlineVariant }]} />
+
+            <View style={styles.infoSection}>
+              <MaterialIcons 
+                name="access-time" 
+                size={24} 
+                color={colors.primary} 
+                style={styles.icon} 
+              />
+              <View style={styles.infoTextContainer}>
+                <Text variant="titleSmall" style={[styles.sectionTitle, { color: colors.onSurface }]}>
+                  Horários de Funcionamento
+                </Text>
+                <Text variant="bodyMedium" style={[styles.infoText, { color: colors.onSurfaceVariant }]}>
+                  {`Seg-Sex: ${item.horario_seg_sex_inicio} às ${item.horario_seg_sex_fim}`}
+                </Text>
+                <Text variant="bodyMedium" style={[styles.infoText, { color: colors.onSurfaceVariant }]}>
+                  {`Sábado: ${item.horario_sab_inicio} às ${item.horario_sab_fim}`}
+                </Text>
+              </View>
+            </View>
+
+            <Divider style={[styles.divider, { backgroundColor: colors.outlineVariant }]} />
+
+            <View style={[styles.infoSection, { marginBottom: 8 }]}>
+              <MaterialIcons 
+                name="info" 
+                size={24} 
+                color={colors.primary} 
+                style={styles.icon} 
+              />
+              <Text variant="bodySmall" style={[styles.infoText, { color: colors.onSurfaceVariant, flex: 1 }]}>
+                O atendimento nesta unidade é realizado por ordem de chegada.
               </Text>
             </View>
-          </View>
+          </Card.Content>
 
-          <Divider style={[styles.divider, { backgroundColor: colors.outline }]} />
-
-          <View style={styles.infoSection}>
-            <MaterialIcons name="access-time" size={20} color={colors.primary} style={styles.icon} />
-            <View>
-              <Text variant="bodyMedium" style={styles.sectionTitle}>
-                Horários de Funcionamento
-              </Text>
-              <Text style={styles.infoText}>
-                {`Seg-Sex: ${item.horario_seg_sex_inicio} às ${item.horario_seg_sex_fim}`}
-              </Text>
-              <Text style={styles.infoText}>
-                {`Sábado: ${item.horario_sab_inicio} às ${item.horario_sab_fim}`}
-              </Text>
-            </View>
-          </View>
-
-          <Divider style={[styles.divider, { backgroundColor: colors.outline }]} />
-
-          <View style={[styles.infoSection, { marginBottom: 16 }]}>
-            <MaterialIcons name="info" size={20} color={colors.primary} style={styles.icon} />
-            <Text variant="bodySmall" style={[styles.infoText, { flex: 1 }]}>
-              O atendimento nesta unidade é realizado por ordem de chegada.
-            </Text>
-          </View>
-
-          <Card.Actions style={styles.dateSection}>
+          <Card.Content style={[styles.dateSection, { backgroundColor: colors.surface2 }]}>
             <Text variant="titleMedium" style={[styles.dateTitle, { color: colors.primary }]}>
               Selecione uma data
             </Text>
@@ -125,19 +141,21 @@ export default function UserExamsSelectDate() {
                 accentColor={colors.primary}
               />
             </View>
-          </Card.Actions>
-        </Card.Content>
-      </Card>
+          </Card.Content>
+        </Card>
+      </ScrollView>
 
-      <Button
-        mode="contained"
-        onPress={saveAndContinue}
-        contentStyle={styles.continueButton}
-        style={[styles.continueButton, { backgroundColor: colors.primary }]}
-        labelStyle={styles.buttonLabel}
-      >
-        Continuar
-      </Button>
+      <View style={styles.buttonContainer}>
+        <Button
+          mode="contained"
+          onPress={saveAndContinue}
+          contentStyle={styles.continueButtonContent}
+          style={[styles.continueButton, { backgroundColor: colors.primary }]}
+          labelStyle={styles.buttonLabel}
+        >
+          Continuar
+        </Button>
+      </View>
 
       {/* Modal apenas para iOS */}
       {Platform.OS === 'ios' && (
@@ -177,84 +195,105 @@ export default function UserExamsSelectDate() {
           accentColor={colors.primary}
         />
       )}
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
+    flex: 1,
+  },
+  scrollContent: {
     padding: 16,
-    backgroundColor: '#f8f9fa',
+    paddingBottom: 80,
   },
   card: {
     borderRadius: 16,
-    elevation: 3,
+    overflow: 'hidden',
+    elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
   },
-  cardTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginTop: 8,
+  cardContent: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 16,
   },
-  image: {
-    backgroundColor: '#FFFFFF',
-    paddingTop:20,
-    height: 180,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+  cardTitle: {
+    fontWeight: '600',
+    fontSize: 20,
+    paddingTop: 18,
+    lineHeight: 24,
+    letterSpacing: 0.15,
+  },
+  cardSubtitle: {
+    fontSize: 14,
+    lineHeight: 20,
+    letterSpacing: 0.25,
+    opacity: 0.8,
   },
   infoSection: {
     flexDirection: 'row',
-    marginVertical: 8,
+    marginVertical: 12,
+  },
+  infoTextContainer: {
+    flex: 1,
   },
   icon: {
-    marginRight: 12,
-    marginTop: 4,
+    marginRight: 16,
+    marginTop: 2,
   },
   sectionTitle: {
-    fontWeight: '600',
+    fontWeight: '500',
     marginBottom: 4,
+    letterSpacing: 0.1,
   },
   infoText: {
-    color: '#444',
     lineHeight: 20,
+    letterSpacing: 0.25,
   },
   divider: {
-    height: 1,
-    marginVertical: 16,
+    height: StyleSheet.hairlineWidth,
+    marginVertical: 12,
+    opacity: 0.8,
   },
   dateSection: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    paddingHorizontal: 0,
-    paddingVertical: 0,
-    marginTop: 8,
+    padding: 16,
+    borderTopWidth: StyleSheet.hairlineWidth,
   },
   dateTitle: {
-    fontWeight: '700',
+    fontWeight: '500',
     marginBottom: 12,
+    letterSpacing: 0.15,
   },
   datePickerContainer: {
     width: '100%',
   },
+  buttonContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 16,
+    backgroundColor: 'transparent',
+  },
   continueButton: {
-    height: 50,
-    justifyContent: 'center',
     borderRadius: 12,
-    margin: 16,
-    marginTop: 14,
+    elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 4,
   },
+  continueButtonContent: {
+    height: 50,
+  },
   buttonLabel: {
-    fontWeight: '700',
+    fontWeight: '600',
     fontSize: 16,
+    letterSpacing: 0.1,
   },
   modalContainer: {
     flex: 1,
@@ -268,9 +307,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
   },
 });

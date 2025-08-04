@@ -24,12 +24,13 @@ export default function UserContractsPaymentMethodRouter() {
 
   const hasFetched = useRef(false);
 
+
   useEffect(() => {
     if (alertErrorMessage) {
       setAlertErrorMessageVisible(true);
     }
   }, [alertErrorMessage]);
-
+  console.log('plano detalhado', plano);
   // 1 - Obter os dados do plano OK
   async function getPlanoPagamentoData() {
     try {
