@@ -1,154 +1,218 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image, FlatList } from 'react-native';
+import { View, StyleSheet, Image, FlatList, Dimensions } from 'react-native';
 import { Card, Text, useTheme, Divider, List, Avatar, Button } from 'react-native-paper';
 import { maskBrazilianCurrency } from '../../utils/app-utils';
 import ImageViewing from 'react-native-image-viewing';
 import ImageViewerPreview from '../parceiro-produto-create/image-viewer-preview';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import { ProgressBar, TextInput } from 'react-native-paper';
 
 interface ExamsLocalsCardProps {
   data: ExamsLocals;
   onPress: (item: ExamsLocals) => void;
 }
 
+const { width } = Dimensions.get('window');
+
 const ExamsLocalsCard: React.FC<ExamsLocalsCardProps> = ({ data, onPress }) => {
   const { colors } = useTheme();
   const [visible, setIsVisible] = useState(false);
 
   return (
-    <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.outline }]}>
-      <ImageViewerPreview 
-        type="large" 
-        uri={data.fachada_empresa} 
-        onLong={() => {}}
-      />
+    <View style={{ marginHorizontal: 16, marginTop: 12 }}>
+      {/* Barra de progresso FORA do Card */}
+      <View style={{ flexDirection: 'row', marginBottom: 12, gap: 0 }}>
+        {[1, 2, 3].map((_, index) => (
+          <View
+            key={index}
+            style={{
+              flex: 1,
+              height: 6,
+                marginRight: 15,
+                marginLeft: 15,
+              borderRadius: 5,
+              backgroundColor: index < 1 ? colors.primary : colors.onSecondary,
+            }}
+          />
+        ))}
+      </View>
 
-      <Card.Title
-        title={data.empresa}
-        titleNumberOfLines={2}
-        subtitle={`${data.endereco}, ${data.numero} - ${data.bairro}, ${data.cidade} - ${data.estado}`}
-        titleStyle={[styles.title, { color: colors.onSurface }]}
-        subtitleStyle={[styles.subtitle, { color: colors.onSurfaceVariant }]}
-        subtitleNumberOfLines={2}
-        style={styles.cardHeader}
-      />
+      <Card style={styles.card}>
+        <View style={styles.cardContainer}>
+          <ImageViewerPreview type="large" uri={data.fachada_empresa} onLong={() => {}} style={styles.cardImage} />
 
-      <Card.Content style={styles.cardContent}>
-        <Divider style={[styles.divider, { backgroundColor: colors.outlineVariant }]} />
+          <Card.Content style={styles.cardContent}>
+            <Text variant="titleLarge" style={[styles.title, { color: colors.onSurface }]}>
+              {data.empresa}
+            </Text>
 
-        <Text variant="titleSmall" style={[styles.sectionTitle, { color: colors.onSurface }]}>
-          Procedimentos
-        </Text>
+            <View style={styles.locationContainer}>
+              <MaterialIcons name="location-on" size={18} color={colors.primary} style={styles.locationIcon} />
+              <Text variant="bodyMedium" style={[styles.subtitle, { color: colors.onSurfaceVariant }]} numberOfLines={2}>
+                {`${data.endereco}, ${data.numero} - ${data.bairro}, ${data.cidade} - ${data.estado}`}
+              </Text>
+            </View>
 
-        <FlatList
-          data={data.procedimentos}
-          keyExtractor={(_, index) => index.toString()}
-          renderItem={({ item }) => (
-            <List.Item
-              title={item.nome}
-              titleNumberOfLines={2}
-              description={`Assinante: ${maskBrazilianCurrency(item.valor_assinatura)}\nParticular: ${maskBrazilianCurrency(item.valor_particular)}`}
-              descriptionStyle={{ color: colors.onSurfaceVariant }}
-              left={props => (
-                <Avatar.Icon 
-                  {...props} 
-                  icon="medical-bag" 
-                  style={{ backgroundColor: colors.primaryContainer }} 
-                  color={colors.onPrimaryContainer} 
-                  size={40}
+            <Divider style={[styles.divider, { backgroundColor: colors.outlineVariant }]} />
+
+            <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
+              Procedimentos Disponíveis
+            </Text>
+
+            <FlatList
+              data={data.procedimentos}
+              keyExtractor={(_, index) => index.toString()}
+              renderItem={({ item }) => (
+                <List.Item
+                  title={item.nome}
+                  titleNumberOfLines={2}
+                  titleStyle={[styles.procedureTitle, { color: colors.onSurface }]}
+                  description={`Assinante: ${maskBrazilianCurrency(item.valor_assinatura)}\nParticular: ${maskBrazilianCurrency(item.valor_particular)}`}
+                  descriptionStyle={[styles.procedureDescription, { color: colors.onSurfaceVariant }]}
+                  left={props => (
+                    <Avatar.Icon
+                      {...props}
+                      icon="medical-bag"
+                      style={{
+                        backgroundColor: colors.primaryContainer,
+                        marginRight: 8,
+                      }}
+                      color={colors.onPrimaryContainer}
+                      size={44}
+                    />
+                  )}
+                  style={styles.listItem}
                 />
               )}
-              style={styles.listItem}
+              scrollEnabled={false}
+              removeClippedSubviews={false}
+              ItemSeparatorComponent={() => <Divider style={[styles.listSeparator, { backgroundColor: colors.surfaceVariant }]} />}
             />
-          )}
-          scrollEnabled={false}
-          removeClippedSubviews={false}
-          ItemSeparatorComponent={() => <View style={[styles.listSeparator, { backgroundColor: colors.surfaceVariant }]} />}
-        />
 
-        <Button 
-          mode="contained" 
-          onPress={() => onPress(data)}
-          style={styles.actionButton}
-          labelStyle={styles.actionButtonLabel}
-          contentStyle={styles.actionButtonContent}
-        >
-          Selecionar Local
-        </Button>
-      </Card.Content>
+            <Button
+              mode="contained"
+              onPress={() => onPress(data)}
+              style={[styles.actionButton, { backgroundColor: colors.primary }]}
+              labelStyle={styles.actionButtonLabel}
+              contentStyle={styles.actionButtonContent}
+              icon="check-circle">
+              Selecionar Local
+            </Button>
+          </Card.Content>
+        </View>
+      </Card>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    marginHorizontal: 16,
-    marginVertical: 8,
-    borderRadius: 12,
+    marginVertical: 12,
+    borderRadius: 16,
     overflow: 'hidden',
-    elevation: 1,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 8,
+  },
+  cardContainer: {
+    overflow: 'hidden',
   },
   cardImage: {
     width: '100%',
-    height: 160,
-  },
-  cardHeader: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 8,
+    height: 180,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
   },
   cardContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
     lineHeight: 24,
     letterSpacing: 0.15,
+    marginBottom: 20,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: 0.25,
-    opacity: 0.8,
+    opacity: 0.9,
+    flexShrink: 1,
+  },
+  locationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  locationIcon: {
+    marginRight: 8,
+  },
+  icon: {
+    marginRight: 12,
+    marginTop: 4,
+  },
+  infoText: {
+    lineHeight: 20,
+    letterSpacing: 0.25,
+    marginLeft: 6,
   },
   sectionTitle: {
-    fontWeight: '500',
-    marginTop: 8,
+    fontWeight: '600',
     marginBottom: 12,
     letterSpacing: 0.1,
   },
   divider: {
     height: StyleSheet.hairlineWidth,
-    marginVertical: 12,
-    opacity: 0.8,
+    marginVertical: 16,
   },
   listItem: {
     paddingHorizontal: 0,
-    paddingVertical: 8,
+    paddingVertical: 12,
   },
   listSeparator: {
     height: StyleSheet.hairlineWidth,
-    opacity: 0.08,
-    marginVertical: 4,
+    marginVertical: 8,
+  },
+  infoSection: {
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
+  infoTextContainer: {
+    flex: 1,
+  },
+  scheduleItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  scheduleIcon: {
+    marginRight: 8,
+  },
+  procedureTitle: {
+    fontWeight: '500',
+    fontSize: 15,
+  },
+  procedureDescription: {
+    fontSize: 13,
+    lineHeight: 18,
   },
   actionButton: {
-    borderRadius: 8,
+    borderRadius: 12,
     marginTop: 16,
-    elevation: 0,
+    shadowColor: 'transparent',
   },
   actionButtonLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    letterSpacing: 0.1,
-    paddingVertical: 2,
+    fontSize: 15,
+    fontWeight: '600',
+    letterSpacing: 0.25,
+    paddingVertical: 1,
   },
   actionButtonContent: {
-    height: 44,
+    height: 48,
   },
 });
 

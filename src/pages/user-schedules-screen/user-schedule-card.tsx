@@ -8,7 +8,8 @@ import { generateRequestHeader } from '../../utils/app-utils';
 import { useAuth } from '../../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { requestPermissions } from '../../utils/permissions';
-
+import { Platform, PermissionsAndroid } from 'react-native';
+import { request, PERMISSIONS, RESULTS, check } from 'react-native-permissions';
 type Props = {
   index: number;
   appointment: UserSchedule;
@@ -22,6 +23,25 @@ const UserScheduleCard = (props: Props) => {
   const { colors } = useTheme();
   const [checkinRealizado, setCheckinRealizado] = useState(false);
   const { authData } = useAuth();
+  const requestLocationPermission = async () => {
+    if (Platform.OS === 'android') {
+      const status = await check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
+      if (status === RESULTS.DENIED || status === RESULTS.BLOCKED) {
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+          throw new Error('Permissão de localização negada ou bloqueada');
+        }
+      }
+    } else {
+      const status = await check(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+      if (status === RESULTS.DENIED || status === RESULTS.BLOCKED) {
+        const result = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+        if (result !== RESULTS.GRANTED) {
+          throw new Error('Permissão de localização negada ou bloqueada');
+        }
+      }
+    }
+  };
 
   const enderecoCompleto = `${appointment.endereco_unidade} ${appointment.numero_unidade}, ${appointment.bairro_unidade}, ${appointment.cidade_unidade} - ${appointment.estado}`;
   const getLatLngFromAddress = async (address: string) => {
@@ -33,6 +53,7 @@ const UserScheduleCard = (props: Props) => {
         },
       });
 
+      const status = await check(Platform.OS === 'ios' ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
       const data = await response.json();
       if (data && data.length > 0) {
         return {
@@ -105,63 +126,89 @@ const UserScheduleCard = (props: Props) => {
   };
 
   const handleChecking = async () => {
-  try {
-    await requestPermissions();
-  } catch (err) {
-    Alert.alert('Permissões necessárias', String(err));
-    return;
-  }
-
-  const dataAtual = new Date();
-  dataAtual.setHours(0, 0, 0, 0);
-
-  const [ano, mes, dia] = appointment.data.split('-');
-  const dataAgendamento = new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
-  dataAgendamento.setHours(0, 0, 0, 0);
-
-  if (dataAtual.getTime() !== dataAgendamento.getTime()) {
-    Alert.alert('Check-in não permitido', 'Você só pode fazer o check-in na data do agendamento.');
-    return;
-  }
-
-  setGlobalLoading(true);
-
-  const clinicCoords = await getLatLngFromAddress(enderecoCompleto);
-  if (!clinicCoords) {
-    setGlobalLoading(false);
-    Alert.alert('Erro', 'Não foi possível obter as coordenadas da clínica.');
-    return;
-  }
-
-  Geolocation.getCurrentPosition(
-    async position => {
-      const userCoords = position.coords;
-      const distance = getDistanceFromLatLonInMeters(
-        userCoords.latitude,
-        userCoords.longitude,
-        clinicCoords.latitude,
-        clinicCoords.longitude
-      );
-
-      console.log(`Distância do usuário até a clínica: ${distance} metros`);
-
-      if (distance <= 600) {
-        Alert.alert('Check-in permitido', 'Você está dentro da área permitida.');
-        await validarCodigoAgendamento();
+    try {
+      await requestLocationPermission();
+    } catch (err) {
+      if (String(err).includes('bloqueada') || String(err).includes('negada')) {
+        Alert.alert('Permissões necessárias', 'Algumas permissões foram negadas ou bloqueadas. Por favor, ative as permissões.', [
+          {
+            text: 'Tentar novamente',
+            onPress: async () => {
+              const newStatus = await check(Platform.OS === 'ios' ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
+              if (newStatus === RESULTS.DENIED) {
+                const result =
+                  Platform.OS === 'android'
+                    ? await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
+                    : await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+                if (result === PermissionsAndroid.RESULTS.GRANTED || result === RESULTS.GRANTED) {
+                  handleChecking(); // Tenta novamente se a permissão for concedida
+                } else {
+                  Alert.alert('Permissão negada', 'Por favor, ative as permissões nas configurações.');
+                }
+              } else if (newStatus === RESULTS.GRANTED) {
+                handleChecking(); // Tenta novamente se já estiver concedido
+              }
+            },
+          },
+          {
+            text: 'Abrir Configurações',
+            onPress: async () => {
+              const { Linking } = require('react-native');
+              await Linking.openSettings(); // Abre as configurações do app
+            },
+          },
+          { text: 'Cancelar', style: 'cancel' },
+        ]);
       } else {
-        Alert.alert('Fora da área', 'Você está longe demais para fazer o check-in.');
+        Alert.alert('Permissões necessárias', String(err));
       }
+      return;
+    }
+    const dataAtual = new Date();
+    dataAtual.setHours(0, 0, 0, 0);
 
+    const [ano, mes, dia] = appointment.data.split('-');
+    const dataAgendamento = new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
+    dataAgendamento.setHours(0, 0, 0, 0);
+
+    if (dataAtual.getTime() !== dataAgendamento.getTime()) {
+      Alert.alert('Check-in não permitido', 'Você só pode fazer o check-in na data do agendamento.');
+      return;
+    }
+
+    setGlobalLoading(true);
+
+    const clinicCoords = await getLatLngFromAddress(enderecoCompleto);
+    if (!clinicCoords) {
       setGlobalLoading(false);
-    },
-    error => {
-      Alert.alert('Erro', 'Não foi possível obter sua localização.');
-      console.error(error);
-      setGlobalLoading(false);
-    },
-    { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-  );
-};
+      Alert.alert('Erro', 'Não foi possível obter as coordenadas da clínica.');
+      return;
+    }
+
+    Geolocation.getCurrentPosition(
+      async position => {
+        const userCoords = position.coords;
+        const distance = getDistanceFromLatLonInMeters(userCoords.latitude, userCoords.longitude, clinicCoords.latitude, clinicCoords.longitude);
+
+        console.log(`Distância do usuário até a clínica: ${distance} metros`);
+
+        if (distance <= 600) {
+          Alert.alert('Check-in permitido', 'Você está dentro da área permitida.');
+          await validarCodigoAgendamento();
+        } else {
+          Alert.alert('Fora da área', 'Você está longe demais para fazer o check-in.');
+        }
+
+        setGlobalLoading(false);
+      },
+      error => {
+        Alert.alert('Erro', 'Não foi possível obter sua localização.');
+        console.error(error);
+        setGlobalLoading(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+    );
+  };
 
   return (
     <Card style={[styles.card]} mode="elevated">

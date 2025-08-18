@@ -104,7 +104,9 @@ const UserTelemedQueueScreen = () => {
       body: "Você é o próximo da fila! Clique aqui para voltar para o aplicativo.",
       android: {
         channelId: 'default-id-channel',
-        smallIcon: 'ic_launcher',
+        smallIcon: 'ic_notification',
+                  color: '#b183ff',
+
         pressAction: { id: 'default' },
       },
     });

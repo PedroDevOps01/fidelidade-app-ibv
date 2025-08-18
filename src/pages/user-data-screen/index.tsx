@@ -45,7 +45,11 @@ const UserDataScreen = ({ navigation }: { navigation: any }) => {
   };
   useLayoutEffect(() => {
       navigation.setOptions({ headerShown: true,
-                  title: 'Meus Dados',
+                  title: 'Perfil',
+                          headerTitleAlign: 'center',
+
+                    headerStyle: { backgroundColor: theme.colors.primaryContainer },
+    headerTintColor: theme.colors.onPrimaryContainer,
   
        });
     }, [navigation]);

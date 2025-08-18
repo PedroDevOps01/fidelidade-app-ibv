@@ -158,7 +158,6 @@ const UserProdutosScreen = ({
             {backgroundColor: colors.background},
           ]}>
           <ActivityIndicator size={40} style={{marginBottom: 20}} />
-          <Text>Carregando...</Text>
         </View>
       ) : (
         <SafeAreaView style={[styles.container, {backgroundColor: colors.background}]}>

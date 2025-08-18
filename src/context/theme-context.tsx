@@ -5,7 +5,7 @@ import { LightTheme, DarkTheme } from '../themes/app-theme';
 import { DefaultTheme, Theme } from '@react-navigation/native';
 
 // Definir o tipo do contexto do tema
-interface ThemeContextData {q
+interface ThemeContextData {
   theme: Theme;
   updateTheme: (colorPalette: ColorPalette) => Promise<void>;
 }

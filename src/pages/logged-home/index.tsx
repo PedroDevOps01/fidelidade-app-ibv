@@ -6,6 +6,7 @@ import { card_data } from './card_data';
 import { promotion_data } from './promotion_data';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
 import PagarmeErrorsDialog from './pagarme-errors-dialog';
+import ProximosAgendamentosDialog from './proximosagendamentosdialog';
 import { TouchableOpacity } from 'react-native';
 import { navigate } from '../../router/navigationRef';
 import InadimplenciaDialog from './inadimplencias-dialog';
@@ -18,9 +19,22 @@ import BannerHorizontalItem from './banner-card-component';
 import LoadingFull from '../../components/loading-full';
 import { Image } from 'react-native';
 import { Platform } from 'react-native';
-import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import notifee, { AndroidImportance } from '@notifee/react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { WebView } from 'react-native-webview';
+import CustomToast from '../../components/custom-toast';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+interface UserSchedule {
+  agenda_exames_id: string;
+  nome_procedimento: string | string[];
+  nome_profissional?: string;
+  data: string;
+  fachada_profissional?: string;
+  inicio: string;
+}
 
 interface Parceiro {
   id_parceiro_prc: number;
@@ -47,6 +61,12 @@ interface Parceiro {
   cred_ativo_prc: '0' | '1' | null;
 }
 
+interface Termo {
+  id_termo_declaracao_tde: number;
+  des_descricao_tde: string;
+  txt_texto_tde: string;
+}
+
 const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   const { colors } = useTheme();
   const { dadosUsuarioData, userCreditCards, setCreditCards, userContracts, setContracts } = useDadosUsuario();
@@ -59,33 +79,255 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   const [pagarmeErrors, setPagarmeErrors] = useState<ErrorCadastroPagarme | null>(null);
   const [pagarmeErrorsDialogVisible, setPagarmeErrorsDialogVisible] = useState<boolean>(false);
   const [inadimplenciasDialogVisible, setInadimplenciasDialogVisible] = useState<boolean>(false);
+  const [agendamentosDialogVisible, setAgendamentosDialogVisible] = useState<boolean>(false);
   const [schedulesLoading, setSchedulesLoading] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const scrollXPromo = useRef(new Animated.Value(0)).current;
   const scrollXConsultas = useRef(new Animated.Value(0)).current;
   const scrollXCredenciados = useRef(new Animated.Value(0)).current;
-  const isLogged = !dadosUsuarioData.user.id_usuario_usr ? false : true;
+  const isLogged = !!dadosUsuarioData.user.id_usuario_usr;
+  const [showTerms, setShowTerms] = useState(false);
+  const insets = useSafeAreaInsets();
   const [modalVisible, setModalVisible] = useState(false);
   const [modalCredenciadosVisible, setModalCredenciadosVisible] = useState(false);
   const [selectedParceiroId, setSelectedParceiroId] = useState<number | null>(null);
   const [selectedParceiroCredenciadoId, setSelectedParceiroCredenciadoId] = useState<number | null>(null);
-  const requestLocationPermission = async () => {
-    const result = await request(Platform.OS === 'ios' ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
-    console.log('Resultado da permissão:', result);
-  };
+  const [terms, setTerms] = useState<Termo[]>([]);
+  const [termsLoading, setTermsLoading] = useState<boolean>(false);
+  const [termsError, setTermsError] = useState<string | null>(null);
+    const { setDadosUsuarioData, clearDadosUsuarioData } = useDadosUsuario();
+useEffect(() => {
+  const isSigned =
+    dadosUsuarioData.pessoa?.is_assinado_pes === 1 ||
+    dadosUsuarioData.pessoaDados?.is_assinado_pes === 1;
 
-  // Map API data to carousel items for all partners
+  const isLogged = !!dadosUsuarioData.user?.id_usuario_usr && !!authData.access_token;
+
+  if (!isSigned && isLogged) {
+    setShowTerms(true);
+    fetchTerms();
+  } else {
+    setShowTerms(false);
+  }
+}, [dadosUsuarioData, authData.access_token]);
+  useEffect(() => {
+    navigation.setOptions({
+      tabBarStyle: showTerms
+        ? { display: 'none' }
+        : {
+            backgroundColor: colors.background,
+            borderTopWidth: 0.3,
+            height: 60 + insets.bottom,
+            paddingBottom: insets.bottom,
+            elevation: 0,
+          },
+    });
+  }, [navigation, showTerms, colors.background, insets.bottom]);
+
+  async function createNotificationChannel() {
+    if (Platform.OS === 'android') {
+      await notifee.createChannel({
+        id: 'schedule-channel',
+        name: 'Schedule Notifications',
+        importance: AndroidImportance.HIGH,
+      });
+    }
+  }
+
+  async function fetchTerms(): Promise<void> {
+    if (!authData.access_token) {
+      setTermsError('Token de autenticação não disponível.');
+      return;
+    }
+
+    setTermsLoading(true);
+    setTermsError(null);
+
+    try {
+      const headers = generateRequestHeader(authData.access_token);
+      const response = await api.get('/termo-declaracao?is_adesao_tde=1&is_ativo_tde=1', headers);
+      const dataApi = response.data;
+      if (dataApi?.response?.data?.length > 0) {
+        setTerms(dataApi.response.data);
+      } else {
+        setTermsError('Nenhum termo encontrado.');
+      }
+    } catch (error: any) {
+      console.error('Erro ao buscar termos:', error.message, error.response?.data);
+      setTermsError('Erro ao buscar os termos. Tente novamente mais tarde.');
+    } finally {
+      setTermsLoading(false);
+    }
+  }
+
+  const generateContractHtml = () => {
+  let content = '';
+
+  if (terms.length > 0) {
+    content = terms
+
+      .map(
+        termo => `
+        <div style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
+         <h2 style="color: #3f51b5; font-size: 24px; margin-bottom: 15px; font-weight: 600; text-align: center;">
+  ${termo.des_descricao_tde}
+</h2>
+          <div style="font-size: 14px; color: #333; line-height: 1.6;">
+            ${termo.txt_texto_tde.split('\n').map(line => `<p style="margin-bottom: 10px;">${line.trim()}</p>`).join('')}
+          </div>
+        </div>
+      `
+      )
+      .join('');
+  } else {
+    content = '<div style="text-align: center; padding: 40px; color: #666;"><p>Nenhum termo disponível.</p></div>';
+  }
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body { 
+          font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+          line-height: 1.6; 
+          padding: 20px;
+          color: #333;
+        }
+        h2 { 
+          color: #3f51b5; 
+          font-size: 18px; 
+          margin-bottom: 15px; 
+          font-weight: 600;
+        }
+        p { 
+          margin: 10px 0; 
+          font-size: 14px;
+        }
+        strong {
+          font-weight: 600;
+        }
+      </style>
+    </head>
+    <body>
+      ${content}
+    </body>
+    </html>
+  `;
+};
+
+  async function acceptTerms() {
+    try {
+      if (!isLogged) {
+        setTermsError('Usuário não autenticado.');
+        return;
+      }
+
+      let token = authData.access_token;
+      if (!token) {
+        setTermsError('Token de autenticação não disponível.');
+        return;
+      }
+      console.log (dadosUsuarioData.pessoaDados?.id_pessoa_pes);
+      const idPessoa = dadosUsuarioData.pessoaDados?.id_pessoa_pes;
+      if (!idPessoa) {
+        setTermsError('ID da pessoa não encontrado.');
+        return;
+      }
+
+      const headers = generateRequestHeader(token);
+   await api.put(`/pessoa/${idPessoa}`, { is_assinado_pes: 1 }, headers);
+
+// Atualiza os dados do usuário
+setDadosUsuarioData({
+  ...dadosUsuarioData,
+  pessoaDados: {
+    ...dadosUsuarioData.pessoaDados,
+    is_assinado_pes: 1,
+  },
+});
+setShowTerms(false);
+
+// Mensagem de sucesso
+CustomToast('Termo aceito com sucesso!', colors, 'success');
+
+    } catch (error: any) {
+      console.error('Erro ao aceitar termos:', error.message);
+      setTermsError('Erro ao aceitar os termos.');
+    }
+  }
+
+  async function showAppointmentReminder(userId: string) {
+    if (!userId) {
+      console.error('ID do usuário inválido para notificação de agendamento');
+      return;
+    }
+
+    const today = new Date().toISOString().slice(0, 10);
+    const lastNotificationDate = await AsyncStorage.getItem(`last_notification_date_${userId}`);
+    if (lastNotificationDate === today) {
+      console.log('Notificação já enviada hoje, ignorando...');
+      return;
+    }
+
+    const settings = await notifee.getNotificationSettings();
+    if (settings.authorizationStatus !== 1) {
+      console.log('Permissões de notificação não concedidas');
+      return;
+    }
+
+    const schedules = userSchedules || [];
+    const todayDateString = today;
+    const todaySchedules = schedules.filter(schedule => schedule.data === todayDateString) || [];
+
+    const scheduleNotificationId = `schedule-reminder-${userId}`;
+    let title = 'Nenhum Agendamento para Hoje';
+    let body = 'Você não tem agendamentos marcados para hoje.';
+
+    if (todaySchedules.length > 0) {
+      const summary = todaySchedules
+        .map(schedule => `${Array.isArray(schedule.nome_procedimento) ? schedule.nome_procedimento.join(', ') : schedule.nome_procedimento} às ${schedule.inicio.substring(0, 5)}`)
+        .join(', ');
+      title = 'Lembrete de Agendamento!!';
+      body = `Você tem agendamento(s) hoje: ${summary}`;
+    }
+
+    try {
+      await notifee.displayNotification({
+        id: scheduleNotificationId,
+        title: title,
+        body: body,
+        android: {
+          channelId: 'schedule-channel',
+          smallIcon: 'ic_notification',
+          color: '#b183ff',
+          pressAction: { id: 'default' },
+        },
+        ios: {
+          foregroundPresentationOptions: {
+            alert: true,
+            badge: true,
+            sound: true,
+          },
+        },
+      });
+      await AsyncStorage.setItem(`last_notification_date_${userId}`, today);
+    } catch (error) {
+      console.error('Erro ao exibir notificação:', error);
+    }
+  }
+
+  useEffect(() => {
+    if (userSchedules && userSchedules.length > 0) {
+      setAgendamentosDialogVisible(true);
+    }
+  }, [userSchedules]);
+
   const maisConsultasData = parceiros.map(parceiro => ({
     id: parceiro.id_parceiro_prc.toString(),
     image: parceiro.img_parceiro_prc ? { uri: `${parceiro.img_parceiro_prc}` } : require('../../assets/images/logonova.png'),
     action: () => handleParceiroPress(parceiro.id_parceiro_prc),
-  }));
-
-  // Map API data to carousel items for accredited partners
-  const maisConsultasCredenciadosData = parceirosCredenciados.map(parceiro => ({
-    id: parceiro.id_parceiro_prc.toString(),
-    image: parceiro.img_parceiro_prc ? { uri: `${parceiro.img_parceiro_prc}` } : require('../../assets/images/logonova.png'),
-    action: () => handleParceiroCredenciadoPress(parceiro.id_parceiro_prc),
   }));
 
   const handleParceiroPress = (parceiroId: number) => {
@@ -93,19 +335,13 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
     setModalVisible(true);
   };
 
-  const handleParceiroCredenciadoPress = (parceiroId: number) => {
-    setSelectedParceiroCredenciadoId(parceiroId);
-    setModalCredenciadosVisible(true);
-  };
-
   async function fetchLastHistoricSchedule(): Promise<void> {
     const token = dadosUsuarioData.pessoaDados?.cod_token_pes!;
-    if (!token) return;
+    if (!token || !authData.access_token) return;
 
     try {
       const response = await api.get(`/integracao/listHistoricoAgendamentos?token_paciente=${token}`, generateRequestHeader(authData.access_token));
       const data = response.data;
-      // console.log('Histórico de agendamentos:', data);
       if (data.length > 0) {
         setLastHistoricSchedule(data[0]);
       }
@@ -116,7 +352,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
 
   async function fetchParceiros(): Promise<void> {
     try {
-      const headers = isLogged
+      const headers = isLogged && authData.access_token
         ? generateRequestHeader(authData.access_token)
         : {
             headers: {
@@ -127,7 +363,6 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
       const response = await api.get('/parceiro/app', headers);
       const dataApi = response.data;
       if (dataApi && dataApi.response && dataApi.response.data && dataApi.response.data.length > 0) {
-        // console.log('Parceiros encontrados:', dataApi.response.data);
         setParceiros(dataApi.response.data);
       } else {
         console.log('Nenhum parceiro encontrado');
@@ -142,7 +377,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   async function fetchParceirosCredenciados(): Promise<void> {
     try {
       setLoading(true);
-      const headers = isLogged
+      const headers = isLogged && authData.access_token
         ? generateRequestHeader(authData.access_token)
         : {
             headers: {
@@ -153,12 +388,12 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
       const response = await api.get('/parceiro/appcred', headers);
       const dataApi = response.data;
       if (dataApi && dataApi.response && dataApi.response.data && dataApi.response.data.length > 0) {
-        // console.log('Parceiros credenciados encontrados:', dataApi.response.data);
         setParceirosCredenciados(dataApi.response.data);
       } else {
         console.log('Nenhum parceiro credenciado encontrado');
       }
     } catch (error: any) {
+      console.error('Erro ao buscar parceiros credenciados:', error.message);
     } finally {
       setLoading(false);
     }
@@ -167,22 +402,20 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   useFocusEffect(
     useCallback(() => {
       fetchParceiros();
-      fetchParceirosCredenciados(); // Fetch accredited partners when view is focused
+      fetchParceirosCredenciados();
     }, []),
   );
 
   useFocusEffect(
     useCallback(() => {
-      if (dadosUsuarioData.user.id_usuario_usr != 0 && authData.access_token != '') {
-        fetchAllData();
+      if (dadosUsuarioData.user.id_usuario_usr && authData.access_token) {
+        createNotificationChannel();
+        fetchAllData().then(() => {
+          showAppointmentReminder(dadosUsuarioData.user.id_usuario_usr.toString());
+        });
       }
     }, [dadosUsuarioData, authData]),
   );
-  useEffect(() => {
-    if (dadosUsuarioData.pessoa?.cod_cep_pda != undefined && !dadosUsuarioData.pessoaAssinatura) {
-      navigation.navigate('user-contracts-stack');
-    }
-  }, [dadosUsuarioData]);
 
   async function fetchSchedules(access_token: string): Promise<void> {
     const token = dadosUsuarioData.pessoaDados?.cod_token_pes!;
@@ -323,33 +556,6 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
     );
   };
 
-  const renderCredenciadosIndicator = () => {
-    return (
-      <View style={styles.indicatorContainer}>
-        {maisConsultasCredenciadosData.map((_, i) => {
-          const opacity = scrollXCredenciados.interpolate({
-            inputRange: [(i - 1) * (SCREEN_WIDTH * 0.9 + 10), i * (SCREEN_WIDTH * 0.9 + 10), (i + 1) * (SCREEN_WIDTH * 0.9 + 10)],
-            outputRange: [0.3, 1, 0.3],
-            extrapolate: 'clamp',
-          });
-
-          return (
-            <Animated.View
-              key={`credenciados-indicator-${i}`}
-              style={[
-                styles.indicator,
-                {
-                  backgroundColor: colors.primary,
-                  opacity,
-                },
-              ]}
-            />
-          );
-        })}
-      </View>
-    );
-  };
-
   const renderConsultasItem = ({ item, index }: { item: any; index: number }) => {
     return (
       <TouchableOpacity
@@ -367,31 +573,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             width: '100%',
             height: 200,
             borderRadius: 15,
-            backgroundColor: '#fff', // <-- alterado para branco
-          }}
-        />
-      </TouchableOpacity>
-    );
-  };
-
-  const renderCredenciadosItem = ({ item, index }: { item: any; index: number }) => {
-    return (
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={item.action}
-        style={{
-          width: SCREEN_WIDTH * 0.7,
-          marginRight: index === maisConsultasCredenciadosData.length - 1 ? 0 : 10,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <Image
-          source={item.image}
-          style={{
-            width: '100%',
-            height: 200,
-            borderRadius: 15,
-            backgroundColor: '#fff', // <-- alterado para branco
+            backgroundColor: '#fff',
           }}
         />
       </TouchableOpacity>
@@ -400,14 +582,81 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      {loading ? (
+      {showTerms ? (
+  <SafeAreaView style={{ flex: 1, backgroundColor: '#f8f9fa' }}>
+    {termsLoading ? (
+      <View style={[styles.loadingContainer, { backgroundColor: '#f8f9fa' }]}>
+        <ActivityIndicator animating={true} size="large" color={colors.primary} />
+        <Text style={{ marginTop: 15, color: colors.text, fontSize: 16 }}>Carregando termos...</Text>
+      </View>
+    ) : termsError ? (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+        <IconButton
+          icon="alert-circle-outline"
+          size={40}
+          color={colors.error}
+          style={{ marginBottom: 10 }}
+        />
+        <Text style={{ textAlign: 'center', marginBottom: 20, fontSize: 16, color: colors.text }}>
+          {termsError}
+        </Text>
+        <Button
+          mode="contained"
+          onPress={fetchTerms}
+          style={{ borderRadius: 8, width: '80%' }}
+          labelStyle={{ fontSize: 16 }}
+          contentStyle={{ height: 50 }}
+        >
+          Tentar novamente
+        </Button>
+      </View>
+    ) : (
+      <View style={{ flex: 1 }}>
+        {/* Header */}
+        
+
+        {/* WebView Container */}
+        <View style={styles.webViewContainer}>
+          <WebView 
+            originWhitelist={['*']} 
+            source={{ html: generateContractHtml() }} 
+            style={{ flex: 1 }}
+            injectedJavaScript={`
+              document.body.style.background = '#ffffff';
+              document.body.style.color = '#333333';
+              document.body.style.fontFamily = '-apple-system, BlinkMacSystemFont, sans-serif';
+              document.body.style.lineHeight = '1.6';
+              document.body.style.padding = '20px';
+              true;
+            `}
+          />
+        </View>
+
+        {/* Footer Buttons */}
+        <View style={styles.termsFooter}>
+          <Button
+            mode="contained"
+            onPress={acceptTerms}
+            style={[styles.acceptButton, { backgroundColor: colors.primary }]}
+            labelStyle={{ color: 'white', fontSize: 16, fontWeight: '600' }}
+            contentStyle={{ height: 50 }}
+          >
+            Aceitar e Continuar
+          </Button>
+          <Text style={styles.footerText}>
+            Ao aceitar, você concorda com os termos acima
+          </Text>
+        </View>
+      </View>
+    )}
+  </SafeAreaView>
+
+      ) : loading ? (
         <LoadingFull title="Carregando..." />
       ) : (
         <ScrollView style={[styles.container]} contentContainerStyle={{ paddingBottom: 10 }} showsVerticalScrollIndicator={false}>
-          {/* Error Display */}
           {error && <Text style={{ color: 'red', textAlign: 'center', marginVertical: 10 }}>{error}</Text>}
 
-          {/* Header */}
           <View style={styles.userInfoResponsive}>
             <View style={styles.textContainer}>
               <Text style={styles.welcomeText}>{isLogged ? `Bem vind${dadosUsuarioData.pessoaDados?.des_sexo_biologico_pes === 'M' ? 'o' : 'a'},` : `Bem vindo!`}</Text>
@@ -417,7 +666,6 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             <Image source={require('../../assets/images/logotransparente.png')} style={styles.responsiveLogo} resizeMode="contain" />
           </View>
 
-          {/* Parceiros Section */}
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
@@ -457,7 +705,6 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             )}
           </View>
 
-          {/* Acesso Rápido Section */}
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
@@ -481,7 +728,6 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             />
           </View>
 
-          {/* Consultas Section */}
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
@@ -507,51 +753,6 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             </View>
           </View>
 
-          {/* Parceiros Credenciados Section */}
-          {/* <View style={styles.sectionContainer}>
-            <View style={styles.sectionHeader}>
-              <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
-                Parceiros Credenciados
-              </Text>
-              <Button
-                mode="text"
-                compact
-                labelStyle={{ fontSize: 12, color: colors.primary }}
-                onPress={() => navigation.navigate('ParceirosScreen', { partnerType: 'accredited' })}>
-                Ver todos
-              </Button>
-            </View>
-            {parceirosCredenciados.length > 0 && (
-              <>
-                <Animated.FlatList
-                  data={maisConsultasCredenciadosData}
-                  renderItem={renderCredenciadosItem}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  snapToInterval={SCREEN_WIDTH * 0.8}
-                  decelerationRate="fast"
-                  contentContainerStyle={{
-                    paddingHorizontal: (SCREEN_WIDTH - SCREEN_WIDTH * 0.99) / 2,
-                  }}
-                  onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollXCredenciados } } }], { useNativeDriver: true })}
-                  scrollEventThrottle={16}
-                  removeClippedSubviews={true}
-                  snapToAlignment="start"
-                  pagingEnabled={false}
-                  initialNumToRender={3}
-                  windowSize={5}
-                  getItemLayout={(data, index) => ({
-                    length: SCREEN_WIDTH * 0.7 + 10,
-                    offset: (SCREEN_WIDTH * 0.7 + 10) * index,
-                    index,
-                  })}
-                />
-                {renderCredenciadosIndicator()}
-              </>
-            )}
-          </View> */}
-
-          {/* Próximos Agendamentos Section */}
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
@@ -613,7 +814,6 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             )}
           </View>
 
-          {/* Histórico de Atendimentos Section */}
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
@@ -695,9 +895,16 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                 setInadimplenciasDialogVisible(status);
               }}
             />
+            <ProximosAgendamentosDialog
+              schedules={userSchedules}
+              visible={agendamentosDialogVisible}
+              navigation={navigation}
+              handlePress={status => {
+                setAgendamentosDialogVisible(status);
+              }}
+            />
           </Portal>
 
-          {/* Modal for Parceiros */}
           <Modal
             animationType="slide"
             transparent={true}
@@ -745,7 +952,6 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                           <Text variant="titleSmall" style={styles.modalSectionTitle}>
                             Dados:
                           </Text>
-
                           <View style={styles.benefitItem}>
                             <IconButton icon="card-text" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
                             <Text variant="bodyMedium" style={styles.benefitText}>
@@ -774,7 +980,6 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             </View>
           </Modal>
 
-          {/* Modal for Parceiros Credenciados */}
           <Modal
             animationType="slide"
             transparent={true}
@@ -791,7 +996,6 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                 <>
                   {(() => {
                     const selectedParceiro = parceirosCredenciados.find(p => p.id_parceiro_prc === selectedParceiroCredenciadoId);
-                    console.log('Selected Credenciado:', selectedParceiro);
                     return selectedParceiro ? (
                       <>
                         <Image
@@ -868,50 +1072,92 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 0,
   },
-  headerContainer: {
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    marginBottom: 20,
+  userInfoResponsive: {
+    flexDirection: 'row',
+    backgroundColor: '#b183ff',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    paddingHorizontal: 16,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
   },
-  userInfoContainer: {
-    flexDirection: 'row',
-    paddingTop: 0,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    overflow: 'hidden',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
+  textContainer: {
+    flexShrink: 1,
+    maxWidth: '70%',
   },
-  logoContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+  welcomeText: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: '500',
+    marginBottom: 2,
   },
-  cardLogo: {
+  nameText: {
+    fontSize: 20,
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  responsiveLogo: {
     width: 120,
     height: 88,
     borderRadius: 10,
     marginTop: 0,
   },
-  appName: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-
-  userName: {
-    fontSize: 25,
-    fontWeight: '700',
-  },
   sectionContainer: {
-
-    marginTop:10,
+    marginTop: 10,
     marginBottom: 14,
     paddingHorizontal: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  termsHeader: {
+    backgroundColor: '#3f51b5',
+    padding: 25,
+    paddingTop: 15,
+    borderBottomLeftRadius: 15,
+    borderBottomRightRadius: 15,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  webViewContainer: {
+    flex: 1,
+    margin: 15,
+    marginBottom: 0,
+    borderRadius: 10,
+    overflow: 'hidden',
+    backgroundColor: 'white',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+  termsFooter: {
+    padding: 20,
+    paddingTop: 15,
+    backgroundColor: 'white',
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+  },
+  acceptButton: {
+    borderRadius: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  footerText: {
+    textAlign: 'center',
+    marginTop: 12,
+    fontSize: 12,
+    color: '#666',
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -923,11 +1169,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 18,
     letterSpacing: 0.2,
-  },
-  subSectionTitle: {
-    fontWeight: '600',
-    fontSize: 16,
-    marginBottom: 8,
   },
   card: {
     borderRadius: 20,
@@ -964,19 +1205,6 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 10,
     marginRight: 8,
-  },
-  historyCardContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 12,
-  },
-  historyIcon: {
-    marginRight: 16,
-    padding: 10,
-  },
-  historyText: {
-    flex: 1,
   },
   indicatorContainer: {
     flexDirection: 'row',
@@ -1065,42 +1293,6 @@ const styles = StyleSheet.create({
   },
   modalCloseButtonText: {
     fontWeight: 'bold',
-  },
-
-  userInfoResponsive: {
-    flexDirection: 'row',
-    backgroundColor: '#b183ff',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    paddingHorizontal: 16,
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-  },
-
-  textContainer: {
-    flexShrink: 1,
-    maxWidth: '70%',
-  },
-
-  welcomeText: {
-    fontSize: 16,
-    color: '#fff',
-    fontWeight: '500',
-    marginBottom: 2,
-  },
-
-  nameText: {
-    fontSize: 20,
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-
-  responsiveLogo: {
-     width: 120,
-    height: 88,
-    borderRadius: 10,
-    marginTop: 0,
   },
 });
 

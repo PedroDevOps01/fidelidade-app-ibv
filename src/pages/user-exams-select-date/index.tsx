@@ -1,14 +1,13 @@
-import RNDateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
-import { useCallback, useState } from 'react';
-import { Alert, Modal, Platform, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { Alert, ScrollView, StyleSheet, View, Dimensions } from 'react-native';
 import { Button, Card, Divider, Text, useTheme } from 'react-native-paper';
-import { useExames } from '../../context/exames-context';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import dayjs from 'dayjs';
-import { ScrollView } from 'react-native-gesture-handler';
+import 'dayjs/locale/pt-br';
 import { navigate } from '../../router/navigationRef';
-import CustomDatePicker from '../../components/custom-date-picker';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useExames } from '../../context/exames-context';
+dayjs.locale('pt-br');  // Definindo o locale para português do Brasil
 
 type UserExamsSelectDateRouteParams = {
   params: {
@@ -16,185 +15,172 @@ type UserExamsSelectDateRouteParams = {
   };
 };
 
+const { width } = Dimensions.get('window');
+const DAY_BUTTON_SIZE = (width - 64) / 4; // 4 colunas com padding
+
 export default function UserExamsSelectDate() {
   const { colors } = useTheme();
   const route = useRoute<RouteProp<UserExamsSelectDateRouteParams>>();
   const { item } = route.params;
   const { scheduleRequest, setScheduleRequestData } = useExames();
 
-  const [date, setDate] = useState<Date>(new Date());
-  const [show, setShow] = useState<boolean>(false);
-
+  // Configuração de datas - agora mostra 14 dias (máximo)
   const today = new Date();
   const maxDate = new Date();
-  maxDate.setDate(today.getDate() + 14);
+  maxDate.setDate(today.getDate() + 13); // 14 dias no total (hoje + 13 dias)
+
+  // Gerar dias disponíveis (excluindo domingos)
+  const generateAvailableDays = () => {
+    const days = [];
+    const currentDate = new Date(today);
+    
+    while (currentDate <= maxDate) {
+      if (currentDate.getDay() !== 0) { // Exclui domingos
+        days.push(new Date(currentDate));
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    return days;
+  };
+
+  const availableDays = generateAvailableDays();
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   function saveAndContinue() {
+    if (!selectedDate) {
+      Alert.alert('Atenção', 'Por favor, selecione um dia para continuar.');
+      return;
+    }
+
     let data: ScheduleRequest = {
       ...scheduleRequest,
-      data_agenda: dayjs(date).format('YYYY-MM-DD'),
+      data_agenda: dayjs(selectedDate).format('YYYY-MM-DD'),
     };
 
     setScheduleRequestData(data);
     navigate('user-select-payment-method');
   }
 
-  const onChange = (event: any, selectedDate?: Date) => {
-    if (selectedDate) {
-      if (selectedDate.getDay() === 0) {
-        Alert.alert('Data Inválida', 'Domingos não são permitidos. Escolha outro dia.');
-      } else if (selectedDate > maxDate) {
-        Alert.alert('Data Inválida', 'Selecione uma data entre hoje e os próximos 14 dias.');
-      } else {
-        setDate(selectedDate);
-      }
-    }
-
-    if (Platform.OS == 'android') {
-      setShow(false);
-    }
-  };
-
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.fundo }]}>
+      {/* Progress Steps */}
+      <View style={{ flexDirection: 'row', marginBottom: 25, marginTop: 28,marginEnd: 15,        marginStart: 15,
+ gap: 0 }}>
+        {[1, 2, 3].map((_, index) => (
+          <View
+            key={index}
+            style={{
+ flex: 1,
+        height: 6,
+          marginEnd: 20,
+        marginStart:20,
+        borderRadius: 5,
+              backgroundColor: index < 2 ? colors.primary : colors.onSecondary,
+            }}
+          />
+        ))}
+      </View>
+
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {/* Card Principal */}
         <Card style={[styles.card, { backgroundColor: colors.surface }]} mode="elevated">
           <Card.Title 
+            style={[{ backgroundColor: colors.primary }]}
             title={item.empresa} 
-            titleStyle={[styles.cardTitle, { color: colors.onSurface }]}
+            titleStyle={[styles.cardTitle, { color: colors.onSecondary }]}
             subtitle={`${item.cidade} - ${item.estado}`}
-            subtitleStyle={[styles.cardSubtitle, { color: colors.onSurfaceVariant }]}
+            subtitleStyle={[styles.cardSubtitle, { color: colors.onSecondary }]}
             titleNumberOfLines={2}
           />
           
-          <Card.Content style={styles.cardContent}>
-            <View style={styles.infoSection}>
-              <MaterialIcons 
-                name="location-on" 
-                size={24} 
-                color={colors.primary} 
-                style={styles.icon} 
-              />
-              <View style={styles.infoTextContainer}>
-                <Text variant="titleSmall" style={[styles.sectionTitle, { color: colors.onSurface }]}>
-                  Endereço
-                </Text>
-                <Text variant="bodyMedium" style={[styles.infoText, { color: colors.onSurfaceVariant }]}>
-                  {`${item.endereco}, ${item.numero}`}
-                </Text>
-                <Text variant="bodyMedium" style={[styles.infoText, { color: colors.onSurfaceVariant }]}>
-                  {`${item.bairro}, ${item.cidade} - ${item.estado}`}
-                </Text>
-              </View>
-            </View>
-
-            <Divider style={[styles.divider, { backgroundColor: colors.outlineVariant }]} />
-
-            <View style={styles.infoSection}>
-              <MaterialIcons 
-                name="access-time" 
-                size={24} 
-                color={colors.primary} 
-                style={styles.icon} 
-              />
-              <View style={styles.infoTextContainer}>
-                <Text variant="titleSmall" style={[styles.sectionTitle, { color: colors.onSurface }]}>
-                  Horários de Funcionamento
-                </Text>
-                <Text variant="bodyMedium" style={[styles.infoText, { color: colors.onSurfaceVariant }]}>
-                  {`Seg-Sex: ${item.horario_seg_sex_inicio} às ${item.horario_seg_sex_fim}`}
-                </Text>
-                <Text variant="bodyMedium" style={[styles.infoText, { color: colors.onSurfaceVariant }]}>
-                  {`Sábado: ${item.horario_sab_inicio} às ${item.horario_sab_fim}`}
-                </Text>
-              </View>
-            </View>
-
-            <Divider style={[styles.divider, { backgroundColor: colors.outlineVariant }]} />
-
-            <View style={[styles.infoSection, { marginBottom: 8 }]}>
-              <MaterialIcons 
-                name="info" 
-                size={24} 
-                color={colors.primary} 
-                style={styles.icon} 
-              />
-              <Text variant="bodySmall" style={[styles.infoText, { color: colors.onSurfaceVariant, flex: 1 }]}>
-                O atendimento nesta unidade é realizado por ordem de chegada.
+          {/* Seção de seleção de data */}
+          <Card.Content style={[styles.selectionSection, { backgroundColor: colors.surface2 }]}>
+            <View style={styles.headerContainer}>
+              
+              <Text variant="titleMedium" style={[styles.sectionHeader, { color: colors.onSurface }]}>
+                Selecione o dia do seu Agendamento:
               </Text>
             </View>
-          </Card.Content>
+            
+           <View style={styles.dateRangeContainer}>
+  <Text variant="labelLarge" style={[styles.dateRangeText, { color: colors.onSurfaceVariant }]}>
+    {`${dayjs(today).format('D [de] MMMM')} - ${dayjs(maxDate).format('D [de] MMMM')}`}
+  </Text>
+</View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={true}>
 
-          <Card.Content style={[styles.dateSection, { backgroundColor: colors.surface2 }]}>
-            <Text variant="titleMedium" style={[styles.dateTitle, { color: colors.primary }]}>
-              Selecione uma data
-            </Text>
-            <View style={styles.datePickerContainer}>
-              <CustomDatePicker
-                value={date}
-                onChange={onChange}
-                mode="date"
-                label="Data"
-                accentColor={colors.primary}
-              />
+            {/* Dias disponíveis em grid */}
+            <View style={styles.daysGrid}>
+              {availableDays.map((day) => {
+                const dayNumber = day.getDate();
+                const dayName = dayjs(day).locale('pt-br').format('ddd');
+                const isToday = day.toDateString() === today.toDateString();
+                const isSelected = selectedDate && day.toDateString() === selectedDate.toDateString();
+                
+                return (
+                  <View key={day.toString()} style={styles.dayContainer}>
+                    <Button
+                      mode={isSelected ? 'contained' : 'outlined'}
+                      onPress={() => setSelectedDate(day)}
+                      style={[
+                        styles.dayButton,
+                        isSelected && { backgroundColor: colors.primary },
+                        isToday && !isSelected && { borderColor: colors.primary }
+                      ]}
+                      labelStyle={[
+                        styles.dayButtonLabel,
+                        isSelected && { color: colors.onPrimary }
+                      ]}
+                    >
+                      <View style={styles.dayButtonContent}>
+                        <Text 
+                          style={[
+                            styles.dayNumber, 
+                            isSelected && { color: colors.onPrimary },
+                            isToday && !isSelected && { color: colors.primary }
+                          ]}
+                        >
+                          {dayNumber}
+                        </Text>
+                        <Text 
+                          style={[
+                            styles.dayName, 
+                            isSelected && { color: colors.onPrimary },
+                            isToday && !isSelected && { color: colors.primary }
+                          ]}
+                        >
+                          {dayName.toUpperCase()}
+                        </Text>
+                      </View>
+                    </Button>
+                  </View>
+                );
+              })}
             </View>
+            </ScrollView>
+
           </Card.Content>
         </Card>
-      </ScrollView>
-
-      <View style={styles.buttonContainer}>
         <Button
           mode="contained"
           onPress={saveAndContinue}
           contentStyle={styles.continueButtonContent}
-          style={[styles.continueButton, { backgroundColor: colors.primary }]}
-          labelStyle={styles.buttonLabel}
+          style={[styles.continueButton, { 
+            backgroundColor: selectedDate ? colors.primary : colors.primary,
+            shadowColor: colors.shadow
+          }]}
+          labelStyle={[styles.buttonLabel, { color: selectedDate ? colors.onPrimary : colors.onSurfaceVariant }]}
+          disabled={!selectedDate}
         >
           Continuar
         </Button>
-      </View>
+      </ScrollView>
 
-      {/* Modal apenas para iOS */}
-      {Platform.OS === 'ios' && (
-        <Modal transparent={true} visible={show} onRequestClose={() => setShow(false)}>
-          <View style={styles.modalContainer}>
-            <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
-              <RNDateTimePicker 
-                value={date} 
-                minimumDate={today} 
-                maximumDate={maxDate} 
-                display="spinner" 
-                onChange={onChange} 
-                locale="pt-BR"
-                accentColor={colors.primary}
-              />
-              <Button 
-                mode="contained" 
-                onPress={() => setShow(false)}
-                style={{ marginTop: 16 }}
-                labelStyle={styles.buttonLabel}
-              >
-                Confirmar
-              </Button>
-            </View>
-          </View>
-        </Modal>
-      )}
-
-      {Platform.OS === 'android' && show && (
-        <RNDateTimePicker 
-          value={date} 
-          mode="date" 
-          display="default" 
-          minimumDate={today} 
-          maximumDate={maxDate} 
-          onChange={onChange} 
-          accentColor={colors.primary}
-        />
-      )}
+    
     </View>
   );
 }
@@ -203,89 +189,131 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  progressContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingVertical: 24,
+    paddingHorizontal: 16,
+  },
+  progressStep: {
+    height: 4,
+    borderRadius: 2,
+    flex: 1,
+    maxWidth: 100,
+  },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 80,
+    paddingHorizontal: 16,
+    paddingBottom: 100,
   },
   card: {
     borderRadius: 16,
     overflow: 'hidden',
-    elevation: 2,
+    elevation: 0,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 6,
-  },
-  cardContent: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 16,
+    shadowRadius: 12,
   },
   cardTitle: {
-    fontWeight: '600',
-    fontSize: 20,
-    paddingTop: 18,
-    lineHeight: 24,
+    paddingTop:20,
+    fontWeight: '700',
+    fontSize: 22,
+    lineHeight: 28,
     letterSpacing: 0.15,
+    textAlign: 'center',
   },
   cardSubtitle: {
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: 0.25,
     opacity: 0.8,
+    marginBottom: 16,
+    textAlign: 'center',
   },
-  infoSection: {
-    flexDirection: 'row',
-    marginVertical: 12,
-  },
-  infoTextContainer: {
-    flex: 1,
-  },
-  icon: {
-    marginRight: 16,
-    marginTop: 2,
-  },
-  sectionTitle: {
-    fontWeight: '500',
-    marginBottom: 4,
-    letterSpacing: 0.1,
-  },
-  infoText: {
-    lineHeight: 20,
-    letterSpacing: 0.25,
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    marginVertical: 12,
-    opacity: 0.8,
-  },
-  dateSection: {
-    padding: 16,
+  selectionSection: {
+    padding: 20,
     borderTopWidth: StyleSheet.hairlineWidth,
   },
-  dateTitle: {
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    textAlign: 'center',
+    marginBottom: 16,
+    marginLeft:15,
+  },
+  headerIcon: {
+    marginRight: 12,
+  },
+  sectionHeader: {
+    fontWeight: '600',
+    fontSize: 18,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  dateRangeContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.03)',
+  },
+  dateRangeText: {
     fontWeight: '500',
+    letterSpacing: 0.5,
+  },
+  daysGrid: {
+    flexDirection: 'row',
+    gap: 10,
+    justifyContent: 'space-between',
+  },
+  dayContainer: {
+    width: DAY_BUTTON_SIZE,
     marginBottom: 12,
-    letterSpacing: 0.15,
   },
-  datePickerContainer: {
+  dayButton: {
+    borderRadius: 12,
+    borderWidth: 1,
+    height: DAY_BUTTON_SIZE,
+    justifyContent: 'center',
     width: '100%',
+    elevation: 0,
   },
+
+  dayButtonLabel: {
+    marginVertical: 0,
+  },
+  
+  dayButtonContent: {
+  alignItems: 'center',
+  justifyContent: 'center',
+  paddingVertical: 4,
+},
+dayNumber: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  marginBottom: 2,
+},
+dayName: {
+  fontSize: 10,
+  fontWeight: '500',
+  letterSpacing: 0.4,
+},
   buttonContainer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    padding: 16,
-    backgroundColor: 'transparent',
+    padding: 24,
+    paddingBottom: 72,
   },
   continueButton: {
     borderRadius: 12,
+    marginTop:15,
     elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
-    shadowRadius: 4,
+    shadowRadius: 8,
+    borderColor:' #6a31ff',
   },
   continueButtonContent: {
     height: 50,
@@ -293,19 +321,6 @@ const styles = StyleSheet.create({
   buttonLabel: {
     fontWeight: '600',
     fontSize: 16,
-    letterSpacing: 0.1,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContent: {
-    borderRadius: 16,
-    padding: 24,
-    marginHorizontal: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
+    letterSpacing: 0.5,
   },
 });

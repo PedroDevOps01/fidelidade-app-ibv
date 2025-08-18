@@ -3,6 +3,7 @@ type ScheduleRequest = {
   hora_agenda: string;
   hora_agenda_final?: string;
   token_paciente: number;
+  cod_paciente: number;
   cod_pessoa_pes: number;
   cod_horarioagenda?: number;
   cod_agenda?: number;
@@ -15,4 +16,5 @@ type ScheduleRequest = {
   card_id?: number;
   procedimentos_array?: ExamsProcedures[];
   vlr_total?: number
+  cod_parceiro: number;
 };

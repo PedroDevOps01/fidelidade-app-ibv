@@ -57,7 +57,7 @@ export default function UserMdvSalesExtract({navigation}: {navigation: any}) {
     created_until: null,
   });
   useLayoutEffect(() => {
-    navigation.setOptions({ headerShown: false });
+    navigation.setOptions({ headerShown: true });
   }, [navigation]);
 
 
@@ -130,7 +130,7 @@ export default function UserMdvSalesExtract({navigation}: {navigation: any}) {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={[styles.header, { backgroundColor: colors.surface }]}>
+      {/* <View style={[styles.header, { backgroundColor: colors.surface }]}>
         <IconButton
           icon="arrow-left"
           size={24}
@@ -141,7 +141,7 @@ export default function UserMdvSalesExtract({navigation}: {navigation: any}) {
           Extrato de Vendas
         </Text>
         
-      </View>
+      </View> */}
 
       {/* Active Filter Indicator */}
       {(dates.created_since || dates.created_until) && (

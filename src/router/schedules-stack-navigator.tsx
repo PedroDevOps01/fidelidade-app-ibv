@@ -25,20 +25,27 @@ const SchedulesStackNavigator = () => {
       initialRouteName="user-schedules-screen"
       screenOptions={{
         headerShown: false,
-        headerTintColor: colors.onSurface,
+        headerTintColor: colors.onPrimaryContainer,
         headerStyle: {
-          backgroundColor: colors.background,
+          backgroundColor: colors.primaryContainer,
         },
         headerShadowVisible: false,
         headerBackTitle: 'Voltar',
+        headerTitleAlign: 'center',
       }}>
       <SchedulesStack.Screen
         name="user-schedules-screen"
         component={UserSchedulesScreen}
         options={{
           headerShown: true,
-          title: 'Meus Agendamentos',
+          title: 'Agendamentos',
+          headerTitleAlign: 'center',
           headerShadowVisible: false,
+
+          headerStyle: {
+            backgroundColor: colors.primaryContainer,
+          },
+          headerTintColor: colors.onPrimaryContainer,
         }}
       />
 
@@ -53,22 +60,40 @@ const SchedulesStackNavigator = () => {
           headerShown: true,
           title: 'Consultas',
           headerShadowVisible: false,
+          headerTitleAlign: 'center',
+
+          headerStyle: {
+            backgroundColor: colors.primaryContainer,
+          },
+          headerTintColor: colors.onPrimaryContainer,
         }}
       />
       <SchedulesStack.Screen
         name="user-procedure-details-screen"
         component={UserProcedureDetailsScreen}
         options={{
+          headerTitleAlign: 'center',
+
           headerShown: true,
           title: 'Detalhes do Procedimento',
+          headerStyle: {
+            backgroundColor: colors.primaryContainer,
+          },
+          headerTintColor: colors.onPrimaryContainer,
         }}
       />
       <SchedulesStack.Screen
         name="user-procedure-time"
         component={UserProcedureTime}
         options={{
+          headerTitleAlign: 'center',
+
           headerShown: true,
           title: 'Horários',
+          headerStyle: {
+            backgroundColor: colors.primaryContainer,
+          },
+          headerTintColor: colors.onPrimaryContainer,
         }}
       />
 
@@ -76,8 +101,14 @@ const SchedulesStackNavigator = () => {
         name="user-procedures-by-medico"
         component={UserProceduresByMedico}
         options={{
+          headerTitleAlign: 'center',
+
           headerShown: true,
           title: 'Consultas',
+          headerStyle: {
+            backgroundColor: colors.primaryContainer,
+          },
+          headerTintColor: colors.onPrimaryContainer,
         }}
       />
 
@@ -85,16 +116,28 @@ const SchedulesStackNavigator = () => {
         name="user-select-payment-method"
         component={UserSelectPaymentMethod}
         options={{
+          headerTitleAlign: 'center',
+
           headerShown: true,
           title: 'Forma de pagamento',
+          headerStyle: {
+            backgroundColor: colors.primaryContainer,
+          },
+          headerTintColor: colors.onPrimaryContainer,
         }}
       />
       <SchedulesStack.Screen
         name="user-payment-pix-schedule-screen"
         component={UserPaymentScheduleScreen}
         options={{
+          headerTitleAlign: 'center',
+
           headerShown: true,
           title: 'Pagamento',
+          headerStyle: {
+            backgroundColor: colors.primaryContainer,
+          },
+          headerTintColor: colors.onPrimaryContainer,
         }}
       />
 
@@ -102,15 +145,21 @@ const SchedulesStackNavigator = () => {
         name="user-payment-creditcard-schedule-screen"
         component={UserPaymentCreditCardScheduleScreen}
         options={{
+          headerTitleAlign: 'center',
+
           headerShown: true,
           title: 'Pagamento',
+          headerStyle: {
+            backgroundColor: colors.primaryContainer,
+          },
+          headerTintColor: colors.onPrimaryContainer,
         }}
       />
 
       <SchedulesStack.Screen name="user-payment-successfull-screen" component={UserPaymentSuccessfull} />
       <SchedulesStack.Screen name="user-exams-check-local-screen" component={UserExamsCheckLocal} options={{ headerShown: true, title: 'Locais disponíveis' }} />
       <SchedulesStack.Screen name="user-exams-select-date" component={UserExamsSelectDate} options={{ headerShown: true, title: 'Datas disponíveis' }} />
-      <SchedulesStack.Screen name="user-shcdules-history-screen" component={UserSchedulesHistoryScreen} options={{ headerShown: true, title: 'Meus agendamentos' }} />
+      <SchedulesStack.Screen name="user-shcdules-history-screen" component={UserSchedulesHistoryScreen} options={{ headerShown: true, title: 'Agendamentos' }} />
       <SchedulesStack.Screen name="user-create-credit-card-screen" component={UserCreateCreditCard} options={{ headerShown: true, title: 'Cadastrar Cartão' }} />
       <SchedulesStack.Screen name="user-payment-failed-screen" component={UserContractPaymentFailed} />
     </SchedulesStack.Navigator>

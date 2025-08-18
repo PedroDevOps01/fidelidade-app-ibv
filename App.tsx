@@ -44,6 +44,7 @@ async function requestUserPermission() {
   try {
     //await messaging().registerDeviceForRemoteMessages();
     const token = await messaging().getToken();
+    console.log('Device Token:', token);
     await AsyncStorage.setItem('device_token_id', token);
   } catch (error) {
     console.log('Erro ao solicitar permissão de notificação:', error);

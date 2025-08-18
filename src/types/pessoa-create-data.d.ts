@@ -23,5 +23,6 @@ type PessoaCreateData = {
   des_ocupacao_profissional_pda: string,
   des_ponto_referencia_pda: string,
   des_nome_mae_pda: string
+  is_assinado_pes: number;
   tipo: "NEW_USER" | "DEPENDENT"
 };

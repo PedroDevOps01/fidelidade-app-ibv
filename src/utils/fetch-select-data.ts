@@ -68,24 +68,38 @@ export const fetchOptionsAutoFormaPagamento = async (
 export const fetchOptionsAutoFormaPagamentoContract = async (
   access_token: string,
 ) => {
+  // console.log('token', access_token);
+  // console.log('Buscando formas de pagamento...');
 
-  const request = await api.get('/formapagamento?is_ativo_fmp=1', {
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-      Authorization: `bearer ${access_token}`,
-    },
-  });
-
-  const response: FormaPagamento[] = request.data.response.data;
-
-
-  const responseFiltered = response.filter(e => String(e.id_forma_pagamento_fmp).slice(0,3) === '100')
-  
+  try {
+    const request = await api.get('/formapagamento?is_ativo_fmp=1', {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${access_token}`,
+      },
+    });
 
 
-  return responseFiltered;
+    const response: FormaPagamento[] = request.data.response?.data;
+
+    if (!response || response.length === 0) {
+      console.warn('Nenhuma forma de pagamento encontrada!');
+      return [];
+    }
+
+    // Filtra apenas formas que começam com "100"
+    const responseFiltrada = response.filter(
+      e => String(e.id_forma_pagamento_fmp).slice(0, 3) === '100'
+    );
+
+    return responseFiltrada;
+  } catch (error) {
+    console.error('Erro ao buscar formas de pagamento:', error);
+    return [];
+  }
 };
+
 
 export const fetchOptionsAutoParcelas = async (
   formaPagamentoId: string | null = null,

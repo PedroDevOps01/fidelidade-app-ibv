@@ -108,7 +108,7 @@ export default function UserPaymentCreditCardScheduleScreen() {
       {loading ? (
         <LoadingFull />
       ) : (
-        <ScrollView>
+        <ScrollView style={[{ padding:15, }]}>
           {userCreditCards?.length > 0  ? (
             <View>
               <Text variant="headlineMedium" style={[styles.headText, { color: colors.primary }]}>
@@ -189,11 +189,11 @@ export default function UserPaymentCreditCardScheduleScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
 
     justifyContent: 'center',
   },
   card: {
+    padding:15,
     marginBottom: 16,
   },
   text: {

@@ -18,7 +18,7 @@ import TelepetStackNavigator from './telepet-stack-navigator';
 import ContractsStackNavigator from './contracts-stack-navigator';
 import { useDadosUsuario } from '../context/pessoa-dados-context';
 import ParceiroLoggedDrawerNavigator from './parceiro-router';
-import PdfViewerScreen from '../pages/register-step-four/PdfViewerScreen';
+// import PdfViewerScreen from '../pages/register-step-four/PdfViewerScreen';
 const RegistrationRouter = ({ initialRoute }: { initialRoute: string }) => {
   const theme = useTheme();
   const { dadosUsuarioData } = useDadosUsuario();
@@ -54,23 +54,158 @@ const RegistrationRouter = ({ initialRoute }: { initialRoute: string }) => {
           },
           headerShadowVisible: false,
           headerBackTitle: 'Voltar',
+
+      
         }}>
         
-        <Stack.Screen name="register-step-one" component={RegisterStepOne} options={{ headerShown: true, title: 'Cadastro' }} />
-        <Stack.Screen name="register-step-two" component={RegisterStepTwo} options={{ headerShown: true, title: 'Endereço' }} />
-        <Stack.Screen name="register-step-three" component={RegisterStepThree} options={{ headerShown: true, title: 'Dados pessoais' }} />
-        <Stack.Screen name="register-step-four" component={RegisterStepFour} options={{ headerShown: true, title: 'Telefone' }} />
-        <Stack.Screen name="register-step-five" component={RegisterStepFive} options={{ headerShown: true, title: 'Senha', headerBackVisible: false }} />
-        <Stack.Screen name="user-telepet-stack" component={TelepetStackNavigator} options={{ headerShown: true, title: 'Telepet' }} />
-        <Stack.Screen name="user-telemed-stack" component={TelemedcineStackNavigator} options={{ headerShown: true, title: 'Telemedicina' }} />
-        <Stack.Screen name="user-contracts-stack" component={ContractsStackNavigator} options={{ headerShown: true, title: 'Meus Dados' }} />
-        <Stack.Screen name="logged-home-screen" component={handleUserId() === 'user' ? LoggedDrawerNavigator : ParceiroLoggedDrawerNavigator} options={{ headerShown: false }} />
-        <Stack.Screen name="new-contract-stack" component={NewContractStackNavigator} options={{ headerShown: false }} />
-        <Stack.Screen name="user-shcdules-history-screen" component={UserSchedulesHistoryScreen} options={{ headerShown: true, title: 'Meus agendamentos' }} />
-        <Stack.Screen name="parceiro-produto-router" component={ParceiroProdutoCreateScreen} options={{ headerShown: true, title: 'Criar Produto' }} />
-        <Stack.Screen name="PdfViewerScreen" component={PdfViewerScreen} options={{ headerShown: true, title: 'Termo de Adesão' }} />
+       <Stack.Screen
+  name="register-step-one"
+  component={RegisterStepOne}
+  options={{
+    headerShown: true,
+    title: 'Cadastro',
+            headerTitleAlign: 'center',
 
-        
+    headerStyle: { backgroundColor: theme.colors.primaryContainer },
+    headerTintColor: theme.colors.onPrimaryContainer,
+  }}
+/>
+<Stack.Screen
+  name="register-step-two"
+  component={RegisterStepTwo}
+  options={{
+    headerShown: true,
+    title: 'Endereço',
+            headerTitleAlign: 'center',
+
+    headerStyle: { backgroundColor: theme.colors.primaryContainer },
+    headerTintColor: theme.colors.onPrimaryContainer,
+  }}
+/>
+<Stack.Screen
+  name="register-step-three"
+  component={RegisterStepThree}
+  options={{
+    headerShown: true,
+    title: 'Dados pessoais',
+            headerTitleAlign: 'center',
+
+    headerStyle: { backgroundColor: theme.colors.primaryContainer },
+    headerTintColor: theme.colors.onPrimaryContainer,
+  }}
+/>
+<Stack.Screen
+  name="register-step-four"
+  component={RegisterStepFour}
+  options={{
+    headerShown: true,
+    title: 'Telefone',
+            headerTitleAlign: 'center',
+
+    headerStyle: { backgroundColor: theme.colors.primaryContainer },
+    headerTintColor: theme.colors.onPrimaryContainer,
+  }}
+/>
+<Stack.Screen
+  name="register-step-five"
+  component={RegisterStepFive}
+  options={{
+    headerShown: true,
+    title: 'Senha',
+    headerBackVisible: false,
+            headerTitleAlign: 'center',
+
+    headerStyle: { backgroundColor: theme.colors.primaryContainer },
+    headerTintColor: theme.colors.onPrimaryContainer,
+  }}
+/>
+<Stack.Screen
+  name="user-telepet-stack"
+  component={TelepetStackNavigator}
+  options={{
+    headerShown: true,
+    title: 'Telepet',
+            headerTitleAlign: 'center',
+
+    headerStyle: { backgroundColor: theme.colors.primaryContainer },
+    headerTintColor: theme.colors.onPrimaryContainer,
+  }}
+/>
+<Stack.Screen
+  name="user-telemed-stack"
+  component={TelemedcineStackNavigator}
+  options={{
+    headerShown: true,
+    title: 'Telemedicina',
+            headerTitleAlign: 'center',
+
+    headerStyle: { backgroundColor: theme.colors.primaryContainer },
+    headerTintColor: theme.colors.onPrimaryContainer,
+  }}
+/>
+<Stack.Screen
+  name="user-contracts-stack"
+  component={ContractsStackNavigator}
+  options={{
+    headerShown: true,
+    title: 'Meu Plano',
+            headerTitleAlign: 'center',
+
+    headerStyle: { backgroundColor: theme.colors.primaryContainer },
+    headerTintColor: theme.colors.onPrimaryContainer,
+  }}
+/>
+<Stack.Screen
+  name="logged-home-screen"
+  component={handleUserId() === 'user' ? LoggedDrawerNavigator : ParceiroLoggedDrawerNavigator}
+  options={{
+    headerShown: false,
+  }}
+/>
+<Stack.Screen
+  name="new-contract-stack"
+  component={NewContractStackNavigator}
+  options={{
+    headerShown: false,
+  }}
+/>
+<Stack.Screen
+  name="user-shcdules-history-screen"
+  component={UserSchedulesHistoryScreen}
+  options={{
+    headerShown: true,
+    title: 'Agendamentos',
+            headerTitleAlign: 'center',
+
+    headerStyle: { backgroundColor: theme.colors.primaryContainer },
+    headerTintColor: theme.colors.onPrimaryContainer,
+  }}
+/>
+<Stack.Screen
+  name="parceiro-produto-router"
+  component={ParceiroProdutoCreateScreen}
+  options={{
+    headerShown: true,
+    title: 'Criar Produto',
+            headerTitleAlign: 'center',
+
+    headerStyle: { backgroundColor: theme.colors.primaryContainer },
+    headerTintColor: theme.colors.onPrimaryContainer,
+  }}
+/>
+{/* <Stack.Screen
+  name="PdfViewerScreen"
+  component={PdfViewerScreen}
+  options={{
+    headerShown: true,
+    title: 'Termo de Adesão',
+            headerTitleAlign: 'center',
+
+    headerStyle: { backgroundColor: theme.colors.primaryContainer },
+    headerTintColor: theme.colors.onPrimaryContainer,
+  }}
+/> */}
+
       
       
       

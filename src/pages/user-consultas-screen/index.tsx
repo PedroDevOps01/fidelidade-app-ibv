@@ -1,44 +1,35 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Badge, FAB, IconButton, Searchbar, SegmentedButtons, Text, useTheme } from 'react-native-paper';
+import { Alert, StyleSheet, View, Animated, Easing } from 'react-native';
+import { Searchbar, useTheme } from 'react-native-paper';
 import { api } from '../../network/api';
 import { useAuth } from '../../context/AuthContext';
 import { agruparConsultasPorGrupo } from '../../utils/app-utils';
 import GroupedList from './grouped-list';
-import { useConsultas } from '../../context/consultas-context';
-import ProfissionalList from './professionals-list';
+import { useConsultas, ConsultasAgrupadas } from '../../context/consultas-context';
 import { Tabs, TabScreen, TabsProvider } from 'react-native-paper-tabs';
-import { ScrollView } from 'react-native-gesture-handler';
-import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useExames } from '../../context/exames-context';
-import React from 'react';
 import Fab from '../../components/fab';
-
-type fabOptionsProps = {
-  icon: string;
-  onPress: () => void;
-  label: string;
-};
+import LoadingFull from '../../components/loading-full';
 
 export default function UserConsultasScreen({ navigation }: { navigation: any }) {
   const { colors } = useTheme();
   const { authData } = useAuth();
   const { setConsultasAgrupadasData, consultasAgrupadasData, currentProcedureMethod } = useConsultas();
-
   const { selectedExams, openBottomSheet } = useExames();
 
-  const [professionals, setProfessionals] = useState<ProfessionallMedico[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [currentMethod, setCurrentMethod] = useState<string>('consulta');
-  const [fabGroupVisible, setFabGroupVisible] = useState(false);
-  const [fabOptions, setFabOptions] = useState<fabOptionsProps[]>([]);
-  const isFocused = useIsFocused();
+
+  const fadeAnim = useState(new Animated.Value(0))[0];
+  const slideAnim = useState(new Animated.Value(20))[0];
 
   async function fetchConsultas() {
     setLoading(true);
     try {
-      const response = await api.get(`/integracao/${currentProcedureMethod == 'consulta' ? 'listProcedimentos' : 'listProcedimentosExames'}`, {
+      const endpoint = currentProcedureMethod === 'consulta' ? 'listProcedimentos' : 'listProcedimentosExames';
+      const response = await api.get(`/integracao/${endpoint}`, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
@@ -46,50 +37,35 @@ export default function UserConsultasScreen({ navigation }: { navigation: any })
         },
       });
 
-      if (response.status == 200) {
+      console.log(`Request /integracao/${endpoint}:`, JSON.stringify(response.data, null, 2)); // Log API response
+
+      if (response.status === 200) {
         const ag = agruparConsultasPorGrupo(response.data);
-        setConsultasAgrupadasData(ag);
+        console.log('Agrupadas:', JSON.stringify(ag, null, 2));
+        setConsultasAgrupadasData(ag.consultasAgrupadas);
+
+        Animated.parallel([
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(slideAnim, {
+            toValue: 0,
+            duration: 600,
+            easing: Easing.out(Easing.back(1.5)),
+            useNativeDriver: true,
+          }),
+        ]).start();
+      } else {
+        throw new Error(`Unexpected response status: ${response.status}`);
       }
     } catch (err: any) {
-      console.log(JSON.stringify(err, null, 2));
+      console.error('Error fetching consultas:', JSON.stringify(err, null, 2));
       Alert.alert('Aviso', 'Erro ao carregar consultas. Tente novamente mais tarde', [
         {
           text: 'Continuar',
-          onPress: () => {
-            navigation.goBack();
-          },
-        },
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function fetchProfessionals() {
-    if (currentMethod == 'exame') {
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await api.get('/integracao/listProfissionais', {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          Authorization: `bearer ${authData.access_token}`,
-        },
-      });
-
-      if (response.status == 200) {
-        setProfessionals(response.data);
-      }
-    } catch (err: any) {
-      Alert.alert('Aviso', 'Erro ao carregar profissionais. Tente novamente mais tarde', [
-        {
-          text: 'Continuar',
-          onPress: () => {
-            navigation.goBack();
-          },
+          onPress: () => navigation.goBack(),
         },
       ]);
     } finally {
@@ -99,105 +75,119 @@ export default function UserConsultasScreen({ navigation }: { navigation: any })
 
   useEffect(() => {
     navigation.setOptions({
-      title: currentProcedureMethod!.charAt(0).toUpperCase() + currentProcedureMethod!.slice(1).toLowerCase(),
+      title: currentProcedureMethod?.charAt(0).toUpperCase() + currentProcedureMethod?.slice(1).toLowerCase() || 'Consultas',
+      headerStyle: {
+        backgroundColor: colors.primaryContainer,
+      },
+      headerTintColor: colors.onPrimaryContainer,
     });
+  }, [navigation, currentProcedureMethod, colors]);
 
-    (async () => {
-      Promise.all([fetchConsultas(), fetchProfessionals()]);
-    })();
-  }, [navigation]);
-
-
-
-
-
-  useEffect(() => {
-    if(selectedExams.length > 0) {
-      setFabOptions(prev => [
-        {
-          icon: 'calendar-today',
-          onPress: openBottomSheet,
-          label: 'Visualizar Agendamentos'
-          
-        }
-      ])
-    }
-  }, [selectedExams])
+  useFocusEffect(
+    useCallback(() => {
+      fetchConsultas();
+    }, [currentProcedureMethod])
+  );
 
   const filteredData = () => {
-    if (currentMethod === 'consulta' && consultasAgrupadasData) {
-      // Filtra as consultas agrupadas
-      return Object.entries(consultasAgrupadasData.consultasAgrupadas!).reduce((acc, [grupo, procedimentos]) => {
-        const filteredProcedimentos = procedimentos.filter(procedimento => procedimento.nome.toLowerCase().includes(searchQuery.toLowerCase()));
+    if (currentMethod !== 'consulta' || !consultasAgrupadasData?.consultasAgrupadas) {
+      return {};
+    }
+
+    return Object.entries(consultasAgrupadasData.consultasAgrupadas).reduce(
+      (acc: ConsultasAgrupadas, [grupo, procedimentos]) => {
+        if (!Array.isArray(procedimentos)) {
+          console.warn(`Invalid procedimentos for group "${grupo}":`, procedimentos);
+          return acc;
+        }
+
+        const filteredProcedimentos = procedimentos.filter(procedimento =>
+          (procedimento.des_descricao_tpr || '').toLowerCase().includes(searchQuery.toLowerCase())
+        );
+
         if (filteredProcedimentos.length > 0) {
           acc[grupo] = filteredProcedimentos;
         }
         return acc;
-      }, {} as ConsultasAgrupadas);
-    } else if (currentMethod === 'medico' && professionals.length > 0) {
-      // Filtra os profissionais
-      return professionals.filter(professional => professional.nome_profissional.toLowerCase().includes(searchQuery.toLowerCase()));
-    }
-    return [];
+      },
+      {}
+    );
   };
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.background }}>
+        <LoadingFull />
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      {/* Searchbar no topo, fora das Tabs */}
-      <Searchbar
-        placeholder={currentMethod === 'consulta' ? 'Pesquise o procedimento' : 'Pesquise o profissional'}
-        onChangeText={setSearchQuery}
-        value={searchQuery}
-        style={{ margin: 8, borderWidth: 1, borderColor: colors.secondaryContainer }}
-      />
-      <TabsProvider
-        defaultIndex={0}
-        onChangeIndex={index => {
-          setCurrentMethod(index === 0 ? 'consulta' : 'medico');
-        }}>
-        <Tabs style={{backgroundColor: colors.background}} theme={colors} disableSwipe>
-          <TabScreen label="Procedimento" icon={'stethoscope'}>
-            <GroupedList list={filteredData() as ConsultasAgrupadas} loading={loading} />
-          </TabScreen>
-
-          <TabScreen label="Profissional" icon={'medical-bag'} disabled={currentProcedureMethod == 'exame'}>
-            <ProfissionalList data={filteredData()} navigation={navigation} loading={loading} />
-          </TabScreen>
-        </Tabs>
-      </TabsProvider>
-
-      {selectedExams.length > 0 ? (
-        <Fab 
-          icon='cart'
-          onPress={openBottomSheet}
+      <View style={styles.searchContainer}>
+        <Searchbar
+          placeholder="Buscar..."
+          onChangeText={setSearchQuery}
+          value={searchQuery}
+          style={[styles.searchbar, { backgroundColor: colors.surface }]}
+          iconColor={colors.primary}
+          inputStyle={{ color: colors.onSurface }}
+          placeholderTextColor={colors.onSurfaceVariant}
+          elevation={2}
         />
-      ) : (
-        <></>
-      )}
+      </View>
+
+      <Animated.View
+        style={{
+          flex: 1,
+          opacity: fadeAnim,
+          transform: [{ translateY: slideAnim }],
+        }}
+      >
+        <TabsProvider
+          defaultIndex={0}
+          onChangeIndex={index => setCurrentMethod(index === 0 ? 'consulta' : 'medico')}
+        >
+          <Tabs
+            style={{
+              backgroundColor: colors.background,
+              elevation: 3,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 6,
+            }}
+            disableSwipe
+            mode="scrollable"
+            tabLabelStyle={{ fontWeight: '600' }}
+          >
+            <TabScreen
+              label={currentProcedureMethod === 'exame' ? 'Procedimento' : 'Área de Atuação'}
+              icon="stethoscope"
+            >
+              <View style={styles.tabContent}>
+                <GroupedList list={filteredData()} loading={loading} />
+              </View>
+            </TabScreen>
+          </Tabs>
+        </TabsProvider>
+      </Animated.View>
+
+      {selectedExams.length > 0 && <Fab icon="cart" onPress={openBottomSheet} />}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  searchContainer: {
+    padding: 16,
+    paddingBottom: 8,
+  },
+  searchbar: {
+    borderRadius: 12,
+  },
+  tabContent: {
+    backgroundColor: '#e7d7ff',
     flex: 1,
-  },
-  iconContainer: {
-    position: 'relative',
-  },
-  badge: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-    backgroundColor: 'red',
-    color: 'white',
-  },
-  fabStyle: {
-    shadowColor: 'transparent',
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    elevation: 0,
   },
 });

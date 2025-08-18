@@ -28,9 +28,42 @@ const ProfileStackNavigator = () => {
       </ProfileStack.Screen>
 
       <ProfileStack.Screen name="user-data-screen" component={UserDataScreen} options={{ headerShown: false }} />
-      <ProfileStack.Screen name="user-personal-data-screen" component={UserPersonalDataScreen} options={{ headerTitle: 'Dados pessoais' }} />
-      <ProfileStack.Screen name="user-personal-credit-cards-screen" component={CreditCardStackNavigator} options={{ headerTitle: 'Meus Cartões de Crédito' }} />
-      <ProfileStack.Screen name="user-personal-carteirinha-screen" component={UserPersonalCarteirinhaScreen} options={{ headerTitle: 'Carteirinha' }} />
+
+      <ProfileStack.Screen
+        name="user-personal-data-screen"
+        component={UserPersonalDataScreen}
+        options={{
+          headerTitle: 'Dados pessoais',
+          headerStyle: { backgroundColor: colors.primaryContainer },
+          headerTitleAlign: 'center',
+
+          headerTintColor: colors.onPrimaryContainer,
+        }}
+      />
+
+      <ProfileStack.Screen
+        name="user-personal-credit-cards-screen"
+        component={CreditCardStackNavigator}
+        options={{
+          headerTitle: 'Meus Cartões de Crédito',
+          headerStyle: { backgroundColor: colors.primaryContainer },
+          headerTitleAlign: 'center',
+
+          headerTintColor: colors.onPrimaryContainer,
+        }}
+      />
+
+      <ProfileStack.Screen
+        name="user-personal-carteirinha-screen"
+        component={UserPersonalCarteirinhaScreen}
+        options={{
+          headerTitle: 'Carteirinha',
+          headerStyle: { backgroundColor: colors.primaryContainer },
+          headerTitleAlign: 'center',
+
+          headerTintColor: colors.onPrimaryContainer,
+        }}
+      />
     </ProfileStack.Navigator>
   );
 };

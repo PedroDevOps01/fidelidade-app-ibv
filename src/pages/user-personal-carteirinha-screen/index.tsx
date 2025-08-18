@@ -14,7 +14,7 @@ const UserPersonalCarteirinhaScreen = ({ navigation }: { navigation: any }) => {
 
   const toggleZoom = () => setIsZoomed(!isZoomed);
 
-  const cardWidth = isZoomed ? windowHeight * 0.7 : windowWidth * 0.9;
+  const cardWidth = isZoomed ? windowHeight * 0.6 : windowWidth * 0.9;
   const cardHeight = isZoomed ? windowHeight * 0.4 : windowWidth * 0.6;
 
   return (

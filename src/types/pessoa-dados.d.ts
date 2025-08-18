@@ -41,7 +41,7 @@ type PessoaDados = {
   vlr_renda_mensal_pda: number;
   des_ocupacao_profissional_pda: string;
   des_ponto_referencia_pda: string;
-
+  is_assinado_pes?: number; // Added to track if the user has signed the terms
 };
 
   

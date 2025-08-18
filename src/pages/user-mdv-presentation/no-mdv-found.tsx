@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   content: {
-    marginTop:65,
+    marginTop:10,
     maxWidth: 600,
     width: '100%',
     alignSelf: 'center',
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   },
   benefitsContainerultimo: {
     backgroundColor: '#FEF7FF',
-    marginBottom: 24,
+    marginBottom: 14,
     gap: 16,
   },
   benefitCard: {

@@ -61,28 +61,35 @@ export default function UserPaymentScheduleScreen() {
   }
 
   async function checkPaid(cod_pagamento: string) {
-    try {
-      const response = await api.get(`/integracaoPagarMe/verificarPagamento?cod_pedido_pgm=${cod_pagamento}`, {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          Authorization: `bearer ${authData.access_token}`,
-        },
-      });
+  try {
+    const response = await api.get(`/integracaoPagarMe/verificarPagamento?cod_pedido_pgm=${cod_pagamento}`, {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${authData.access_token}`,
+      },
+    });
 
-      if (response.status == 200) {
-        if (response.data.response[0].des_status_pgm === 'failed') {
-          if (intervalRef.current) clearInterval(intervalRef.current);
-          navigate('user-payment-failed-screen');
-        }
+    console.log('Resposta do verificarPagamento:', response.data); // <-- log da resposta completa
 
-        if (response.data.response[0].des_status_pgm === 'paid') {
-          if (intervalRef.current) clearInterval(intervalRef.current);
-          navigate('user-payment-successfull-screen', { reset: true, name: 'user-schedules-screen' });
-        }
+    if (response.status == 200) {
+      const status = response.data.response[0]?.des_status_pgm;
+      console.log('Status do pagamento:', status); // <-- log do status
+
+      if (status === 'failed') {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        navigate('user-payment-failed-screen');
       }
-    } catch (err: any) {}
+
+      if (status === 'paid') {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        navigate('user-payment-successfull-screen', { reset: true, name: 'user-schedules-screen' });
+      }
+    }
+  } catch (err: any) {
+    console.log('Erro ao verificar pagamento:', err); // <-- log de erro da requisição
   }
+}
 
   useEffect(() => {
     if (pixResponse?.data.qrcode_url) {

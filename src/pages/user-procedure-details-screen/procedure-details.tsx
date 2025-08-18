@@ -8,14 +8,13 @@ interface ProcedureDetailsProps {
 }
 
 type ProcedureStackParamList = {
-  'user-procedure-time': { procedures: ProcedureResponse };
+  'user-procedure-time': { procedimento: ProcedureResponse };
 };
-
 type ProcedureNavigationProp = NativeStackNavigationProp<ProcedureStackParamList>;
 
 export default function ProcedureDetails({ procedures }: ProcedureDetailsProps) {
   const navigation = useNavigation<ProcedureNavigationProp>();
-
+  console.log("teste:", procedures);
   return (
     <FlatList
       data={procedures as ProcedureResponse[]}

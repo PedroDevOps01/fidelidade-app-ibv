@@ -43,11 +43,15 @@ export default function UserMdvHome({navigation}: {navigation: any}) {
 
   const [totalSales, setTotalSales] = useState<Sale[]>([]);
  useLayoutEffect(() => {
-    navigation.setOptions({ headerShown: true,
-                title: 'Minhas Vendas',
+     navigation.setOptions({ headerShown: true,
+                  title: 'Minhas Vendas',
+                          headerTitleAlign: 'center',
 
-     });
-  }, [navigation]);
+                    headerStyle: { backgroundColor: colors.primaryContainer },
+    headerTintColor: colors.onPrimaryContainer,
+  
+       });
+    }, [navigation]);
 
   const data = dadosUsuarioData.pessoaMdv?.map(e => {
     let tipo = '';

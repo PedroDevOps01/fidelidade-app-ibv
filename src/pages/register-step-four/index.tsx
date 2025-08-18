@@ -1,22 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
-import { Button, ProgressBar, TextInput, useTheme, Checkbox } from 'react-native-paper';
+import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import { Button, ProgressBar, shadow, TextInput, useTheme } from 'react-native-paper';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { stepFourSchema } from '../../form-objects/step-four-form';
 import { usePessoaCreate } from '../../context/create-pessoa-context';
 import { z } from 'zod';
-import { applyPhoneMask, generateRequestHeader, log } from '../../utils/app-utils';
+import { applyPhoneMask, generateRequestHeader, limitTextLength, log } from '../../utils/app-utils';
 import { api } from '../../network/api';
 import { CreatePessoaResponse } from '../../types/create-pessoa-response';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { toast } from 'sonner-native';
+import { navigate } from '../../router/navigationRef';
 import { useAuth } from '../../context/AuthContext';
 
-const RegisterStepFour = ({ navigation }) => {
+const RegisterStepFour = ({ route, navigation }: { route: any; navigation: any }) => {
   const theme = useTheme();
-  const { pessoaCreateData, setPessoaCreateData } = usePessoaCreate();
+  const { pessoaCreateData, setPessoaCreateData, clearPessoaCreateData } = usePessoaCreate();
   const { setDadosUsuarioData, userContracts, dadosUsuarioData } = useDadosUsuario();
   const { authData } = useAuth();
 
@@ -29,25 +30,21 @@ const RegisterStepFour = ({ navigation }) => {
     control,
     handleSubmit,
     setValue,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<StepFourSchemaFormType>({
     resolver: zodResolver(stepFourSchema),
     defaultValues: {
       num_celular_pes: '',
       num_telefone_pes: '',
       num_whatsapp_pes: '',
-      acceptTerms: false,
     },
-    mode: 'onChange',
   });
 
-  // Updated function to navigate to PdfViewerScreen without fileName
-  const openTerms = () => {
-    navigation.navigate('PdfViewerScreen');
-  };
-
   const onSubmit = async (data: StepFourSchemaFormType) => {
+    console.log('onSubmit');
+
     log('data', data);
+
     setLoading(true);
 
     const localData = {
@@ -62,9 +59,7 @@ const RegisterStepFour = ({ navigation }) => {
   };
 
   const onError = (data: any) => {
-    if (data.acceptTerms) {
-      Alert.alert('Aviso', data.acceptTerms.message);
-    }
+    console.log('step four errors', JSON.stringify(data, null, 2));
   };
 
   useEffect(() => {
@@ -73,6 +68,8 @@ const RegisterStepFour = ({ navigation }) => {
     const sendRequest = async () => {
       try {
         if (pessoaCreateData.num_whatsapp_pes) {
+          console.log('pessoaCreateData', JSON.stringify(pessoaCreateData, null, 2));
+
           const request = await api.post('/pessoa', pessoaCreateData);
 
           if (request.status === 200) {
@@ -81,27 +78,33 @@ const RegisterStepFour = ({ navigation }) => {
             navigation.navigate('register-step-five');
           }
         }
+        setLoading(false);
       } catch (err: any) {
-        let errorMessage = 'Ocorreu um erro ao tentar cadastrar.';
-        if (String(err.response?.data.message).includes('cpf')) {
+        const statusCode = err.response?.status;
+
+        let errorMessage = '';
+        if (String(err.response.data.message).includes('cpf')) {
           errorMessage = 'O CPF já se encontra registrado no sistema.';
         }
-        Alert.alert('Aviso', errorMessage);
+
+        if (statusCode !== 200) {
+          Alert.alert('Aviso', `Ocorreu um erro ao tentar cadastrar.\n${errorMessage}`);
+          console.log(JSON.stringify(err.response.data.message, null, 2));
+          setLoading(false);
+        }
       } finally {
         setIsReady(false);
         setLoading(false);
       }
     };
 
+    //se for dependente
     const registerDependent = async () => {
-      try {
-        const contratoId = userContracts.filter(e => e.is_ativo_ctt == 1)[0].id_contrato_ctt;
-        const request = await api.post('/pessoa', pessoaCreateData, generateRequestHeader(authData.access_token));
+      const contratoId = userContracts.filter(e => e.is_ativo_ctt == 1)[0].id_contrato_ctt;
+      const request = await api.post('/pessoa', pessoaCreateData, generateRequestHeader(authData.access_token));
 
-        if (request.status !== 200) {
-          throw new Error('Erro ao criar pessoa');
-        }
-
+      if (request.status === 200) {
+        console.log('criou pessoa');
         const data: CreatePessoaResponse = request.data;
 
         const res = await api.post(
@@ -112,40 +115,43 @@ const RegisterStepFour = ({ navigation }) => {
           },
           generateRequestHeader(authData.access_token),
         );
+        console.log('status', res.status);
 
-        if (res.status === 200) {
+        if (res.status == 200) {
           toast.success('Dependente adicionado com sucesso!', {
             position: 'bottom-center',
             styles: {
-              toast: { backgroundColor: theme.colors.inverseSurface },
-              title: { color: theme.colors.inverseOnSurface },
+              toast: {
+                backgroundColor: theme.colors.inverseSurface,
+              },
+              title: {
+                color: theme.colors.inverseOnSurface,
+              },
             },
           });
+          navigation.navigate('user-dependents-screen');
         } else {
           toast.error('Erro ao adicionar Dependente!', {
             position: 'bottom-center',
             styles: {
-              toast: { backgroundColor: theme.colors.inverseSurface },
-              title: { color: theme.colors.inverseOnSurface },
+              toast: {
+                backgroundColor: theme.colors.inverseSurface,
+              },
+              title: {
+                color: theme.colors.inverseOnSurface,
+              },
             },
           });
+          console.log(res);
         }
-        navigation.navigate('user-dependents-screen');
-      } catch (err: any) {
-        toast.error(`Erro ao registrar dependente: ${err.message}`, {
-          position: 'bottom-center',
-          styles: {
-            toast: { backgroundColor: theme.colors.inverseSurface },
-            title: { color: theme.colors.inverseOnSurface },
-          },
-        });
-        navigation.navigate('user-dependents-screen');
-      } finally {
-        setLoading(false);
       }
+
+      setLoading(false);
+
+      navigate('user-dependents-screen');
     };
 
-    if (pessoaCreateData.tipo === 'NEW_USER') {
+    if (pessoaCreateData.tipo == 'NEW_USER') {
       sendRequest();
     } else {
       registerDependent();
@@ -202,7 +208,7 @@ const RegisterStepFour = ({ navigation }) => {
           <TextInput
             label="Número de telefone"
             keyboardType="number-pad"
-            value={value}
+            value={value!}
             onChangeText={e => {
               onChange(applyPhoneMask(e, 10));
             }}
@@ -213,25 +219,8 @@ const RegisterStepFour = ({ navigation }) => {
         )}
       />
 
-      <Controller
-        control={control}
-        name="acceptTerms"
-        render={({ field: { onChange, value } }) => (
-          <View style={styles.checkboxContainer}>
-            <Checkbox status={value ? 'checked' : 'unchecked'} onPress={() => onChange(!value)} color={theme.colors.primary} />
-            <Text style={styles.checkboxLabel}>
-              Li e aceito os{' '}
-              <Text style={styles.linkText} onPress={openTerms}>
-                termos de adesão
-              </Text>
-            </Text>
-          </View>
-        )}
-      />
-      {errors.acceptTerms && <Text style={styles.errorText}>{errors.acceptTerms.message}</Text>}
-
       <View>
-        <Button mode="contained" loading={loading} disabled={loading || !isValid} onPress={handleSubmit(onSubmit, onError)}>
+        <Button mode="contained" loading={loading} disabled={loading} onPress={handleSubmit(onSubmit, onError)}>
           {loading ? 'Aguarde' : 'Continuar'}
         </Button>
       </View>
@@ -240,13 +229,36 @@ const RegisterStepFour = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingVertical: 20, paddingHorizontal: 16 },
-  title: { fontFamily: 'Roboto-Bold', fontSize: 24, color: 'black', marginBottom: 20 },
-  input: { marginBottom: 20 },
-  checkboxContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-  checkboxLabel: { fontSize: 16, color: 'black' },
-  linkText: { color: '#0000FF', textDecorationLine: 'underline' },
-  errorText: { color: 'red', fontSize: 14, marginBottom: 20 },
+  container: {
+    flex: 1,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+  },
+  scrollContainer: {
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    flexGrow: 1,
+  },
+  title: {
+    fontFamily: 'Roboto-Bold',
+    fontSize: 24,
+    color: 'black',
+    marginBottom: 20,
+  },
+  input: {
+    marginBottom: 20,
+  },
+  footer: {
+    padding: 16,
+    justifyContent: 'flex-end',
+    bottom: 10,
+  },
+  button: {
+    justifyContent: 'center',
+  },
+  buttonText: {
+    fontSize: 16,
+  },
 });
 
 export default RegisterStepFour;

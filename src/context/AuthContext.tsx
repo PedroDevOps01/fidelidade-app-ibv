@@ -103,7 +103,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  useTokenRefresh(refreshToken, 300000, authData.access_token !== "");
+  useTokenRefresh(refreshToken, 10000, authData.access_token !== "");
 
   return (
     <AuthContext.Provider value={{ authData, setAuthData, clearAuthData }}>

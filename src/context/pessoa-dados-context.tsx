@@ -2,13 +2,32 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { log } from '../utils/app-utils';
 
+export type Pessoa = {
+  cod_cpf_pes: string;
+  des_nome_pes: string;
+  num_whatsapp_pes: string;
+  num_telefone_pes: string;
+  num_celular_pes: string;
+  dta_nascimento_pes: string;
+  des_sexo_biologico_pes: string;
+  des_genero_pes: string | null;
+  id_usr_cadastro_pes: number;
+  id_usr_alteracao_pes: number;
+  dth_alteracao_pes: string;
+  dth_cadastro_pes: string;
+  id_pessoa_pes: number;
+  id_usuario_usr: number;
+  is_assinado_pes: number; // Added
+  cod_cep_pda?: string; // Added if stored in tb_pessoa
+};
+
 export type DadosUsuario = {
   pessoa?: Pessoa;
   pessoaDados?: PessoaDados;
   pessoaAssinatura?: PessoaAssinatura;
   errorCadastroPagarme?: ErrorCadastroPagarme | null;
   pessoaMdv?: PessoaMdv[] | null;
-  user: User; 
+  user: User;
 };
 
 const initialState: DadosUsuario = {
@@ -26,11 +45,13 @@ const initialState: DadosUsuario = {
     dth_alteracao_pes: '',
     dth_cadastro_pes: '',
     id_pessoa_pes: 0,
-    id_usuario_usr: 0
+    id_usuario_usr: 0,
+    is_assinado_pes: 0, // Added
+    cod_cep_pda: '', // Added if stored in tb_pessoa
   },
   pessoaDados: {
     id_pessoa_pda: 0,
-    cod_cep_pda: '',
+    cod_cep_pda: '', // Used here if stored in tb_pessoa_dados
     des_endereco_pda: '',
     num_endereco_pda: '',
     des_bairro_pda: '',
@@ -49,7 +70,7 @@ const initialState: DadosUsuario = {
     des_nome_mae_pda: '',
     des_ocupacao_profissional_pda: '',
     des_ponto_referencia_pda: '',
-    vlr_renda_mensal_pda: 0
+    vlr_renda_mensal_pda: 0,
   },
   user: {
     des_nome_pes: '',
@@ -61,11 +82,11 @@ const initialState: DadosUsuario = {
     id_usr_cadastro_usr: 0,
     id_usuario_usr: 0,
     is_ativo_usr: 0,
-    is_first_access_usr: false
-  }
+        is_assinado_pes: 0, // Added
+
+    is_first_access_usr: false,
+  },
 };
-
-
 
 // cartoes
 const initialUserCreditCardsState: UserCreditCard[] = [];
@@ -78,11 +99,9 @@ const DadosUsuarioContext = createContext<{
   setDadosUsuarioData: (data: DadosUsuario) => Promise<void>;
   clearDadosUsuarioData: () => Promise<void>;
   clearLoginDadosUsuarioData: () => Promise<void>;
-
   userCreditCards: UserCreditCard[];
   setCreditCards: (data: UserCreditCard[]) => void;
   clearCreditCards: () => void;
-
   userContracts: ContratoResponse[];
   setContracts: (data: ContratoResponse[]) => void;
   clearContracts: () => void;
@@ -108,7 +127,6 @@ export const DadosUsuarioProvider: React.FC<{ children: ReactNode }> = ({ childr
     const initializeData = async () => {
       try {
         const savedUserData = await AsyncStorage.getItem('user_data');
-
         if (savedUserData) {
           setDadosUsuarioState(JSON.parse(savedUserData));
         }
@@ -123,9 +141,7 @@ export const DadosUsuarioProvider: React.FC<{ children: ReactNode }> = ({ childr
   const setDadosUsuarioData = async (data: DadosUsuario) => {
     try {
       setDadosUsuarioState(data);
-      console.log(JSON.stringify(data))
       await AsyncStorage.setItem('user_data', JSON.stringify(data));
-
     } catch (error) {
       console.error('Failed to save user data to storage:', error);
     }
@@ -183,7 +199,8 @@ export const DadosUsuarioProvider: React.FC<{ children: ReactNode }> = ({ childr
         userContracts,
         setContracts,
         clearContracts,
-      }}>
+      }}
+    >
       {children}
     </DadosUsuarioContext.Provider>
   );

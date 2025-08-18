@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoggedHome from '../pages/logged-home';
 import PartnersScreen from '../pages/user-create-credit-card/partners-screen';
+import PdfViewerScreen from '../pages/logged-home'; // Adjust the path as needed
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from 'react-native-paper';
 import { useDadosUsuario } from '../context/pessoa-dados-context';
@@ -40,7 +41,6 @@ const MainTabs = () => {
         tabBarStyle: {
           backgroundColor: colors.background,
           borderTopWidth: 0.3,
-          borderTopColor: colors.onSurfaceVariant,
           height: 60 + insets.bottom, // altura base + safe area inferior
           paddingBottom: insets.bottom,
           elevation: 0,
@@ -83,7 +83,8 @@ const MainTabs = () => {
           marginTop: 4,
           padding: 0,
         },
-      })}>
+      })}
+    >
       <Tab.Screen
         name="Home"
         component={LoggedHome}
@@ -99,7 +100,7 @@ const MainTabs = () => {
           tabBarLabel: 'Agendamentos',
           headerShown: false,
           headerShadowVisible: false,
-          title: 'Meus Agendamentos',
+          title: 'Agendamentos',
           tabBarBadge: selectedExams.length > 0 ? selectedExams.length : undefined,
           tabBarBadgeStyle: {
             backgroundColor: '#4003ff',
@@ -112,19 +113,19 @@ const MainTabs = () => {
         options={{
           tabBarLabel: 'Perfil',
           headerShown: false,
-
           headerShadowVisible: true,
           title: 'Meus Dados',
         }}
       />
-
       <Tab.Screen
         name="user-mdv"
         component={MdvStackNavigator}
         options={{
           tabBarLabel: 'Vendas',
           headerShown: false,
-
+          headerTitleAlign: 'center',
+          headerStyle: { backgroundColor: colors.primaryContainer },
+          headerTintColor: colors.onPrimaryContainer,
           headerShadowVisible: true,
           title: 'Minhas Vendas',
         }}
@@ -141,19 +142,31 @@ const LoggedDrawerNavigator: React.FC = () => {
     <RootStack.Navigator
       screenOptions={{
         headerShown: false,
-      }}>
+      }}
+    >
       <RootStack.Screen name="MainTabs" component={MainTabs} />
       <RootStack.Screen
         name="ParceirosScreen"
         component={PartnersScreen}
         options={{
-          presentation: 'modal', // ou 'card' se preferir
-          title: 'Nossos Parceiros/Credenciados',
+          presentation: 'modal',
+          title: 'Nossos Parceiros',
           headerShown: true,
-          headerTintColor: colors.onSurface,
-          headerStyle: {
-            backgroundColor: colors.surface,
-          },
+          headerTitleAlign: 'center',
+          headerStyle: { backgroundColor: colors.primaryContainer },
+          headerTintColor: colors.onPrimaryContainer,
+        }}
+      />
+      <RootStack.Screen
+        name="PdfViewerScreen"
+        component={PdfViewerScreen}
+        options={{
+          presentation: 'modal',
+          title: 'Termos de Adesão',
+          headerShown: true,
+          headerTitleAlign: 'center',
+          headerStyle: { backgroundColor: colors.primaryContainer },
+          headerTintColor: colors.onPrimaryContainer,
         }}
       />
     </RootStack.Navigator>

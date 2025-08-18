@@ -55,17 +55,26 @@ const UserExamsBottomSheet = forwardRef<UserExamsBottomSheetRef>((_, ref) => {
             ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
             style={{ paddingHorizontal: 10 }}
             renderItem={({ item }) => (
-              <Card style={[styles.card, { backgroundColor: colors.surface }]}>
-                <Card.Content style={{ flexDirection: 'row' }}>
-                  <View style={{ flex: 8, justifyContent: 'center' }}>
-                    <Text style={[styles.title, { color: colors.onBackground }]}>{item.nome}</Text>
-                  </View>
-                  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <IconButton icon="trash-can-outline" size={25} iconColor={colors.onErrorContainer} onPress={() => removeSelectedExam(item.cod_procedimento)} />
-                  </View>
-                </Card.Content>
-              </Card>
-            )}
+  <Card style={[styles.card, { backgroundColor: colors.surface }]}>
+    <Card.Content style={{ flexDirection: 'row' }}>
+      <View style={{ flex: 8, justifyContent: 'center' }}>
+        <Text style={[styles.title, { color: colors.onBackground }]}>{item.des_descricao_tpr}</Text>
+        {/* Aqui mostramos a descrição */}
+        <Text style={{ fontSize: 14, color: colors.onBackground, opacity: 0.7 }}>
+          {item.des_tipo_tpr}
+        </Text>
+      </View>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <IconButton
+          icon="trash-can-outline"
+          size={25}
+          iconColor={colors.onErrorContainer}
+          onPress={() => removeSelectedExam(item.cod_procedimento)}
+        />
+      </View>
+    </Card.Content>
+  </Card>
+)}
           />
         </View>
 
@@ -74,6 +83,13 @@ const UserExamsBottomSheet = forwardRef<UserExamsBottomSheetRef>((_, ref) => {
             key={''}
             mode="contained"
             onPress={() => {
+              // Adicionado console.log para mostrar os dados antes de continuar
+              console.log('Dados ao clicar em "Continuar":', {
+                selectedExams: selectedExams,
+                procedureMethod: 'exame',
+                navigateToScreen: 'user-exams-check-local-screen'
+              });
+              
               bottomSheetRef.current?.close();
               setCurrentProcedureMethod('exame');
               navigate('user-exams-check-local-screen');

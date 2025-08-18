@@ -24,7 +24,7 @@ export const stepFourSchema = z.object({
     .min(11, 'Preencha o Whatsapp')
     .transform(value => value.replace(/\D/g, '')), // Mandatory field
 
-  acceptTerms: z
-    .boolean()
-    .refine(val => val === true, { message: 'Você deve aceitar os termos de adesão' }),
+  // acceptTerms: z
+  //   .boolean()
+  //   .refine(val => val === true, { message: 'Você deve aceitar os termos de adesão' }),
 });

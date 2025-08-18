@@ -35,6 +35,7 @@ const ContractsStackNavigator = () => {
           options={{
             headerShown: false,
             title: 'Meus Dados',
+            
           }}
         />
         <ContractsStack.Screen

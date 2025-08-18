@@ -54,7 +54,7 @@ export default function UserMdvBankList() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background}]}>
       {loading ? (
-        <LoadingFull title="Carregando" />
+        <LoadingFull/>
       ) : (
         <List.Section>
           <FlatList

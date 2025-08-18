@@ -8,5 +8,7 @@ type User = {
   id_usr_alteracao_usr: number;
   is_ativo_usr: number;
   des_nome_pes: string;
+    is_assinado_pes: number; // Added
+
   is_first_access_usr: boolean;
 }

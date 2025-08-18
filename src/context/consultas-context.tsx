@@ -1,17 +1,42 @@
 import React, { createContext, useContext, useState } from 'react';
 
-// Tipos das interfaces
+// Define the structure of a single procedure
+export interface ConsultaReposta {
+  id_procedimento_tpr: number;
+    cod_procedimento_rpi: number;
+id_parceiro_rpi: number;
+  des_descricao_tpr: string;
+  des_grupo_tpr?: string;
+  is_ativo_tpr: number;
+  dth_cadastro_tpr: string;
+  dth_alteracao_tpr: string;
+  id_usr_cadastro_tpr: number;
+  id_usr_alteracao_tpr: number;
+  des_tipo_tpr: string;
+}
+
+export interface ConsultasAgrupadas {
+  [key: string]: ConsultaReposta[];
+}
+
 export interface ConsultasAgrupadasData {
-  consultasAgrupadas: ConsultasAgrupadas | {};
+  consultasAgrupadas: ConsultasAgrupadas;
+}
+
+export interface ProcedureTimeResponse {
+  [key: string]: any;
 }
 
 export interface ProcedureTimeDetailsData {
-  procedureTimeDetails: Record<string, ProcedureTimeResponse> | {};
+  procedureTimeDetails: Record<string, ProcedureTimeResponse>;
+}
+
+export interface UserSchedule {
+  [key: string]: any;
 }
 
 export type ProcedureMethodTypes = 'consulta' | 'exame' | undefined;
 
-// Estado inicial
 const initialConsultasAgrupadasState: ConsultasAgrupadasData = {
   consultasAgrupadas: {},
 };
@@ -20,7 +45,6 @@ const initialProcedureTimeDetailsState: ProcedureTimeDetailsData = {
   procedureTimeDetails: {},
 };
 
-// Contexto
 const ConsultasContext = createContext<{
   consultasAgrupadasData: ConsultasAgrupadasData;
   setConsultasAgrupadasData: (data: ConsultasAgrupadas) => void;
@@ -45,22 +69,14 @@ const ConsultasContext = createContext<{
   setUserSchedulesData: () => {},
 });
 
-// Provider
 export const ConsultasProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [consultasAgrupadasData, setConsultasAgrupadasDataState] =
     useState<ConsultasAgrupadasData>(initialConsultasAgrupadasState);
-
-  const [procedureTimeDetailsData, setProcedureTimeDetailsDataState] = useState<ProcedureTimeDetailsData>(
-    initialProcedureTimeDetailsState,
-  );
-
-  const [currentProcedureMethod, setCurrentProcedureMethodState] = useState<ProcedureMethodTypes>(undefined);
+  const [procedureTimeDetailsData, setProcedureTimeDetailsDataState] =
+    useState<ProcedureTimeDetailsData>(initialProcedureTimeDetailsState);
+  const [currentProcedureMethod, setCurrentProcedureMethodState] = useState<ProcedureMethodTypes>('consulta');
   const [userSchedules, setUserSchedulesState] = useState<UserSchedule[]>([]);
-  const [selectedExams, setSelectedExamsState] = useState<ConsultaReposta[]>([]);
 
-  //const bottomSheetRef = useRef<UserExamsBottomSheetRef>(null);
-
-  // Métodos de manipulação do estado
   const setConsultasAgrupadasData = (data: ConsultasAgrupadas) => {
     setConsultasAgrupadasDataState({ consultasAgrupadas: data });
   };
@@ -98,13 +114,13 @@ export const ConsultasProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setCurrentProcedureMethod,
         userSchedules,
         setUserSchedulesData,
-      }}>
+      }}
+    >
       {children}
     </ConsultasContext.Provider>
   );
 };
 
-// Hook personalizado
 export const useConsultas = () => {
   const context = useContext(ConsultasContext);
   if (!context) {

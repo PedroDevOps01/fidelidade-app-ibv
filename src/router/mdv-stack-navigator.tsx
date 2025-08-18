@@ -25,10 +25,12 @@ export const MdvStackNavigator = () => {
         initialRouteName={initialRouteName}
         screenOptions={{
           headerShown: true,
+             headerTitleAlign: 'center',
+
+                    headerStyle: { backgroundColor: colors.primaryContainer },
+    headerTintColor: colors.onPrimaryContainer,
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: colors.background },
           headerBackTitle: 'Voltar',
-          headerTintColor: colors.onSurface,
         }}>
         <MdvStack.Screen name="no-mdv-found" component={NoMdvFound} options={{ headerShown: false }} />
         <MdvStack.Screen name="user-mdv-home" component={UserMdvHome} options={{ headerShown: false }} />
@@ -36,9 +38,10 @@ export const MdvStackNavigator = () => {
         <MdvStack.Screen name="user-mdv-terms" component={UserMdvTerms} options={{ title: 'Termos de uso' }} />
         <MdvStack.Screen name="user-mdv-bank-list" component={UserMdvBankList} options={{ title: 'Dados bancários' }} />
         <MdvStack.Screen name="new-contract-navigator" component={NewContractStackNavigator} options={{ headerShown: false }} />
-        <MdvStack.Screen name="user-mdv-sales-details" component={UserMdvSalesDetails} options={{ headerShown: true, title: 'Minhas vendas' }} />
+        <MdvStack.Screen name="user-mdv-sales-details" component={UserMdvSalesDetails} options={{ headerShown: true, title: 'Detalhes venda' }} />
         <MdvStack.Screen name="user-mdv-withdraw" component={UserMdvWithdraw} options={{ headerShown: true, title: 'Transferência' }} />
-        <MdvStack.Screen name="user-mdv-sales-extract" component={UserMdvSalesExtract} options={{ headerShown: false}} />
+                <MdvStack.Screen name="user-mdv-sales-extract" component={UserMdvSalesExtract} options={{ headerShown: true, title: 'Extrato de Vendas' }} />
+
       </MdvStack.Navigator>
     </CreateMdvProvider>
   );

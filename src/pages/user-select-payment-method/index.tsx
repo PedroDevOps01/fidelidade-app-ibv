@@ -1,7 +1,7 @@
 import { useRoute } from '@react-navigation/native';
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { View, StyleSheet, Alert, FlatList } from 'react-native';
-import { RadioButton, Text, Button, useTheme, ActivityIndicator, List } from 'react-native-paper';
+import { View, StyleSheet, Alert, FlatList, Dimensions } from 'react-native';
+import { RadioButton, Text, Button, useTheme, ActivityIndicator, List, Card, IconButton } from 'react-native-paper';
 import { fetchOptionsAutoFormaPagamentoContract } from '../../utils/fetch-select-data';
 import { useAuth } from '../../context/AuthContext';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -11,6 +11,10 @@ import { useConsultas } from '../../context/consultas-context';
 import { log } from '../../utils/app-utils';
 import LoadingFull from '../../components/loading-full';
 import CustomToast from '../../components/custom-toast';
+import { ProgressBar, TextInput } from 'react-native-paper';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
+const { width } = Dimensions.get('window');
 
 const UserSelectPaymentMethod = () => {
   const { colors } = useTheme();
@@ -18,8 +22,6 @@ const UserSelectPaymentMethod = () => {
   const { currentProcedureMethod } = useConsultas();
   const { scheduleRequest, setScheduleRequestData } = useExames();
   const route = useRoute();
-
-  // Forma de pagamentos
   const [formasPagamento, setFormasPagamento] = useState<FormaPagamento[]>([]);
   const [selectedFormasPagamento, setSelectedFormasPagamento] = useState<string | null>('');
   const [loading, setLoading] = useState<boolean>(true);
@@ -34,13 +36,14 @@ const UserSelectPaymentMethod = () => {
   }, []);
 
   const handleSubmit = (selectedFormasPagamento: string) => {
-
     if(selectedFormasPagamento == '') {
       CustomToast('Selecione uma forma de pagamento.', colors);
-      return
+      return;
     }
 
     let schedule: ScheduleRequest = (route.params as ScheduleRequest) ?? scheduleRequest;
+    console.log('Schedule with cod_parceiro:', schedule.cod_parceiro); // Log for verification
+  console.log('teste', schedule)
 
     schedule = {
       ...schedule,
@@ -60,26 +63,96 @@ const UserSelectPaymentMethod = () => {
     }
   };
 
+  const getPaymentIcon = (id: string) => {
+    switch(id) {
+      case '10001': // PIX
+        return 'qrcode';
+      case '10002': // Cartão de crédito
+        return 'credit-card';
+      default:
+        return 'cash';
+    }
+  };
 
+  const getPaymentColor = (id: string) => {
+    switch(id) {
+      case '10001': // PIX
+        return '#32BCAD';
+      case '10002': // Cartão de crédito
+        return '#5B6ABF';
+      default:
+        return colors.primary;
+    }
+  };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.fundo }]}>
+     <View style={{ flexDirection: 'row', marginBottom: 25, marginTop: 5, }}>
+  {[1, 2, 3].map((_, index) => (
+    <View
+      key={index}
+      style={{
+        flex: 1,
+        height: 6,
+          marginEnd: 20,
+        marginStart: 20,
+        borderRadius: 5,
+        backgroundColor: colors.primary,
+      }}
+    />
+  ))}
+</View>
+
+      {/* <Text variant="titleLarge" style={[styles.headerTitle, { color: colors.onBackground }]}>
+        Método de Pagamento
+      </Text> */}
+      
+      <Text variant="bodyMedium" style={[styles.headerSubtitle, { color: colors.onSurfaceVariant }]}>
+        Selecione como deseja efetuar o pagamento
+      </Text>
+
       {loading ? (
         <LoadingFull />
       ) : (
-        <List.Section title='Selecione uma Forma de pagamento'>
+        <View style={styles.paymentMethodsContainer}>
           <FlatList
             data={formasPagamento}
+            contentContainerStyle={styles.listContent}
             renderItem={({ item }) => (
-              <List.Item
-                title={item.des_nome_fmp}
-                right={props => <List.Icon {...props} icon={'chevron-right'} />}
+              <Card 
+                style={[styles.paymentCard, { backgroundColor: colors.surface }]}
                 onPress={() => handleSubmit(String(item.id_forma_pagamento_fmp))}
-              />
+              >
+                <Card.Content style={styles.cardContent}>
+                  <View style={styles.iconContainer}>
+                    <MaterialCommunityIcons 
+                      name={getPaymentIcon(String(item.id_forma_pagamento_fmp))} 
+                      size={28} 
+                      color={getPaymentColor(String(item.id_forma_pagamento_fmp))} 
+                    />
+                  </View>
+                  <View style={styles.textContainer}>
+                    <Text variant="titleMedium" style={[styles.paymentTitle, { color: colors.onSurface }]}>
+                      {item.des_nome_fmp}
+                    </Text>
+                    {item.id_forma_pagamento_fmp === '10001' && (
+                      <Text variant="bodySmall" style={[styles.paymentSubtitle, { color: colors.primary }]}>
+                        Pagamento instantâneo • Sem taxas
+                      </Text>
+                    )}
+                  </View>
+                  <MaterialCommunityIcons 
+                    name="chevron-right" 
+                    size={24} 
+                    color={colors.onSurfaceVariant} 
+                  />
+                </Card.Content>
+              </Card>
             )}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
             removeClippedSubviews={false}
           />
-        </List.Section>
+        </View>
       )}
     </View>
   );
@@ -88,19 +161,61 @@ const UserSelectPaymentMethod = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: 24,
   },
-  title: {
+  headerTitle: {
+    fontWeight: '700',
+    marginBottom: 4,
+    letterSpacing: 0.15,
+  },
+  headerSubtitle: {
     textAlign: 'center',
-    fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 24,
+    opacity: 0.8,
+    letterSpacing: 0.25,
   },
-  radioContainer: {
-    gap: 10, // Espaçamento entre os RadioButton Items
+  paymentMethodsContainer: {
+    flex: 1,
   },
-  radioLabel: {
-    fontSize: 16,
+  listContent: {
+    paddingBottom: 16,
+  },
+  paymentCard: {
+    borderRadius: 12,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+  },
+  cardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+  },
+  iconContainer: {
+    marginRight: 16,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(50, 188, 173, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textContainer: {
+    flex: 1,
+  },
+  paymentTitle: {
     fontWeight: '600',
+    marginBottom: 2,
+  },
+  paymentSubtitle: {
+    fontWeight: '500',
+    fontSize: 13,
+  },
+  separator: {
+    height: 12,
   },
 });
 

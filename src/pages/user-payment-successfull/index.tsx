@@ -6,6 +6,8 @@ import { goHome } from '../../router/navigationRef';
 import { useConsultas } from '../../context/consultas-context';
 import { initialScheduleRequestState, useExames } from '../../context/exames-context';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import SucessoImage from '../../assets/images/sucesso.png';
+import { Image } from 'react-native';
 
 type UserPaymentSuccessfullRouteParams = {
   params: {
@@ -70,19 +72,22 @@ export default function UserPaymentSuccessfull() {
           
 
           <Card.Content style={styles.content}>
-            <Text variant="headlineSmall" style={[styles.title, { color: colors.primary }]}>
-              Agendamento Confirmado!
-            </Text>
-            
-            <View style={styles.messageContainer}>
-              <Text variant="bodyMedium" style={[styles.message, { color: colors.onSurface }]}>
-                Seu pagamento foi processado com sucesso e seu agendamento está confirmado.
-              </Text>
-              <Text variant="bodyMedium" style={[styles.message, { color: colors.onSurface, marginTop: 8 }]}>
-                Você receberá um e-mail com todos os detalhes.
-              </Text>
-            </View>
-          </Card.Content>
+  <Text variant="headlineSmall" style={[styles.title, { color: colors.primary }]}>
+    Agendamento Confirmado!
+  </Text>
+
+  <Image 
+    source={SucessoImage}
+    style={styles.successImage}
+    resizeMode="contain"
+  />
+
+  <View style={styles.messageContainer}>
+    <Text variant="bodyMedium" style={[styles.message, { color: colors.onSurface }]}>
+      Seu pagamento foi processado com sucesso e seu agendamento está confirmado.
+    </Text>
+  </View>
+</Card.Content>
 
           <Card.Actions style={styles.actions}>
             <Button
@@ -128,6 +133,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 16,
   },
+  successImage: {
+  width: 160,
+  height: 160,
+  marginBottom: 16,
+},
   iconContainer: {
     position: 'absolute',
     top: -50,

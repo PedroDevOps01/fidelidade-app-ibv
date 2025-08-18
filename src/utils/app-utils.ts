@@ -237,16 +237,34 @@ export function toPreciseInteger(number: number) {
   const decimalPlaces = number.toString().split('.')[1]?.length || 0;
   return Math.floor(number * Math.pow(10, decimalPlaces));
 }
+export interface ConsultaReposta {
+  id_procedimento_tpr: number;
+  cod_procedimento_rpi: number;
+  des_descricao_tpr: string;
+  des_grupo_tpr?: string;
+  is_ativo_tpr: number;
+  dth_cadastro_tpr: string;
+  dth_alteracao_tpr: string;
+  id_usr_cadastro_tpr: number;
+  id_usr_alteracao_tpr: number;
+  des_tipo_tpr: string;
+}
+export function agruparConsultasPorGrupo(procedimentos: ConsultaReposta[]): { consultasAgrupadas: Record<string, ConsultaReposta[]> } {
+  if (!Array.isArray(procedimentos)) {
+    console.warn('agruparConsultasPorGrupo: Input data is not an array', procedimentos);
+    return { consultasAgrupadas: {} };
+  }
 
-export function agruparConsultasPorGrupo(procedimentos: ConsultaReposta[]): Record<string, ConsultaReposta[]> {
-  return procedimentos.reduce((acc, procedimento) => {
-    const { grupo } = procedimento;
+  const grouped = procedimentos.reduce((acc: Record<string, ConsultaReposta[]>, procedimento) => {
+    const grupo = procedimento.des_tipo_tpr || 'Outros'; // Use des_grupo_tpr
     if (!acc[grupo]) {
       acc[grupo] = [];
     }
     acc[grupo].push(procedimento);
     return acc;
-  }, {} as Record<string, ConsultaReposta[]>);
+  }, {});
+
+  return { consultasAgrupadas: grouped };
 }
 
 export function formatDateToDDMMYYYY(dateString: string): string {

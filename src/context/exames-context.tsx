@@ -25,6 +25,7 @@ export const initialScheduleRequestState: ScheduleRequest = {
   token_paciente: 0,
   procedimentos_array: [],
   vlr_total: 0,
+  cod_parceiro: 0,
 };
 
 const ExamesContext = createContext<ExamesContextProps>({
@@ -54,7 +55,7 @@ export const ExamesProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (selectedExams.some(item => item.nome === exam.nome)) {
         throw new Error('Exame já adicionado no carrinho');
       }
-      toast.success(`Procedimento ${exam.nome} adicionado ao carrinho!`, { position: 'bottom-center', close: true });
+      toast.success(`Procedimento ${exam.des_descricao_tpr} adicionado ao carrinho!`, { position: 'bottom-center', close: true });
 
       const updatedItems = [...selectedExams, exam];
       setSelectedExamsState(updatedItems);

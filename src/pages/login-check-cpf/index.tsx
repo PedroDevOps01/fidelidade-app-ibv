@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Alert, Image, TouchableWithoutFeedback, Keyboard, Platform, ImageBackground, Dimensions } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
-import { View, StyleSheet, Alert, Image, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
 import { TextInput, Button, Card, Text, useTheme } from 'react-native-paper';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '../../network/api';
-import { applyCnpjMask, applyCpfMask, generateRequestHeader, isValidCPF, log, removeAccents } from '../../utils/app-utils';
+import { applyCnpjMask, applyCpfMask, generateRequestHeader, isValidCPF, removeAccents } from '../../utils/app-utils';
 import { requestPermissions } from '../../utils/permissions';
 import { useNetInfoInstance } from '@react-native-community/netinfo';
 import { LoginSchema } from '../../form-objects/login-form-object';
@@ -17,23 +17,25 @@ import CustomToast from '../../components/custom-toast';
 import ModalContainer from '../../components/modal';
 import EsqueceuSenhaForm from './esqueceu-senha-form';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Animated } from 'react-native'; // Adicione esta importação no topo
 
+const { width } = Dimensions.get('window');
 const LAST_LOGGED_CPF_KEY = 'last_logged_cpf';
 
 export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigation: any; routeAfterLogin: string }) {
   const { colors } = useTheme();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [isRecoverPassworrdModalVisible, setIsRecoverPassworrdModalVisible] = useState<boolean>(false);
-  const [secureTextEntry, setSecureTextEntry] = useState<boolean>(true);
+  const [loading, setLoading] = useState(false);
+  const [isRecoverPassworrdModalVisible, setIsRecoverPassworrdModalVisible] = useState(false);
+  const [secureTextEntry, setSecureTextEntry] = useState(true);
   const toggleSecureEntry = () => setSecureTextEntry(!secureTextEntry);
   const { setAuthData, clearAuthData } = useAuth();
   const { setDadosUsuarioData, clearDadosUsuarioData } = useDadosUsuario();
   const {
     netInfo: { isConnected },
   } = useNetInfoInstance();
+  const scaleAnim = useState(new Animated.Value(1))[0];
 
   type LoginFormType = z.infer<typeof LoginSchema>;
-
   const {
     control,
     handleSubmit,
@@ -60,8 +62,7 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
       try {
         const savedCpf = await AsyncStorage.getItem(LAST_LOGGED_CPF_KEY);
         if (savedCpf) {
-          const masked =
-            savedCpf.length > 11 ? applyCnpjMask(savedCpf) : applyCpfMask(savedCpf);
+          const masked = savedCpf.length > 11 ? applyCnpjMask(savedCpf) : applyCpfMask(savedCpf);
           setValue('cpf', masked);
         }
       } catch (err) {
@@ -76,14 +77,13 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
     clearDadosUsuarioData();
 
     const token = await AsyncStorage.getItem('device_token_id');
-
-    let dataToSent = {
+    const dataToSent = {
       cpf: removeAccents(form.cpf),
       hash_senha_usr: form.password,
     };
 
     try {
-      if (dataToSent.cpf.length == 11 && !isValidCPF(dataToSent.cpf)) {
+      if (dataToSent.cpf.length === 11 && !isValidCPF(dataToSent.cpf)) {
         CustomToast('CPF inválido!', colors);
         return;
       }
@@ -96,13 +96,10 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
       const response = await api.post('/login', dataToSent);
       const loginData: LoginResponse = response.data;
 
-
-      if(loginData.user.is_ativo_usr == 0) {
+      if (loginData.user.is_ativo_usr === 0) {
         CustomToast('Usuário inativo! Contate o suporte.', colors);
-        return
+        return;
       }
-
-
 
       setAuthData(loginData.authorization);
       setDadosUsuarioData({
@@ -114,21 +111,16 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
         user: loginData.user,
       });
 
-      const deviceData = {
-        id_pessoa_tdu: loginData.dados?.id_pessoa_pda,
-        dispositivo_token_tdu: token,
-        platforma_tdu: Platform.OS,
-      };
-
       if (token) {
-        //enviar dados do device
+        const deviceData = {
+          id_pessoa_tdu: loginData.dados?.id_pessoa_pda,
+          dispositivo_token_tdu: token,
+          platforma_tdu: Platform.OS,
+        };
         await api.post('/usuarioDevice', deviceData, generateRequestHeader(loginData.authorization.access_token));
       }
-      try {
-        await AsyncStorage.setItem(LAST_LOGGED_CPF_KEY, dataToSent.cpf);
-      } catch (err) {
-        console.log('Failed to save last logged CPF:', err);
-      }
+
+      await AsyncStorage.setItem(LAST_LOGGED_CPF_KEY, dataToSent.cpf);
       reset([{ name: routeAfterLogin }]);
     } catch (err) {
       console.log(err);
@@ -139,123 +131,217 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
   };
 
   return (
-    <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.container}>
-      <ModalContainer visible={isRecoverPassworrdModalVisible} handleVisible={() => setIsRecoverPassworrdModalVisible(false)}>
-        <EsqueceuSenhaForm />
-      </ModalContainer>
+    <ImageBackground source={require('../../assets/images/fundologin.jpeg')} style={styles.background} resizeMode="cover">
+      <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.container}>
+        <ModalContainer visible={isRecoverPassworrdModalVisible} handleVisible={() => setIsRecoverPassworrdModalVisible(false)}>
+          <EsqueceuSenhaForm />
+        </ModalContainer>
 
-      <View style={[styles.innerContainer, { backgroundColor: colors.background }]}>
-<Image
-  source={require('../../assets/images/fidelidade_logo.png')}
-  style={styles.logo}
-/>        
-        <View style={[styles.card, { borderColor: colors.primary }]}>
-          <View>
-            <Text variant="headlineMedium" style={styles.title}>
-              Bem-vindo!
-            </Text>
-            <Text variant="bodyMedium" style={styles.subtitle}>
-              Entre com seus dados para continuar.
-            </Text>
-
-            <Controller
-              control={control}
-              name="cpf"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  label="CPF ou CNPJ"
-                  mode="outlined"
-                  onChangeText={e => onChange(e.length > 14 ? applyCnpjMask(e) : applyCpfMask(e))}
-                  value={value}
-                  keyboardType="number-pad"
-                  style={styles.input}
-                  error={!!errors.cpf}
-                  returnKeyType="next"
-                />
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="password"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  label="Senha"
-                  mode="outlined"
-                  onChangeText={onChange}
-                  value={value}
-                  style={styles.input}
-                  error={!!errors.password}
-                  secureTextEntry={secureTextEntry}
-                  right={<TextInput.Icon icon={secureTextEntry ? 'eye-off' : 'eye'} onPress={toggleSecureEntry} />}
-                />
-              )}
-            />
-
-            <Button key={!isConnected ? 'disabled' : 'login'} disabled={!isConnected || loading} mode="contained" onPress={handleSubmit(handleLogin)} loading={loading} style={styles.button}>
-              {loading ? 'Aguarde' : 'Continuar'}
-            </Button>
-
-            <Button disabled={!isConnected || loading} mode="outlined" onPress={() => navigation.navigate('register-step-one', { tipo: 'NEW_USER' })} style={styles.registerButton}>
-              Criar minha conta
-            </Button>
-
-            <Button disabled={!isConnected || loading} mode="text" onPress={() => setIsRecoverPassworrdModalVisible(true)} style={{ marginTop: 10, width: '100%' }}>
-              Esqueci minha senha
-            </Button>
+        <View style={styles.contentWrapper}>
+          <View style={styles.logoContainer}>
+            <Image source={require('../../assets/images/fidelidade_logo.png')} style={{ width: width * 0.6, height: width * 0.2 }} />
           </View>
-        </View>
 
-        {!isConnected && <Text style={styles.errorText}>É necessário uma conexão com a internet para continuar</Text>}
-      </View>
-    </KeyboardAwareScrollView>
+          <Card style={[styles.card, { backgroundColor: colors.onSecondary }]} elevation={3}>
+            <Card.Content>
+              <Text variant="headlineSmall" style={[styles.title, { color: colors.primary }]}>
+                Bem-vindo de volta!
+              </Text>
+              <Text variant="bodyMedium" style={[styles.subtitle, { color: colors.onSurfaceVariant }]}>
+                Entre com seus dados para acessar sua conta
+              </Text>
+
+              <View style={styles.formContainer}>
+                <Controller
+                  control={control}
+                  name="cpf"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      label="CPF ou CNPJ"
+                      mode="outlined"
+                      onChangeText={e => onChange(e.length > 14 ? applyCnpjMask(e) : applyCpfMask(e))}
+                      value={value}
+                      keyboardType="number-pad"
+                      error={!!errors.cpf}
+                      returnKeyType="next"
+                      outlineColor={colors.outline}
+                      activeOutlineColor={colors.primary}
+                      left={<TextInput.Icon icon="account" />}
+                      theme={{
+                        colors: {
+                          primary: colors.primary,
+                          background: colors.onSecondary,
+                        },
+                        roundness: 12,
+                      }}
+                      onFocus={() => {
+                        Animated.spring(scaleAnim, {
+                          toValue: 1.02,
+                          useNativeDriver: true,
+                        }).start();
+                      }}
+                      onBlur={() => {
+                        Animated.spring(scaleAnim, {
+                          toValue: 1,
+                          useNativeDriver: true,
+                        }).start();
+                      }}
+                    />
+                  )}
+                />
+
+                <Controller
+                  control={control}
+                  name="password"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      label="Senha"
+                      mode="outlined"
+                      onChangeText={onChange}
+                      value={value}
+                      error={!!errors.password}
+                      secureTextEntry={secureTextEntry}
+                      outlineColor={colors.outline}
+                      activeOutlineColor={colors.primary}
+                      left={<TextInput.Icon icon="lock" />}
+                      right={<TextInput.Icon icon={secureTextEntry ? 'eye-off' : 'eye'} onPress={toggleSecureEntry} color={colors.onSurfaceVariant} />}
+                      theme={{
+                        colors: {
+                          primary: colors.primary,
+                          background: colors.onSecondary,
+                        },
+                        roundness: 12,
+                      }}
+                      onFocus={() => {
+                        Animated.spring(scaleAnim, {
+                          toValue: 1.02,
+                          useNativeDriver: true,
+                        }).start();
+                      }}
+                      onBlur={() => {
+                        Animated.spring(scaleAnim, {
+                          toValue: 1,
+                          useNativeDriver: true,
+                        }).start();
+                      }}
+                    />
+                  )}
+                />
+
+                <Button
+                  mode="contained"
+                  onPress={handleSubmit(handleLogin)}
+                  loading={loading}
+                  style={[styles.button, { backgroundColor: colors.primary }]}
+                  labelStyle={{ color: colors.onPrimary }}
+                  contentStyle={styles.buttonContent}
+                  disabled={!isConnected || loading}>
+                  {loading ? 'Acessando...' : 'Entrar'}
+                </Button>
+
+                <View style={styles.linksContainer}>
+                  <Button mode="text" onPress={() => setIsRecoverPassworrdModalVisible(true)} style={styles.linkButton} labelStyle={{ color: colors.primary }} compact>
+                    Esqueci minha senha
+                  </Button>
+                  <Text style={[styles.dividerText, { color: colors.onSurfaceVariant }]}>|</Text>
+                  <Button
+                    mode="text"
+                    onPress={() => navigation.navigate('register-step-one', { tipo: 'NEW_USER' })}
+                    style={styles.linkButton}
+                    labelStyle={{ color: colors.primary }}
+                    compact>
+                    Criar conta
+                  </Button>
+                </View>
+              </View>
+            </Card.Content>
+          </Card>
+
+          {!isConnected && (
+            <View style={styles.connectionWarning}>
+              <Text style={[styles.errorText, { color: colors.error }]}>Você está offline. Conecte-se à internet para continuar.</Text>
+            </View>
+          )}
+        </View>
+      </KeyboardAwareScrollView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+  },
   container: {
-    flex: 1,
-  },
-  innerContainer: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
+    padding: 24,
   },
-  logo: {
-    width: '100%',
-    height:200,
-    marginBottom: 0,
-    resizeMode: 'contain',
+  contentWrapper: {
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  logoContainer: {
+    marginBottom: 32,
+    alignItems: 'center',
   },
   card: {
     width: '100%',
-    borderRadius: 10,
-    paddingVertical: 20,
+    maxWidth: 500,
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
   },
   title: {
     textAlign: 'center',
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 8,
+    marginTop: 8,
   },
   subtitle: {
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
+  },
+  formContainer: {
+    marginTop: 16,
   },
   input: {
-    marginBottom: 15,
+    borderRadius: 12,
+    marginBottom: 16,
+    backgroundColor: 'transparent',
   },
   button: {
-    marginTop: 10,
+    marginTop: 8,
+    borderRadius: 30,
+    paddingVertical: 2,
   },
-  registerButton: {
-    marginTop: 10,
-    width: '100%',
+  buttonContent: {
+    height: 48,
+  },
+  linksContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 24,
+    marginBottom: 8,
+  },
+  linkButton: {
+    marginHorizontal: 4,
+  },
+  dividerText: {
+    marginHorizontal: 8,
+  },
+  connectionWarning: {
+    marginTop: 24,
+    padding: 12,
+    borderRadius: 8,
     alignSelf: 'center',
   },
   errorText: {
-    color: 'red',
-    marginTop: 10,
     textAlign: 'center',
   },
 });
