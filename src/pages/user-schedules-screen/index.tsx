@@ -59,7 +59,7 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
       setFabOptions(prev => {
         const hasOption = prev.some(option => option.label === 'Visualizar Agendamentos');
         const meuCarrinho = prev.some(option => option.label === 'Meu carrinho');
-        
+
         if (hasOption || meuCarrinho) return prev; // Evita adicionar duplicatas
 
         return [
@@ -80,14 +80,17 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
   const fetchSchedules = async () => {
     setLoading(true);
     const token = dadosUsuarioData.pessoaDados?.cod_token_pes;
+    const cod_paciente = dadosUsuarioData.pessoaDados?.id_pessoa_pes;
+
     try {
-      const response = await api.get(`/integracao/listAgendamentos?token_paciente=${token}`, {
+      const response = await api.get(`/integracao/listAgendamentos?token_paciente=${token}&cod_paciente=${cod_paciente}`, {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
-          Authorization: `bearer ${authData.access_token}`,
+          Authorization: `Bearer ${authData.access_token}`,
         },
       });
+  console.log('Response:', response.data);
 
       if (response.status == 200) {
         const { data } = response;
@@ -131,14 +134,7 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
           {userSchedules.length > 0 ? (
             <FlatList
               data={userSchedules}
-renderItem={({ item, index }) => (
-  <UserScheduleCard 
-    index={index}
-    appointment={item}
-    onPress={e => showModal(e)}
-    setGlobalLoading={setLoading} 
-  />
-)}
+              renderItem={({ item, index }) => <UserScheduleCard index={index} appointment={item} onPress={e => showModal(e)} setGlobalLoading={setLoading} />}
               refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchSchedules} />}
               removeClippedSubviews={false}
             />

@@ -202,8 +202,7 @@ const UserScheduleCard = (props: Props) => {
         setGlobalLoading(false);
       },
       error => {
-        Alert.alert('Erro', 'Não foi possível obter sua localização.');
-        console.error(error);
+Alert.alert('Erro', 'Não foi possível obter sua localização. Por favor, desloque-se para o térreo, caso esteja em um local elevado.');        console.error(error);
         setGlobalLoading(false);
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },

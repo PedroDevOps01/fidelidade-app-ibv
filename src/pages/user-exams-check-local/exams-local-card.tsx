@@ -7,6 +7,10 @@ import ImageViewerPreview from '../parceiro-produto-create/image-viewer-preview'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { ProgressBar, TextInput } from 'react-native-paper';
+import { useAuth } from '../../context/AuthContext';
+import { useDadosUsuario } from '../../context/pessoa-dados-context';
+import { api } from '../../network/api';
+import { generateRequestHeader } from '../../utils/app-utils';
 
 interface ExamsLocalsCardProps {
   data: ExamsLocals;
@@ -18,7 +22,36 @@ const { width } = Dimensions.get('window');
 const ExamsLocalsCard: React.FC<ExamsLocalsCardProps> = ({ data, onPress }) => {
   const { colors } = useTheme();
   const [visible, setIsVisible] = useState(false);
+  const { authData } = useAuth();
+const { dadosUsuarioData } = useDadosUsuario();
+const cod_paciente = dadosUsuarioData?.pessoa?.id_pessoa_usr;
+console.log('cod_paciente data:', cod_paciente);
+async function fetchPaciente(codParceiro: number, codPaciente: number) {
+  console.log('Fetching paciente for:', { codParceiro, codPaciente });
 
+  try {
+    const url = `integracao/setPaciente?cod_parceiro=${Number(codParceiro)}&cod_paciente=${Number(codPaciente)}`;
+    console.log('Request URL:', url);
+
+    const response = await api.get(url, generateRequestHeader(authData.access_token));
+
+    console.log('Response Status:', response.status);
+    console.log('Response Data:', response.data);
+
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      console.log('Aviso', 'Não foi possível carregar os dados do paciente.');
+      return null;
+    }
+
+  } catch (err: any) {
+    console.error('Error:', err);
+    console.log('Aviso', 'Erro ao buscar paciente. Tente novamente');
+    return null;
+  }
+}
+  // console.log('ExamsLocalsCard data:', data);
   return (
     <View style={{ marginHorizontal: 16, marginTop: 12 }}>
       {/* Barra de progresso FORA do Card */}
@@ -91,14 +124,37 @@ const ExamsLocalsCard: React.FC<ExamsLocalsCardProps> = ({ data, onPress }) => {
             />
 
             <Button
-              mode="contained"
-              onPress={() => onPress(data)}
-              style={[styles.actionButton, { backgroundColor: colors.primary }]}
-              labelStyle={styles.actionButtonLabel}
-              contentStyle={styles.actionButtonContent}
-              icon="check-circle">
-              Selecionar Local
-            </Button>
+  mode="contained"
+  onPress={async () => {
+    try {
+      if (!data?.cod_parceiro || !cod_paciente) {
+        console.log('cod_parceiro ou cod_paciente não encontrado');
+        return;
+      }
+
+      console.log('cod_parceiro:', data.cod_parceiro);
+      console.log('cod_paciente:', cod_paciente);
+
+      const paciente = await fetchPaciente(data.cod_parceiro, cod_paciente);
+
+      if (paciente) {
+        console.log('Retorno do backend:', paciente);
+        onPress(data); // Chama o handler original com os dados já setados
+      } else {
+        console.log('Nenhum paciente retornado do backend.');
+      }
+    } catch (err) {
+      console.log('Erro ao buscar paciente:', err);
+    }
+  }}
+  style={[styles.actionButton, { backgroundColor: colors.primary }]}
+  labelStyle={styles.actionButtonLabel}
+  contentStyle={styles.actionButtonContent}
+  icon="check-circle"
+>
+  Selecionar Local
+</Button>
+
           </Card.Content>
         </View>
       </Card>

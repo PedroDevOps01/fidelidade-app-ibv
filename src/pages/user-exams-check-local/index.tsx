@@ -43,41 +43,46 @@ export default function UserExamsCheckLocal() {
   });
 
   // Busca os locais sempre que um exame é selecionado
-  useEffect(() => {
-    if (selectedExams.length > 0) {
-      const lastExam = selectedExams[selectedExams.length - 1];
-      fetchExamsLocals(lastExam.cod_procedimento); // <-- usa o cod_procedimento do exame selecionado
-    } else {
-      setLocals([]);
-    }
-  }, [selectedExams]);
-
-  async function fetchExamsLocals(codProcedimento: number) {
-    console.log('Fetching exams locals for:', codProcedimento);
-    setLoading(true);
-
-    try {
-      const url = `integracao/listUnidadeProcedimento?cod_procedimento=${codProcedimento}`;
-      console.log('Request URL:', url);
-
-      const response = await api.get(url, generateRequestHeader(authData.access_token));
-
-      console.log('Response Status:', response.status);
-      console.log('Response Data:', response.data);
-
-      if (response.status === 200) {
-        setLocals(response.data);
-      } else {
-        Alert.alert('Aviso', 'Não foi possível carregar os locais.');
-      }
-
-    } catch (err: any) {
-      console.error('Error:', err);
-      Alert.alert('Aviso', 'Erro ao buscar dados. Tente novamente');
-    } finally {
-      setLoading(false);
-    }
+useEffect(() => {
+  if (selectedExams.length > 0) {
+    // extrai todos os ids dos exames selecionados
+    const procedimentosArray = selectedExams.map(exam => exam.id_procedimento_tpr);
+    fetchExamsLocals(procedimentosArray);
+  } else {
+    setLocals([]);
   }
+}, [selectedExams]);
+
+
+  async function fetchExamsLocals(procedimentosArray: number[]) {
+  console.log('Fetching exams locals for IDs:', procedimentosArray);
+  setLoading(true);
+
+  try {
+    const url = `integracao/listUnidadeProcedimentoExame`;
+
+    // envia o array via params usando axios
+    const response = await api.get(url, {
+      ...generateRequestHeader(authData.access_token),
+      params: { procedimentos_array: procedimentosArray }, // <- array enviado corretamente
+    });
+
+    console.log('Response Status:', response.status);
+    console.log('Response Data:', response.data);
+
+    if (response.status === 200) {
+      setLocals(response.data);
+    } else {
+      Alert.alert('Aviso', 'Não foi possível carregar os locais.');
+    }
+
+  } catch (err: any) {
+    console.error('Error:', err);
+    Alert.alert('Aviso', 'Erro ao buscar dados. Tente novamente');
+  } finally {
+    setLoading(false);
+  }
+}
 
   function setValuePrices(items: ExamsLocalsProcedure[]) {
     const result = items.reduce(

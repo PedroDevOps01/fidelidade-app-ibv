@@ -22,26 +22,38 @@ const UserSchedulesHistoryScreen = () => {
   const [listItemIndex, setListItemIndex] = useState<number>(0);
 
   async function fetchSchedules() {
-    const token = dadosUsuarioData.pessoaDados?.cod_token_pes!;
+  setLoading(true);
 
-    if (token == undefined) {
-      CustomToast('Erro ao carregar os dados. Tente novamente mais tarde!', colors);
-      return;
-    }
+  const token = dadosUsuarioData.pessoaDados?.cod_token_pes;
+  const cod_paciente = dadosUsuarioData.pessoaDados?.id_pessoa_pes;
 
-    try {
-      const response = await api.get(`/integracao/listHistoricoAgendamentos?token_paciente=${token}`, generateRequestHeader(authData.access_token));
-      const { data } = response;
-
-      if (data.length > 0) {
-        setUserSchedules(data);
-      }
-    } catch {
-      CustomToast('Erro ao carregar os dados. Tente novamente mais tarde!', colors);
-    } finally {
-      setLoading(false);
-    }
+  if (!token || !authData.access_token) {
+    CustomToast('Erro ao carregar os dados. Tente novamente mais tarde!', colors);
+    setLoading(false);
+    return;
   }
+
+  try {
+    const response = await api.get(
+      `/integracao/listHistoricoAgendamentos?token_paciente=${token}&cod_paciente=${cod_paciente}`,
+      generateRequestHeader(authData.access_token)
+    );
+
+    // Garante que userSchedules sempre seja um array válido e sem elementos nulos
+    const data = Array.isArray(response.data)
+      ? response.data.filter(item => item && item.endereco_unidade) // filtra itens inválidos
+      : [];
+
+    setUserSchedules(data);
+  } catch (error) {
+    console.error('Erro ao carregar histórico de agendamentos:', error);
+    CustomToast('Erro ao carregar os dados. Tente novamente mais tarde!', colors);
+    setUserSchedules([]);
+  } finally {
+    setLoading(false);
+  }
+}
+
 
   useEffect(() => {
     (async () => {

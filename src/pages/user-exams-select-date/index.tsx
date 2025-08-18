@@ -56,7 +56,11 @@ export default function UserExamsSelectDate() {
     let data: ScheduleRequest = {
       ...scheduleRequest,
       data_agenda: dayjs(selectedDate).format('YYYY-MM-DD'),
+          cod_parceiro: item.cod_parceiro, // ⚠️ importante adicionar
+  cod_paciente: scheduleRequest.cod_pessoa_pes, // 👈 garante que vai junto no payload
+
     };
+  console.log('ScheduleRequest atual antes de enviar:', data);
 
     setScheduleRequestData(data);
     navigate('user-select-payment-method');

@@ -336,18 +336,25 @@ CustomToast('Termo aceito com sucesso!', colors, 'success');
   };
 
   async function fetchLastHistoricSchedule(): Promise<void> {
-    const token = dadosUsuarioData.pessoaDados?.cod_token_pes!;
-    if (!token || !authData.access_token) return;
+    const token = dadosUsuarioData.pessoaDados?.cod_token_pes;
+      const cod_paciente = dadosUsuarioData.pessoaDados?.id_pessoa_pes;
 
-    try {
-      const response = await api.get(`/integracao/listHistoricoAgendamentos?token_paciente=${token}`, generateRequestHeader(authData.access_token));
-      const data = response.data;
-      if (data.length > 0) {
-        setLastHistoricSchedule(data[0]);
+      if (!token || !authData.access_token) return;
+
+      try {
+        const response = await api.get(
+          `/integracao/listHistoricoAgendamentos?token_paciente=${token}&cod_paciente=${cod_paciente}`,
+          generateRequestHeader(authData.access_token)
+        );
+
+        const data = response.data;
+        if (data.length > 0) {
+          setLastHistoricSchedule(data[0]);
+        }
+      } catch (error) {
+        console.log('Erro ao buscar histórico mais recente:', error);
       }
-    } catch (error) {
-      console.log('Erro ao buscar histórico mais recente:', error);
-    }
+
   }
 
   async function fetchParceiros(): Promise<void> {
@@ -419,6 +426,7 @@ CustomToast('Termo aceito com sucesso!', colors, 'success');
 
   async function fetchSchedules(access_token: string): Promise<void> {
     const token = dadosUsuarioData.pessoaDados?.cod_token_pes!;
+    const cod_paciente = dadosUsuarioData.pessoaDados?.id_pessoa_pes;
 
     return new Promise(async (resolve, reject) => {
       if (userSchedules.length > 0) {
@@ -426,7 +434,7 @@ CustomToast('Termo aceito com sucesso!', colors, 'success');
       }
 
       try {
-        const response = await api.get(`/integracao/listAgendamentos?token_paciente=${token}`, generateRequestHeader(access_token));
+      const response = await api.get(`/integracao/listAgendamentos?token_paciente=${token}&cod_paciente=${cod_paciente}`, generateRequestHeader(access_token));
         if (response.status == 200) {
           const { data } = response;
           setUserSchedulesData(data);

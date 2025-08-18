@@ -11,5 +11,7 @@ type ExamsLocals = {
   horario_sab_inicio: string;
   horario_sab_fim: string;
   fachada_empresa: string;
+    cod_parceiro: number;
+
   procedimentos: ExamsLocalsProcedure[];
 };

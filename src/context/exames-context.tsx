@@ -52,7 +52,7 @@ export const ExamesProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const addSelectedExam = async (exam: ConsultaReposta) => {
     try {
-      if (selectedExams.some(item => item.nome === exam.nome)) {
+      if (selectedExams.some(item => item.id_procedimento_tpr === exam.id_procedimento_tpr)) {
         throw new Error('Exame já adicionado no carrinho');
       }
       toast.success(`Procedimento ${exam.des_descricao_tpr} adicionado ao carrinho!`, { position: 'bottom-center', close: true });

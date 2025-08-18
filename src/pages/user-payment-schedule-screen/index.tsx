@@ -10,6 +10,7 @@ import { goBack, navigate } from '../../router/navigationRef';
 import { useConsultas } from '../../context/consultas-context';
 import CustomToast from '../../components/custom-toast';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useExames } from '../../context/exames-context';
 
 interface PixScheduleResponse {
   message: string;
@@ -25,6 +26,8 @@ export default function UserPaymentScheduleScreen() {
   const route = useRoute();
   const { colors } = useTheme();
   const { authData } = useAuth();
+  const { scheduleRequest } = useExames();
+
   const { currentProcedureMethod } = useConsultas();
   const [loading, setLoading] = useState<boolean>(true);
   const [pixResponse, setPixResponse] = useState<PixScheduleResponse>();
@@ -36,29 +39,27 @@ export default function UserPaymentScheduleScreen() {
   };
 
   async function fetchPayment(payload: any) {
-    setLoading(true);
-    try {
-      const response = await api.post(
-        currentProcedureMethod === 'exame' ? '/integracao/gravarAgendamentoExame' : '/integracao/gravarAgendamento',
-        payload,
-        generateRequestHeader(authData.access_token),
-      );
+  setLoading(true);
+  try {
+    const response = await api.post(
+      currentProcedureMethod === 'exame' 
+        ? '/integracao/gravarAgendamentoExame'
+        : '/integracao/gravarAgendamento',
+      currentProcedureMethod === 'exame' ? scheduleRequest : payload, // decide qual payload usar
+      generateRequestHeader(authData.access_token),
+    );
 
-      if (response.data.error) {
-        goBack();
-        CustomToast(response.data.error, colors);
-        return;
-      }
-
-      setPixResponse(response.data);
-    } catch (err: any) {
-      console.log(err);
-      goBack();
-      CustomToast('Erro ao realizar pagamento. Tente novamente mais tarde', colors);
-    } finally {
-      setLoading(false);
-    }
+    setPixResponse(response.data);
+    console.log('Pix payment response:', response.data);
+  } catch (err) {
+    console.log(err);
+    goBack();
+    CustomToast('Erro ao realizar pagamento. Tente novamente mais tarde', colors);
+  } finally {
+    setLoading(false);
   }
+}
+
 
   async function checkPaid(cod_pagamento: string) {
   try {

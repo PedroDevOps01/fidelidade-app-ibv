@@ -43,7 +43,6 @@ const GroupedList = ({ list, loading }: GroupedListProps) => {
     console.log('handleItemPresssss:', { currentProcedureMethod, procedimento }); // Debug log
     if (currentProcedureMethod === 'exame') {
       addSelectedExam(procedimento);
-      console.log('Added to selectedExams:', procedimento);
     } else {
       try {
         navigate('user-procedure-details-screen', { procedimento });
