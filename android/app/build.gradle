@@ -82,7 +82,7 @@ android {
         applicationId "br.com.gees.fidelidadeappibv"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 35
+        versionCode 1
         versionName "1.2"
     }
     signingConfigs {

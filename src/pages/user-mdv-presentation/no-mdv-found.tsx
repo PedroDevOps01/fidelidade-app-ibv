@@ -137,6 +137,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 16,
+    marginTop: 30,
   },
   content: {
     marginTop:10,
@@ -172,7 +173,7 @@ const styles = StyleSheet.create({
   },
   benefitsContainerultimo: {
     backgroundColor: '#FEF7FF',
-    marginBottom: 14,
+    marginBottom: 20,
     gap: 16,
   },
   benefitCard: {
