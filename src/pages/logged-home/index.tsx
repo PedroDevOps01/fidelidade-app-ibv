@@ -750,7 +750,7 @@ CustomToast('Termo aceito com sucesso!', colors, 'success');
               </>
             )}
           </View>
- <View style={styles.sectionContainer}>
+ {/* <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.corpadrao }]}>
                 Acesso rápido
@@ -771,7 +771,7 @@ CustomToast('Termo aceito com sucesso!', colors, 'success');
               }}
               removeClippedSubviews={false}
             />
-          </View>
+          </View> */}
           <View style={styles.sectionContainer}>
   <View style={styles.sectionHeader}>
     <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.corpadrao }]}>
