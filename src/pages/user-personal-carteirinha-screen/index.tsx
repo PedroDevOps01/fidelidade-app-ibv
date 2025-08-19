@@ -35,7 +35,7 @@ const UserPersonalCarteirinhaScreen = ({ navigation }: { navigation: any }) => {
               width: cardWidth,
               height: cardHeight,
               backgroundColor: '#FFFFFF',
-              borderColor: '#b183ff',
+              borderColor: '#644086',
               borderWidth: 2,
             },
             isZoomed && styles.zoomedCard,
@@ -90,7 +90,7 @@ const UserPersonalCarteirinhaScreen = ({ navigation }: { navigation: any }) => {
       {/* Botão de zoom */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity 
-          style={[styles.zoomButton, { backgroundColor: '#b183ff' }]} 
+          style={[styles.zoomButton, { backgroundColor: '#644086' }]} 
           onPress={toggleZoom}
           activeOpacity={0.8}
         >
@@ -151,13 +151,13 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     position: 'absolute',
-    top: -50,
+    top: 10,
     right: 20,
     zIndex: 2,
   },
   cardLogo: {
-    width: 190,
-    height:190,
+    width: 90,
+    height:90,
   },
   zoomedLogo: {
     width: 190,
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   infoLabel: {
-    color: '#b183ff',
+    color: '#644086',
     fontSize: 12,
     fontWeight: '600',
     letterSpacing: 1,
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   infoValue: {
-    color: '#b183ff',
+    color: '#644086',
     fontSize: 16,
     fontWeight: '600',
     letterSpacing: 0.5,
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   cardFooter: {
-    backgroundColor: '#b183ff',
+    backgroundColor: '#644086',
     padding: 16,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,

@@ -510,6 +510,44 @@ CustomToast('Termo aceito com sucesso!', colors, 'success');
       });
   }
 
+  const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
+  return (
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={() => {
+        setSelectedParceiroCredenciadoId(item.id_parceiro_prc);
+        setModalCredenciadosVisible(true);
+      }}
+      style={[styles.credenciadoCard, { backgroundColor: colors.surface }]}>
+      <View style={styles.credenciadoContent}>
+        <Image
+          source={item.img_parceiro_prc ? { uri: `${item.img_parceiro_prc}` } : require('../../assets/images/logonova.png')}
+          style={styles.credenciadoImage}
+        />
+        <View style={styles.credenciadoInfo}>
+          <Text variant="titleMedium" style={[styles.credenciadoTitle, { color: colors.onSurface }]}>
+            {item.des_nome_fantasia_prc}
+          </Text>
+          <Text variant="bodySmall" style={[styles.credenciadoLocation, { color: colors.onSurfaceVariant }]}>
+            {item.des_municipio_mun}
+          </Text>
+          <View style={styles.credenciadoBadge}>
+            <Text variant="labelSmall" style={styles.credenciadoBadgeText}>
+              Credenciado
+            </Text>
+          </View>
+        </View>
+        <IconButton 
+          icon="chevron-right" 
+          size={24} 
+          iconColor={colors.onSurfaceVariant} 
+          style={styles.credenciadoArrow}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+};
+
   const renderPromoIndicator = () => {
     return (
       <View style={styles.indicatorContainer}>
@@ -676,10 +714,10 @@ CustomToast('Termo aceito com sucesso!', colors, 'success');
 
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
-              <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
+              <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.corpadrao }]}>
                 Nossos Parceiros
               </Text>
-              <Button mode="text" compact labelStyle={{ fontSize: 12, color: colors.primary }} onPress={() => navigation.navigate('ParceirosScreen', { partnerType: 'regular' })}>
+              <Button mode="text" compact labelStyle={{ fontSize: 12, color: colors.corpadrao }} onPress={() => navigation.navigate('ParceirosScreen', { partnerType: 'regular' })}>
                 Ver todos
               </Button>
             </View>
@@ -712,13 +750,12 @@ CustomToast('Termo aceito com sucesso!', colors, 'success');
               </>
             )}
           </View>
-
-          <View style={styles.sectionContainer}>
+ {/* <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
-              <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
+              <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.corpadrao }]}>
                 Acesso rápido
               </Text>
-              <View style={[styles.titleDecorator, { backgroundColor: colors.primary }]} />
+              <View style={[styles.titleDecorator, { backgroundColor: colors.corpadrao }]} />
             </View>
             <FlatList
               data={card_data}
@@ -734,8 +771,43 @@ CustomToast('Termo aceito com sucesso!', colors, 'success');
               }}
               removeClippedSubviews={false}
             />
-          </View>
+          </View> */}
+          <View style={styles.sectionContainer}>
+  <View style={styles.sectionHeader}>
+    <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.corpadrao }]}>
+      Nossos Credenciados
+    </Text>
+    <Button 
+      mode="text" 
+      compact 
+      labelStyle={{ fontSize: 12, color: colors.corpadrao }} 
+      onPress={() => navigation.navigate('ParceirosScreen', { partnerType: 'accredited' })}>
+      Ver todos
+    </Button>
+  </View>
+  
+  {parceirosCredenciados.length > 0 ? (
+    <FlatList
+      data={parceirosCredenciados}
+      renderItem={renderCredenciadosItem}
+      keyExtractor={(item) => item.id_parceiro_prc.toString()}
+      scrollEnabled={false} // Desativa o scroll para mostrar todos os itens
+      contentContainerStyle={styles.credenciadosList}
+      ListFooterComponent={<View style={{ height: 10 }} />}
+    />
+  ) : (
+    <Card mode="elevated" style={[styles.card, { backgroundColor: colors.surface }]}>
+      <Card.Content style={styles.emptyCardContent}>
+        <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant, textAlign: 'center' }}>
+          Nenhum credenciado disponível no momento
+        </Text>
+      </Card.Content>
+    </Card>
+  )}
+</View>
 
+       
+  {/* 
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
@@ -884,7 +956,7 @@ CustomToast('Termo aceito com sucesso!', colors, 'success');
                 </Card.Content>
               </Card>
             )}
-          </View>
+          </View> */}
 
           <Portal>
             <PagarmeErrorsDialog
@@ -1079,10 +1151,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 0,
+        backgroundColor: '#ffffff',
+
   },
   userInfoResponsive: {
     flexDirection: 'row',
-    backgroundColor: '#b183ff',
+    backgroundColor: '#644086',
     alignItems: 'center',
     justifyContent: 'space-between',
     flexWrap: 'wrap',
@@ -1302,6 +1376,51 @@ const styles = StyleSheet.create({
   modalCloseButtonText: {
     fontWeight: 'bold',
   },
+  credenciadosList: {
+  paddingTop: 8,
+},
+credenciadoCard: {
+  borderRadius: 12,
+  marginBottom: 12,
+  elevation: 1,
+  overflow: 'hidden',
+},
+credenciadoContent: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  padding: 16,
+},
+credenciadoImage: {
+  width: 60,
+  height: 60,
+  borderRadius: 8,
+  marginRight: 16,
+},
+credenciadoInfo: {
+  flex: 1,
+},
+credenciadoTitle: {
+  fontWeight: '600',
+  marginBottom: 4,
+},
+credenciadoLocation: {
+  marginBottom: 8,
+},
+credenciadoBadge: {
+  alignSelf: 'flex-start',
+  backgroundColor: '#E3F2FD',
+  borderRadius: 4,
+  paddingHorizontal: 6,
+  paddingVertical: 2,
+},
+credenciadoBadgeText: {
+  color: '#1976D2',
+  fontWeight: '500',
+},
+credenciadoArrow: {
+  margin: 0,
+  marginLeft: 8,
+},
 });
 
 export default LoggedHome;

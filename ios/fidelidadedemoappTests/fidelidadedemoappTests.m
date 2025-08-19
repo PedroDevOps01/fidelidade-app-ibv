@@ -7,11 +7,11 @@
 #define TIMEOUT_SECONDS 600
 #define TEXT_TO_LOOK_FOR @"Welcome to React"
 
-@interface fidelidadeappajuddaTests : XCTestCase
+@interface fidelidadeappibvTests : XCTestCase
 
 @end
 
-@implementation fidelidadeappajuddaTests
+@implementation fidelidadeappibvTests
 
 - (BOOL)findSubviewInView:(UIView *)view matching:(BOOL (^)(UIView *view))test
 {

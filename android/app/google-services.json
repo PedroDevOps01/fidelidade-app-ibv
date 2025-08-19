@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "961576776441",
-    "project_id": "app-gees",
-    "storage_bucket": "app-gees.firebasestorage.app"
+    "project_number": "461337190403",
+    "project_id": "fidelidadeappibv",
+    "storage_bucket": "fidelidadeappibv.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:961576776441:android:d166b001970630a5502828",
+        "mobilesdk_app_id": "1:461337190403:android:e802cece3d4e0d5f02ee36",
         "android_client_info": {
-          "package_name": "br.com.gees.fidelidadeappajudda"
+          "package_name": "br.com.gees.fidelidadeappibv"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAnguOITNUNxP8QpbUJ3tLfENPBJkuS_wU"
+          "current_key": "AIzaSyAlhq9Z1vDDbCWIzZxVNbrKj5VN7KhAJnQ"
         }
       ],
       "services": {

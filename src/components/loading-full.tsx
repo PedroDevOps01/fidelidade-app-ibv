@@ -59,7 +59,7 @@ const LoadingFull = () => {
         style={{ width: 400, height: 400, position: 'absolute' }}
         maskElement={
           <Image
-            source={require('../assets/images/iconecarregamento.png')}
+            source={require('../assets/images/iconecarrega.png')}
             style={{ width: 400, height: 400 }}
             resizeMode="cover"
             onLoad={() => {
@@ -80,7 +80,7 @@ export default LoadingFull;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e7d7ff',
+    backgroundColor: '#ecf9f6',
     justifyContent: 'center',
     alignItems: 'center',
         zIndex: 999,
@@ -97,6 +97,6 @@ const styles = StyleSheet.create({
   fill: {
     position: 'absolute',
     bottom: 0,
-    backgroundColor: '#b183ff',
+    backgroundColor: '#644086',
   },
 });

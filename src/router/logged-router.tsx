@@ -93,7 +93,7 @@ const MainTabs = () => {
           title: 'Bem Vindo!',
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="user-schedules"
         component={SchedulesStackNavigator}
         options={{
@@ -106,7 +106,7 @@ const MainTabs = () => {
             backgroundColor: '#4003ff',
           },
         }}
-      />
+      /> */}
       <Tab.Screen
         name="user-data"
         component={ProfileStackNavigator}

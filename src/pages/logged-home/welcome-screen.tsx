@@ -50,7 +50,7 @@ const WelcomeScreen = ({ onComplete }: WelcomeScreenProps) => {
   const renderStepContent = () => {
     const content = {
       1: {
-        title: 'Bem-vindo ao AJUDDA!!',
+        title: 'Bem-vindo ao Ibv!!',
         subtitle:
           'Sua saúde em primeiro lugar, com acesso rápido a consultas, exames e muito mais.',
       },

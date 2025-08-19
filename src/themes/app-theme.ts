@@ -4,16 +4,16 @@ const LightTheme = {
   ...MD3LightTheme,
   colors: {
     ...MD3LightTheme.colors,
-    primary: '#b183ff',
+    primary: '#644086',
     surfaceTint: '#266A49',
     onPrimary: '#FFFFFF',
-    corpadrao: '#6a31ff',
-    primaryContainer: '#b183ff',
+    corpadrao: '#266A49',
+    primaryContainer: '#644086',
     onPrimaryContainer: '#FFF',
-    secondary: '#b183ff',
+    secondary: '#644086',
     onSecondary: '#FFFFFF',
-    fundo: '#e7d7ff',
-    secondaryContainer: '#b183ff', //searchbar
+    fundo: '#ecf9f6',
+    secondaryContainer: '#644086', //searchbar
     onSecondaryContainer: '#FFF',
     tertiary: '#3C6471',
     onTertiary: '#FFFFFF',

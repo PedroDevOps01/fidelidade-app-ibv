@@ -131,7 +131,7 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
   };
 
   return (
-    <ImageBackground source={require('../../assets/images/fundologin.jpeg')} style={styles.background} resizeMode="cover">
+    <ImageBackground source={require('../../assets/images/fundologin.png')} style={styles.background} resizeMode="cover">
       <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.container}>
         <ModalContainer visible={isRecoverPassworrdModalVisible} handleVisible={() => setIsRecoverPassworrdModalVisible(false)}>
           <EsqueceuSenhaForm />
@@ -139,15 +139,18 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
 
         <View style={styles.contentWrapper}>
           <View style={styles.logoContainer}>
-            <Image source={require('../../assets/images/fidelidade_logo.png')} style={{ width: width * 0.6, height: width * 0.2 }} />
-          </View>
+<Image 
+  source={require('../../assets/images/logonova1.png')} 
+  style={{ width: width * 0.4, height: width * 0.4 }} 
+  resizeMode="contain" 
+/>          </View>
 
           <Card style={[styles.card, { backgroundColor: colors.onSecondary }]} elevation={3}>
             <Card.Content>
               <Text variant="headlineSmall" style={[styles.title, { color: colors.primary }]}>
                 Bem-vindo de volta!
               </Text>
-              <Text variant="bodyMedium" style={[styles.subtitle, { color: colors.onSurfaceVariant }]}>
+              <Text variant="bodyMedium" style={[styles.subtitle, { color: colors.primary }]}>
                 Entre com seus dados para acessar sua conta
               </Text>
 
@@ -243,7 +246,7 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
                   <Button mode="text" onPress={() => setIsRecoverPassworrdModalVisible(true)} style={styles.linkButton} labelStyle={{ color: colors.primary }} compact>
                     Esqueci minha senha
                   </Button>
-                  <Text style={[styles.dividerText, { color: colors.onSurfaceVariant }]}>|</Text>
+                  <Text style={[styles.dividerText, { color: colors.corpadrao }]}>|</Text>
                   <Button
                     mode="text"
                     onPress={() => navigation.navigate('register-step-one', { tipo: 'NEW_USER' })}

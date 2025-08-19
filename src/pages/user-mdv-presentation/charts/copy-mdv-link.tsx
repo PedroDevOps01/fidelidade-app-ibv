@@ -13,7 +13,7 @@ export default function CopyMdvLink({ id, codigoPromocional }: Props) {
     const baseURL = codigoPromocional
       ? `http://3.215.147.199/${codigoPromocional}`
       : 'http://3.215.147.199';
-    const linkCompartilhado = `${baseURL}/fidelidade-ajudda/planos/${id}`;
+    const linkCompartilhado = `${baseURL}/fidelidade-ibv/planos/${id}`;
 
     try {
       const result = await Share.share({

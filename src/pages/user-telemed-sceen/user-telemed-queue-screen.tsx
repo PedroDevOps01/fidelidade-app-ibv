@@ -157,7 +157,7 @@ const UserTelemedQueueScreen = () => {
   }, [positionInQueue]);
 
   return (
-    <View style={[styles.container, { backgroundColor: '#e7d7ff' }]}>
+    <View style={[styles.container, { backgroundColor: '#ecf9f6' }]}>
       {loading ? (
         <LoadingFull title="Entrando na fila..." />
       ) : (
