@@ -72,63 +72,72 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
   }, [setValue]);
 
   const handleLogin = async (form: LoginFormType) => {
-    setLoading(true);
-    clearAuthData();
-    clearDadosUsuarioData();
+  setLoading(true);
+  clearAuthData();
+  clearDadosUsuarioData();
 
-    const token = await AsyncStorage.getItem('device_token_id');
-    const dataToSent = {
-      cpf: removeAccents(form.cpf),
-      hash_senha_usr: form.password,
-    };
+  const token = await AsyncStorage.getItem('device_token_id');
+  const dataToSent = {
+    cpf: removeAccents(form.cpf),
+    hash_senha_usr: form.password,
+  };
 
-    try {
-      if (dataToSent.cpf.length === 11 && !isValidCPF(dataToSent.cpf)) {
-        CustomToast('CPF inválido!', colors);
-        return;
-      }
+  try {
+    if (dataToSent.cpf.length === 11 && !isValidCPF(dataToSent.cpf)) {
+      CustomToast('CPF inválido!', colors);
+      return;
+    }
 
-      if (dataToSent.cpf.length > 11 && dataToSent.cpf.length < 14) {
-        CustomToast('CNPJ inválido!', colors);
-        return;
-      }
+    if (dataToSent.cpf.length > 11 && dataToSent.cpf.length < 14) {
+      CustomToast('CNPJ inválido!', colors);
+      return;
+    }
 
-      const response = await api.post('/login', dataToSent);
-      const loginData: LoginResponse = response.data;
+    const response = await api.post('/login', dataToSent);
+    const loginData: LoginResponse = response.data;
 
-      if (loginData.user.is_ativo_usr === 0) {
-        CustomToast('Usuário inativo! Contate o suporte.', colors);
-        return;
-      }
+    if (loginData.user.is_ativo_usr === 0) {
+      CustomToast('Usuário inativo! Contate o suporte.', colors);
+      return;
+    }
 
-      setAuthData(loginData.authorization);
-      setDadosUsuarioData({
-        pessoa: { ...loginData.user, cod_cpf_pes: dataToSent.cpf },
-        pessoaDados: loginData.dados,
-        pessoaAssinatura: loginData.assinatura,
-        errorCadastroPagarme: loginData.errorCadastroPagarme,
-        pessoaMdv: loginData.mdv,
-        user: loginData.user,
-      });
+    setAuthData(loginData.authorization);
+    setDadosUsuarioData({
+      pessoa: { ...loginData.user, cod_cpf_pes: dataToSent.cpf },
+      pessoaDados: loginData.dados,
+      pessoaAssinatura: loginData.assinatura,
+      errorCadastroPagarme: loginData.errorCadastroPagarme,
+      pessoaMdv: loginData.mdv,
+      user: loginData.user,
+    });
 
-      if (token) {
+    if (token) {
+      try {
         const deviceData = {
           id_pessoa_tdu: loginData.dados?.id_pessoa_pda,
           dispositivo_token_tdu: token,
           platforma_tdu: Platform.OS,
         };
         await api.post('/usuarioDevice', deviceData, generateRequestHeader(loginData.authorization.access_token));
+      } catch (err) {
+        console.error('Erro ao registrar dispositivo:', err);
+        CustomToast('Erro ao registrar dispositivo. Continuando...', colors);
       }
-
-      await AsyncStorage.setItem(LAST_LOGGED_CPF_KEY, dataToSent.cpf);
-      reset([{ name: routeAfterLogin }]);
-    } catch (err) {
-      console.log(err);
-      CustomToast('Erro ao consultar dados. Tente novamente mais tarde.', colors);
-    } finally {
-      setLoading(false);
     }
-  };
+
+    await AsyncStorage.setItem(LAST_LOGGED_CPF_KEY, dataToSent.cpf);
+
+    // Adicione um log para verificar se a navegação está sendo chamada
+    console.log('Login bem-sucedido, redirecionando para:', routeAfterLogin);
+
+    reset([{ name: routeAfterLogin }]);
+  } catch (err) {
+    console.error('Erro ao realizar login:', err);
+    CustomToast('Erro ao consultar dados. Tente novamente mais tarde.', colors);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <ImageBackground source={require('../../assets/images/fundologin.png')} style={styles.background} resizeMode="cover">
@@ -139,18 +148,18 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
 
         <View style={styles.contentWrapper}>
           <View style={styles.logoContainer}>
-<Image 
-  source={require('../../assets/images/logonova1.png')} 
-  style={{ width: width * 0.4, height: width * 0.4 }} 
-  resizeMode="contain" 
-/>          </View>
+  <Image
+    source={require('../../assets/images/logonova1.png')}
+    style={{ width: 150, height: 150, resizeMode: 'contain' }}
+  />
+</View>
 
           <Card style={[styles.card, { backgroundColor: colors.onSecondary }]} elevation={3}>
             <Card.Content>
               <Text variant="headlineSmall" style={[styles.title, { color: colors.primary }]}>
                 Bem-vindo de volta!
               </Text>
-              <Text variant="bodyMedium" style={[styles.subtitle, { color: colors.primary }]}>
+              <Text variant="bodyMedium" style={[styles.subtitle, { color: colors.onSurfaceVariant }]}>
                 Entre com seus dados para acessar sua conta
               </Text>
 
@@ -246,7 +255,7 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
                   <Button mode="text" onPress={() => setIsRecoverPassworrdModalVisible(true)} style={styles.linkButton} labelStyle={{ color: colors.primary }} compact>
                     Esqueci minha senha
                   </Button>
-                  <Text style={[styles.dividerText, { color: colors.corpadrao }]}>|</Text>
+                  <Text style={[styles.dividerText, { color: colors.onSurfaceVariant }]}>|</Text>
                   <Button
                     mode="text"
                     onPress={() => navigation.navigate('register-step-one', { tipo: 'NEW_USER' })}

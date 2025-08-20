@@ -134,31 +134,39 @@ useEffect(() => {
     }
   }
 
-  async function fetchTerms(): Promise<void> {
-    if (!authData.access_token) {
-      setTermsError('Token de autenticação não disponível.');
-      return;
-    }
-
-    setTermsLoading(true);
-    setTermsError(null);
-
-    try {
-      const headers = generateRequestHeader(authData.access_token);
-      const response = await api.get('/termo-declaracao?is_adesao_tde=1&is_ativo_tde=1', headers);
-      const dataApi = response.data;
-      if (dataApi?.response?.data?.length > 0) {
-        setTerms(dataApi.response.data);
-      } else {
-        setTermsError('Nenhum termo encontrado.');
-      }
-    } catch (error: any) {
-      console.error('Erro ao buscar termos:', error.message, error.response?.data);
-      setTermsError('Erro ao buscar os termos. Tente novamente mais tarde.');
-    } finally {
-      setTermsLoading(false);
-    }
+ async function fetchTerms(): Promise<void> {
+  if (!authData.access_token) {
+    setTermsError('Token de autenticação não disponível.');
+    return;
   }
+
+  setTermsLoading(true);
+  setTermsError(null);
+
+  try {
+    const headers = generateRequestHeader(authData.access_token);
+    const response = await api.get('/termo-declaracao?is_adesao_tde=1&is_ativo_tde=1', headers);
+    const dataApi = response.data;
+    if (dataApi?.response?.data?.length > 0) {
+      setTerms(dataApi.response.data);
+    } else {
+      setTermsError('Nenhum termo encontrado.');
+    }
+  } catch (error: any) {
+    console.error('Erro ao buscar termos:', error.message, error.response?.data);
+
+    // Ajuste para exibir uma mensagem mais detalhada
+    if (error.response?.status === 500) {
+      setTermsError('Erro interno no servidor ao buscar os termos. Tente novamente mais tarde.');
+    } else if (error.response?.status === 404) {
+      setTermsError('Endpoint não encontrado. Verifique a configuração do servidor.');
+    } else {
+      setTermsError('Erro ao buscar os termos. Verifique sua conexão ou tente novamente mais tarde.');
+    }
+  } finally {
+    setTermsLoading(false);
+  }
+}
 
   const generateContractHtml = () => {
   let content = '';
