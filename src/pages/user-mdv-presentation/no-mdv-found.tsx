@@ -137,7 +137,6 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 16,
-    marginTop: 30,
   },
   content: {
     marginTop:10,

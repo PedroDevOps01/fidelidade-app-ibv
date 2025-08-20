@@ -424,7 +424,7 @@ CustomToast('Termo aceito com sucesso!', colors, 'success');
   useFocusEffect(
     useCallback(() => {
       if (dadosUsuarioData.user.id_usuario_usr && authData.access_token) {
-        createNotificationChannel();
+        // createNotificationChannel();
         fetchAllData().then(() => {
           showAppointmentReminder(dadosUsuarioData.user.id_usuario_usr.toString());
         });
@@ -521,38 +521,38 @@ CustomToast('Termo aceito com sucesso!', colors, 'success');
   const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
   return (
     <TouchableOpacity
-      activeOpacity={0.8}
-      onPress={() => {
-        setSelectedParceiroCredenciadoId(item.id_parceiro_prc);
-        setModalCredenciadosVisible(true);
-      }}
-      style={[styles.credenciadoCard, { backgroundColor: colors.surface }]}>
-      <View style={styles.credenciadoContent}>
-        <Image
-          source={item.img_parceiro_prc ? { uri: `${item.img_parceiro_prc}` } : require('../../assets/images/logonova.png')}
-          style={styles.credenciadoImage}
-        />
-        <View style={styles.credenciadoInfo}>
-          <Text variant="titleMedium" style={[styles.credenciadoTitle, { color: colors.onSurface }]}>
-            {item.des_nome_fantasia_prc}
-          </Text>
-          <Text variant="bodySmall" style={[styles.credenciadoLocation, { color: colors.onSurfaceVariant }]}>
-            {item.des_municipio_mun}
-          </Text>
-          <View style={styles.credenciadoBadge}>
-            <Text variant="labelSmall" style={styles.credenciadoBadgeText}>
-              Credenciado
-            </Text>
-          </View>
-        </View>
-        <IconButton 
-          icon="chevron-right" 
-          size={24} 
-          iconColor={colors.onSurfaceVariant} 
-          style={styles.credenciadoArrow}
-        />
+  activeOpacity={0.8}
+  onPress={() => {
+    setSelectedParceiroCredenciadoId(item.id_parceiro_prc);
+    setModalCredenciadosVisible(true);
+  }}
+  style={[styles.credenciadoCard, { backgroundColor: "#f7f7f7" }]}>
+  <View style={styles.credenciadoContent}>
+    <Image
+      source={item.img_parceiro_prc ? { uri: `${item.img_parceiro_prc}` } : require('../../assets/images/logonova.png')}
+      style={[styles.credenciadoImage, { width: 80, height: 80 }]} // Aumentei o tamanho da imagem
+    />
+    <View style={styles.credenciadoInfo}>
+      <Text variant="titleMedium" style={[styles.credenciadoTitle, { color: colors.primary }]}>
+        {item.des_nome_fantasia_prc}
+      </Text>
+      <Text variant="bodySmall" style={[styles.credenciadoLocation, { color: colors.primary }]}>
+        {item.des_municipio_mun}
+      </Text>
+      <View style={[styles.credenciadoBadge, { backgroundColor: colors.corpadrao }]}>
+        <Text variant="labelSmall" style={[styles.credenciadoBadgeText, { color: colors.onPrimary }]}>
+          Credenciado
+        </Text>
       </View>
-    </TouchableOpacity>
+    </View>
+    <IconButton 
+      icon="chevron-right" 
+      size={24} 
+      iconColor={colors.primary} 
+      style={styles.credenciadoArrow}
+    />
+  </View>
+</TouchableOpacity>
   );
 };
 
@@ -627,7 +627,7 @@ CustomToast('Termo aceito com sucesso!', colors, 'success');
             width: '100%',
             height: 200,
             borderRadius: 15,
-            backgroundColor: '#fff',
+            backgroundColor: '#ecf9f6',
           }}
         />
       </TouchableOpacity>
@@ -635,11 +635,11 @@ CustomToast('Termo aceito com sucesso!', colors, 'success');
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.onSecondary }}>
       {showTerms ? (
-  <SafeAreaView style={{ flex: 1, backgroundColor: '#f8f9fa' }}>
+  <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
     {termsLoading ? (
-      <View style={[styles.loadingContainer, { backgroundColor: '#f8f9fa' }]}>
+      <View style={[styles.loadingContainer, { backgroundColor: '#ffffff' }]}>
         <ActivityIndicator animating={true} size="large" color={colors.primary} />
         <Text style={{ marginTop: 15, color: colors.text, fontSize: 16 }}>Carregando termos...</Text>
       </View>
@@ -1116,10 +1116,10 @@ CustomToast('Termo aceito com sucesso!', colors, 'success');
                             Dados:
                           </Text>
                           <View style={styles.benefitItem}>
-                            <IconButton icon="card-text" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
+                            {/* <IconButton icon="card-text" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
                             <Text variant="bodyMedium" style={styles.benefitText}>
                               Nº Credenciamento: {selectedParceiro.num_cred_prc || 'N/A'}
-                            </Text>
+                            </Text> */}
                           </View>
 
                           <View style={styles.benefitItem}>

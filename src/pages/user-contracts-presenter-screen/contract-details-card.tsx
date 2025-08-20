@@ -11,7 +11,7 @@ interface ContractDetailCardProps {
 
 export default function ContractDetailCard({ contract, onPress }: ContractDetailCardProps) {
   const { colors } = useTheme();
-  const isPopular = contract.id_plano_pla === 2;
+  const isPopular = contract.id_plano_pla === 5;
   const scaleValue = useRef(new Animated.Value(1)).current;
   console.log('ContractDetailCardProps:', contract);
 
@@ -156,13 +156,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
+    marginTop:15,
     borderWidth: 1,
     borderColor: '#EEE',
   },
   popularTouchable: {
-    backgroundColor: '#6E45E2',
+    backgroundColor: '#644086',
     borderColor: 'transparent',
-    shadowColor: '#6E45E2',
+    shadowColor: '#644086',
     shadowOpacity: 0.3,
   },
   card: {
@@ -171,7 +172,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   popularCard: {
-    backgroundColor: '#6E45E2',
+    backgroundColor: '#644086',
   },
   popularBadge: {
     position: 'absolute',
@@ -259,7 +260,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#b183ff',
+    backgroundColor: '#644086',
   },
   popularSelectButton: {
     backgroundColor: '#FFF',
@@ -270,7 +271,7 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   popularSelectButtonText: {
-    color: '#6E45E2',
+    color: '#644086',
   },
   arrowIcon: {
     marginLeft: 8,

@@ -38,7 +38,7 @@ export default function ContractsPresenterScreen() {
   }, []);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.fundo }]}>
       {loading ? (
         <LoadingFull />
       ) : (
