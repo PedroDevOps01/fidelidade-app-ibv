@@ -80,7 +80,7 @@ export default LoadingFull;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e7d7ff',
+    backgroundColor: '#c1d3f0',
     justifyContent: 'center',
     alignItems: 'center',
         zIndex: 999,
@@ -97,6 +97,6 @@ const styles = StyleSheet.create({
   fill: {
     position: 'absolute',
     bottom: 0,
-    backgroundColor: '#b183ff',
+    backgroundColor: '#2754a2',
   },
 });

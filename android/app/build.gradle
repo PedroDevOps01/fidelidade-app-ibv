@@ -77,9 +77,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "br.com.gees.fidelidadeappajudda"
+    namespace "br.com.gees.leiria"
     defaultConfig {
-        applicationId "br.com.gees.fidelidadeappajudda"
+        applicationId "br.com.gees.leiria"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 35

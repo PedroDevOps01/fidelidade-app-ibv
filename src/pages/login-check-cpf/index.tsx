@@ -139,7 +139,7 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
 
         <View style={styles.contentWrapper}>
           <View style={styles.logoContainer}>
-            <Image source={require('../../assets/images/fidelidade_logo.png')} style={{ width: width * 0.6, height: width * 0.2 }} />
+            <Image source={require('../../assets/images/logoleiria.png')} style={{ width: width * 0.6, height: width * 0.2 }} />
           </View>
 
           <Card style={[styles.card, { backgroundColor: colors.onSecondary }]} elevation={3}>

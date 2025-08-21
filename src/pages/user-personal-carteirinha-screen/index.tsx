@@ -35,7 +35,7 @@ const UserPersonalCarteirinhaScreen = ({ navigation }: { navigation: any }) => {
               width: cardWidth,
               height: cardHeight,
               backgroundColor: '#FFFFFF',
-              borderColor: '#b183ff',
+              borderColor: '#0057ad',
               borderWidth: 2,
             },
             isZoomed && styles.zoomedCard,
@@ -44,7 +44,7 @@ const UserPersonalCarteirinhaScreen = ({ navigation }: { navigation: any }) => {
           {/* Logo (mantida na posição atual) */}
           <View style={styles.logoContainer}>
             <Image 
-              source={require('../../assets/images/logonova1.png')} 
+              source={require('../../assets/images/logoleiria.png')} 
               style={[styles.cardLogo, isZoomed && styles.zoomedLogo]} 
               resizeMode="contain" 
             />
@@ -90,7 +90,7 @@ const UserPersonalCarteirinhaScreen = ({ navigation }: { navigation: any }) => {
       {/* Botão de zoom */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity 
-          style={[styles.zoomButton, { backgroundColor: '#b183ff' }]} 
+          style={[styles.zoomButton, { backgroundColor: '#0057ad' }]} 
           onPress={toggleZoom}
           activeOpacity={0.8}
         >
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   logoContainer: {
     position: 'absolute',
     top: -50,
-    right: 20,
+    right: 0,
     zIndex: 2,
   },
   cardLogo: {
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   infoLabel: {
-    color: '#b183ff',
+    color: '#0057ad',
     fontSize: 12,
     fontWeight: '600',
     letterSpacing: 1,
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   infoValue: {
-    color: '#b183ff',
+    color: '#0057ad',
     fontSize: 16,
     fontWeight: '600',
     letterSpacing: 0.5,
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   cardFooter: {
-    backgroundColor: '#b183ff',
+    backgroundColor: '#0057ad',
     padding: 16,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,

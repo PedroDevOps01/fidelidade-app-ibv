@@ -93,7 +93,7 @@ const ContratoParcelaDetailScren = () => {
   });
 
   return (
-    <View style={[styles.outerContainer, { backgroundColor: '#e7d7ff' }]}>
+    <View style={[styles.outerContainer, { backgroundColor: '#c1d3f0' }]}>
       {loading ? (
         <Animated.View style={[styles.loadingContainer, { opacity: fadeAnim }]}>
           {!imageLoaded && (

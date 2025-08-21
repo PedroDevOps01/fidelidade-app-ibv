@@ -671,7 +671,7 @@ CustomToast('Termo aceito com sucesso!', colors, 'success');
               {isLogged && <Text style={styles.nameText}>{dadosUsuarioData.pessoaDados?.des_genero_pes}!!</Text>}
             </View>
 
-            <Image source={require('../../assets/images/logotransparente.png')} style={styles.responsiveLogo} resizeMode="contain" />
+            <Image source={require('../../assets/images/logotransparenteleiria.png')} style={styles.responsiveLogo} resizeMode="contain" />
           </View>
 
           <View style={styles.sectionContainer}>
@@ -713,7 +713,7 @@ CustomToast('Termo aceito com sucesso!', colors, 'success');
             )}
           </View>
 
-          <View style={styles.sectionContainer}>
+          {/* <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
                 Acesso rápido
@@ -734,7 +734,7 @@ CustomToast('Termo aceito com sucesso!', colors, 'success');
               }}
               removeClippedSubviews={false}
             />
-          </View>
+          </View> */}
 
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
@@ -1082,7 +1082,7 @@ const styles = StyleSheet.create({
   },
   userInfoResponsive: {
     flexDirection: 'row',
-    backgroundColor: '#b183ff',
+    backgroundColor: '#0057ad',
     alignItems: 'center',
     justifyContent: 'space-between',
     flexWrap: 'wrap',

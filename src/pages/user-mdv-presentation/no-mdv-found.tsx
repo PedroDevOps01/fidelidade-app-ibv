@@ -45,7 +45,7 @@ export default function NoMdvFound() {
   return (
     <KeyboardAwareScrollView 
       keyboardShouldPersistTaps="handled" 
-      contentContainerStyle={[styles.container, { backgroundColor: '#e7d7ff' }]}
+      contentContainerStyle={[styles.container, { backgroundColor: '#c1d3f0' }]}
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.content}>

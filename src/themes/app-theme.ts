@@ -4,17 +4,15 @@ const LightTheme = {
   ...MD3LightTheme,
   colors: {
     ...MD3LightTheme.colors,
-    primary: '#b183ff',
+    primary: '#0057ad',
     surfaceTint: '#266A49',
     onPrimary: '#FFFFFF',
-    corpadrao: '#6a31ff',
-    primaryContainer: '#b183ff',
+    primaryContainer: '#2754a2',
     onPrimaryContainer: '#FFF',
-    secondary: '#b183ff',
+    secondary: '#00b7ec',
     onSecondary: '#FFFFFF',
-    fundo: '#e7d7ff',
-    secondaryContainer: '#b183ff', //searchbar
-    onSecondaryContainer: '#FFF',
+    secondaryContainer: '#c1d3f0', //searchbar
+    onSecondaryContainer: '#364B3E',
     tertiary: '#3C6471',
     onTertiary: '#FFFFFF',
     tertiaryContainer: '#BFE9F9',
@@ -33,10 +31,8 @@ const LightTheme = {
     outlineVariant: '#C0C9C0',
     shadow: '#000000',
     scrim: '#000000',
-    success: '#008000',
-    warning: '#F4B400',
-    info: '#2196F3', 
-    
+        fundo: '#c1d3f0',
+
     inverseSurface: '#2C322E',
     inverseOnSurface: '#EDF2EC',
     inversePrimary: '#91D5AD',
@@ -80,8 +76,6 @@ const DarkTheme = {
     tertiaryContainer: '#643B44',
     onTertiaryContainer: '#FFD9DF',
     error: '#FFB4AB',
-    success: '#008000',
-
     onError: '#690005',
     errorContainer: '#93000A',
     onErrorContainer: '#FFDAD6',
@@ -119,5 +113,4 @@ const DarkTheme = {
     surfaceContainerHighest: '#37333A',
   },
 };
-
 export { LightTheme, DarkTheme };

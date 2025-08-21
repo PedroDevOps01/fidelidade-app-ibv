@@ -1,4 +1,4 @@
-package br.com.gees.fidelidadeappajudda
+package br.com.gees.leiria
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
@@ -7,7 +7,7 @@ import com.swmansion.gesturehandler.react.RNGestureHandlerEnabledRootView // <- 
 import android.os.Bundle
 
 class MainActivity : ReactActivity() {
-  override fun getMainComponentName(): String = "fidelidadeappajudda"
+  override fun getMainComponentName(): String = "fidelidadeappleiria"
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(null)
