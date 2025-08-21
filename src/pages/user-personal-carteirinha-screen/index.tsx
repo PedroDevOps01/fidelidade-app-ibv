@@ -156,8 +156,8 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   cardLogo: {
-    width: 190,
-    height:190,
+    width: 90,
+    height:90,
   },
   zoomedLogo: {
     width: 190,

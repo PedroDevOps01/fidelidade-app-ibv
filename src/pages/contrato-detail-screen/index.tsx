@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import { maskBrazilianCurrency } from '../../utils/app-utils';
 import { navigate } from '../../router/navigationRef';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-
+import LoadingFull from '../../components/loading-full';
 interface ContratosDetailScreenProps {
   contrato: ContratoResponse;
   title: string;
@@ -43,20 +43,17 @@ const ContratosDetailScreen = ({ contrato, title }: ContratosDetailScreenProps) 
   };
 
   if (loading) {
-    return (
-      <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-      </View>
-    );
-  }
+  return <LoadingFull title="Carregando detalhes do contrato..." />;
+}
 
-  if (!contrato) {
-    return (
-      <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
-        <Text style={styles.emptyText}>Nenhum dado disponível</Text>
-      </View>
-    );
-  }
+  
+if (!contrato) {
+  return (
+    <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
+      <Text style={styles.emptyText}>Nenhum dado disponível</Text>
+    </View>
+  );
+}
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -185,7 +182,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#b183ff',
+    backgroundColor: '#644086',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,

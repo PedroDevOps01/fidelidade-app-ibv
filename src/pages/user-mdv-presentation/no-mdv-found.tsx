@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   },
   benefitsContainerultimo: {
     backgroundColor: '#FEF7FF',
-    marginBottom: 14,
+    marginBottom: 20,
     gap: 16,
   },
   benefitCard: {

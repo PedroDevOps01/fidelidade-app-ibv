@@ -59,7 +59,7 @@ const LoadingFull = () => {
         style={{ width: 400, height: 400, position: 'absolute' }}
         maskElement={
           <Image
-            source={require('../assets/images/iconecarregamento.png')}
+            source={require('../assets/images/iconecarrega.png')}
             style={{ width: 400, height: 400 }}
             resizeMode="cover"
             onLoad={() => {

@@ -11,7 +11,7 @@ interface ContractDetailCardProps {
 
 export default function ContractDetailCard({ contract, onPress }: ContractDetailCardProps) {
   const { colors } = useTheme();
-  const isPopular = contract.id_plano_pla === 2;
+  const isPopular = contract.id_plano_pla === 5;
   const scaleValue = useRef(new Animated.Value(1)).current;
   console.log('ContractDetailCardProps:', contract);
 
@@ -156,6 +156,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
+    marginTop:15,
     borderWidth: 1,
     borderColor: '#EEE',
   },

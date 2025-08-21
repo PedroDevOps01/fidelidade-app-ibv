@@ -28,18 +28,18 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
   const [listItemIndex, setListItemIndex] = useState<number>(0);
 
   let initialFabOptionsState = [
-    {
-      icon: 'calendar-today',
-      onPress: () => handleFabPress('consulta'),
-      label: 'Nova consulta',
-      style: { backgroundColor: colors.primary },
-    },
-    {
-      icon: 'stethoscope',
-      onPress: () => handleFabPress('exame'),
-      label: `${selectedExams.length > 0 ? 'Adicionar' : 'Novo'} exame`,
-      style: { backgroundColor: colors.primary },
-    },
+    // {
+    //   icon: 'calendar-today',
+    //   onPress: () => handleFabPress('consulta'),
+    //   label: 'Nova consulta',
+    //   style: { backgroundColor: colors.primary },
+    // },
+    // {
+    //   icon: 'stethoscope',
+    //   onPress: () => handleFabPress('exame'),
+    //   label: `${selectedExams.length > 0 ? 'Adicionar' : 'Novo'} exame`,
+    //   style: { backgroundColor: colors.primary },
+    // },
     {
       icon: 'history',
       onPress: () => {

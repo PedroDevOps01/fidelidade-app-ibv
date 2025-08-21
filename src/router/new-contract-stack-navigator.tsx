@@ -29,14 +29,33 @@ export const NewContractStackNavigator = () => {
         <NewContractStack.Screen name="user-login-screen-new-contract" options={{ headerBackVisible: false, headerShown: true, headerTitle: 'Login' }}>
           {props => <AuthenticationStackNavigator {...props} initialRouteName="user-login-screen" routeAfterLogin="user-contracts-presenter-screen" />}
         </NewContractStack.Screen>
-
         <NewContractStack.Screen name="user-payment-attempt-screen" component={UserPaymentAttemptScreen} options={{ headerShown: false }} />
         <NewContractStack.Screen
           name="user-contracts-presenter-screen"
           component={ContractsPresenterScreen}
-          options={{ headerBackVisible: true, headerShown: true, title: 'Planos' }}
+          options={{
+            headerBackVisible: true,
+            headerStyle: { backgroundColor: colors.primaryContainer },
+            headerTintColor: colors.onPrimaryContainer,
+
+            headerShown: true,
+            title: 'Planos',
+            headerTitleAlign: 'center', // <--- centraliza o título
+          }}
         />
-        <NewContractStack.Screen name="user-contracts-payment-method" component={UserContractsPaymentMethod} options={{ headerShown: true, title: 'Forma de pagamento' }} />
+        <NewContractStack.Screen
+          name="user-contracts-payment-method"
+          component={UserContractsPaymentMethod}
+           options={{
+            headerBackVisible: true,
+            headerStyle: { backgroundColor: colors.primaryContainer },
+            headerTintColor: colors.onPrimaryContainer,
+
+            headerShown: true,
+            title: 'Formas de Pagamento',
+            headerTitleAlign: 'center', // <--- centraliza o título
+          }}
+        />
         <NewContractStack.Screen name="user-contracts-payment-method-router" component={UserContractsPaymentMethodRouter} options={{ headerShown: true, title: 'Pagamento' }} />
         <NewContractStack.Screen name="user-contracts-payment-successfull" component={UserContractPaymentSuccessfull} options={{ headerShown: true, title: 'Pagamento' }} />
         <NewContractStack.Screen name="user-contracts-payment-failed" component={UserContractPaymentFailed} options={{ headerShown: true, title: 'Pagamento' }} />
