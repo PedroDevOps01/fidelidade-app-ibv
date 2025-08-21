@@ -12,7 +12,7 @@ const LightTheme = {
     onPrimaryContainer: '#FFF',
     secondary: '#644086',
     onSecondary: '#FFFFFF',
-    fundo: '#ecf9f6',
+    fundo: '#f7f7f7',
     secondaryContainer: '#644086', //searchbar
     onSecondaryContainer: '#FFF',
     tertiary: '#3C6471',

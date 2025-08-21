@@ -105,7 +105,7 @@ const UserTelemedQueueScreen = () => {
       android: {
         channelId: 'default-id-channel',
         smallIcon: 'ic_notification',
-                  color: '#b183ff',
+                  color: '#644086',
 
         pressAction: { id: 'default' },
       },
@@ -157,7 +157,7 @@ const UserTelemedQueueScreen = () => {
   }, [positionInQueue]);
 
   return (
-    <View style={[styles.container, { backgroundColor: '#ecf9f6' }]}>
+    <View style={[styles.container, { backgroundColor: '#f7f7f7' }]}>
       {loading ? (
         <LoadingFull title="Entrando na fila..." />
       ) : (

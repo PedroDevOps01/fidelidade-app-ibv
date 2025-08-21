@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     maxWidth: 300,
   },
   contentContainer: {
-    backgroundColor:'#ecf9f6',
+    backgroundColor:'#f7f7f7',
     padding: 20,
     paddingBottom: 210,
   },

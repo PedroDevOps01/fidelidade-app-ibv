@@ -130,7 +130,7 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
       {loading ? (
         <LoadingFull />
       ) : (
-        <View style={[styles.container, { backgroundColor: '#ecf9f6' }]}>
+        <View style={[styles.container, { backgroundColor: '#f7f7f7' }]}>
           {userSchedules.length > 0 ? (
             <FlatList
               data={userSchedules}

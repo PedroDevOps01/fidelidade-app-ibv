@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   tabContent: {
-    backgroundColor: '#ecf9f6',
+    backgroundColor: '#f7f7f7',
     flex: 1,
   },
 });
