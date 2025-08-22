@@ -22,27 +22,30 @@ const UserDataScreen = ({ navigation }: { navigation: any }) => {
   const { setUserSchedulesData } = useConsultas();
 
   const handleLogout = () => {
-    Alert.alert('Aviso', 'Deseja sair do aplicativo?', [
-      {
-        text: 'não',
-        onPress: () => null,
-        style: 'cancel',
-      },
-      {
-        text: 'Sim',
-        onPress: () => {
-          clearDadosUsuarioData();
-          clearLoginDadosUsuarioData();
-          clearAuthData();
-          setUserSchedulesData([]);
-          clearSelectedExams();
-          logout(authData.access_token);
+  Alert.alert('Aviso', 'Deseja sair do aplicativo?', [
+    {
+      text: 'não',
+      onPress: () => null,
+      style: 'cancel',
+    },
+    {
+      text: 'Sim',
+      onPress: () => {
+        clearDadosUsuarioData();
+        clearLoginDadosUsuarioData();
+        clearAuthData();
+        setUserSchedulesData([]);
+        clearSelectedExams();
+        logout(authData.access_token);
+
+        // Aguarde um pequeno atraso antes de redefinir a navegação
+        setTimeout(() => {
           resetNavigation([{ name: 'logged-home-screen' }]);
-        },
+        }, 100);
       },
-    ]);
-    return true;
-  };
+    },
+  ]);
+};
   useLayoutEffect(() => {
       navigation.setOptions({ headerShown: true,
                   title: 'Perfil',

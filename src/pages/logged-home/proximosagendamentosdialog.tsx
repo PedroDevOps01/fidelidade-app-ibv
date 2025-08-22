@@ -5,7 +5,7 @@ import { navigate } from '../../router/navigationRef';
 import { formatDateToDDMMYYYY } from '../../utils/app-utils';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-interface UserSchedule {
+export interface UserSchedule {
   nome_procedimento: string | string[];
   nome_profissional?: string;
   data: string;

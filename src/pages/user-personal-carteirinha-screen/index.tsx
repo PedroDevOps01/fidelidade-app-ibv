@@ -151,17 +151,17 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     position: 'absolute',
-    top: -50,
-    right: 0,
+    top: -30,
+    right: -35,
     zIndex: 2,
   },
   cardLogo: {
-    width: 90,
-    height:90,
+    width: 220,
+    height:150,
   },
   zoomedLogo: {
-    width: 190,
-    height: 190,
+    width: 300,
+    height: 180,
   },
   chipContainer: {
     position: 'absolute',
