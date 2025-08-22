@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1620"
-   version = "1.7">
+   LastUpgradeVersion = "1210"
+   version = "1.4">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES"
-      buildArchitectures = "Automatic">
+      buildArchitectures = "All">
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
@@ -18,7 +18,21 @@
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
                BuildableName = "fidelidadedemoapp.app"
                BlueprintName = "fidelidadedemoapp"
-               ReferencedContainer = "container:fidelidadeappajudda.xcodeproj">
+               ReferencedContainer = "container:fidelidadeappibv.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "NO"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "00E356ED1AD99517003FC87E"
+               BuildableName = "fidelidadedemoappTests.xctest"
+               BlueprintName = "fidelidadedemoappTests"
+               ReferencedContainer = "container:fidelidadeappibv.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -27,8 +41,9 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      shouldAutocreateTestPlan = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES">
+      <Testables>
+      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -47,7 +62,7 @@
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
             BuildableName = "fidelidadedemoapp.app"
             BlueprintName = "fidelidadedemoapp"
-            ReferencedContainer = "container:fidelidadeappajudda.xcodeproj">
+            ReferencedContainer = "container:fidelidadeappibv.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -64,7 +79,7 @@
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
             BuildableName = "fidelidadedemoapp.app"
             BlueprintName = "fidelidadedemoapp"
-            ReferencedContainer = "container:fidelidadeappajudda.xcodeproj">
+            ReferencedContainer = "container:fidelidadeappibv.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
@@ -73,6 +88,7 @@
    </AnalyzeAction>
    <ArchiveAction
       buildConfiguration = "Release"
-      revealArchiveInOrganizer = "YES">
+      revealArchiveInOrganizer = "YES"
+      allowsArchivingForSimulator = "YES">
    </ArchiveAction>
 </Scheme>

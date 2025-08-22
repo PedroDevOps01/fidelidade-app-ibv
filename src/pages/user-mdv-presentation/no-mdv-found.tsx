@@ -1,4 +1,4 @@
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View, Platform } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Button, Card, Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -173,6 +173,8 @@ const styles = StyleSheet.create({
   benefitsContainerultimo: {
     backgroundColor: '#FEF7FF',
     marginBottom: 20,
+    marginTop: Platform.OS === "ios" ? 25 : 0, // aplica só no iOS
+
     gap: 16,
   },
   benefitCard: {
