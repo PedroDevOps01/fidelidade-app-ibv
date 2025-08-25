@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   fill: {
     position: 'absolute',
     bottom: 0,
-    backgroundColor: '#644086',
+    backgroundColor: '#0057ad',
   },
 });
 

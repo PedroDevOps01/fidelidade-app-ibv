@@ -105,7 +105,7 @@ const UserTelemedQueueScreen = () => {
       android: {
         channelId: 'default-id-channel',
         smallIcon: 'ic_notification',
-                  color: '#644086',
+                  color: '#0057ad',
 
         pressAction: { id: 'default' },
       },

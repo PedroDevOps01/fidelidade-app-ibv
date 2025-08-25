@@ -18,6 +18,10 @@ const LightTheme = {
     tertiaryContainer: '#BFE9F9',
     onTertiaryContainer: '#234C59',
     error: '#BA1A1A',
+     success: '#4CAF50', // verde
+  warning: '#FFC107', // amarelo
+
+
     onError: '#FFFFFF',
     errorContainer: '#FFDAD6',
     onErrorContainer: '#93000A',
