@@ -13,7 +13,6 @@ export default function ContractDetailCard({ contract, onPress }: ContractDetail
   const { colors } = useTheme();
   const isPopular = contract.id_plano_pla === 5;
   const scaleValue = useRef(new Animated.Value(1)).current;
-  console.log('ContractDetailCardProps:', contract);
 
   const handlePressIn = () => {
     Animated.spring(scaleValue, {

@@ -175,7 +175,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
         .map(
           termo => `
           <div style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
-            <h2 style="color: #3f51b5; font-size: 24px; margin-bottom: 15px; font-weight: 600; text-align: center;">
+            <h2 style="color: #644086; font-size: 24px; margin-bottom: 15px; font-weight: 600; text-align: center;">
               ${termo.des_descricao_tde}
             </h2>
             <div style="font-size: 14px; color: #333; line-height: 1.6;">
@@ -202,7 +202,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             color: #333;
           }
           h2 { 
-            color: #3f51b5; 
+            color: #644086; 
             font-size: 18px; 
             margin-bottom: 15px; 
             font-weight: 600;
@@ -1148,7 +1148,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   termsHeader: {
-    backgroundColor: '#3f51b5',
+    backgroundColor: '#644086',
     padding: 25,
     paddingTop: 15,
     borderBottomLeftRadius: 15,
