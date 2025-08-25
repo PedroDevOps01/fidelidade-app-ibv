@@ -115,47 +115,47 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
   };
 
   const getScheduleRequestData = (assinante: boolean, procedure: any) => {
-  if (dadosUsuarioData.user.id_usuario_usr == 0) {
-    CustomToast('Você precisa estar logado para continuar.', colors, 'error');
-    navigate('user-login-screen-exams');
-    return;
-  }
+    if (dadosUsuarioData.user.id_usuario_usr == 0) {
+      CustomToast('Você precisa estar logado para continuar.', colors, 'error');
+      navigate('user-login-screen-exams');
+      return;
+    }
 
-  let schedule: ScheduleRequest = {
-    data_agenda: selectedDate!,
-    cod_agenda: Number(procedure.cod_agenda),
-    cod_empresa: Number(procedure.cod_empresa),
-    cod_horarioagenda: Number(procedure.cod_horarioagenda),
-    cod_paciente: Number(dadosUsuarioData.pessoaDados?.id_pessoa_pes),
+    let schedule: ScheduleRequest = {
+      data_agenda: selectedDate!,
+      cod_agenda: Number(procedure.cod_agenda),
+      cod_empresa: Number(procedure.cod_empresa),
+      cod_horarioagenda: Number(procedure.cod_horarioagenda),
+      cod_paciente: Number(dadosUsuarioData.pessoaDados?.id_pessoa_pes),
 
-    cod_pessoa_pes: Number(dadosUsuarioData.pessoaDados?.id_pessoa_pes),
-    cod_procedimento: assinante ? Number(procedure.cod_procedimento_assinatura) : Number(procedure.cod_procedimento_particular),
-    cod_profissional: Number(procedure.cod_profissional),
-    cod_sala: Number(procedure.cod_sala),
-    hora_agenda: procedure.selected_time.split(':').slice(0, 2).join(':'), // Normaliza para HH:MM
-    payment_method: null,
-    token_paciente: dadosUsuarioData.pessoaDados?.cod_token_pes!,
-    vlr_procedimento: assinante ? convertStringToNumber(procedure.vlr_procedimento_assinatura) : convertStringToNumber(procedure.vlr_procedimento_particular),
-    cod_parceiro: Number(route.params.procedimento.cod_parceiro), // Add cod_parceiro
+      cod_pessoa_pes: Number(dadosUsuarioData.pessoaDados?.id_pessoa_pes),
+      cod_procedimento: assinante ? Number(procedure.cod_procedimento_assinatura) : Number(procedure.cod_procedimento_particular),
+      cod_profissional: Number(procedure.cod_profissional),
+      cod_sala: Number(procedure.cod_sala),
+      hora_agenda: procedure.selected_time.split(':').slice(0, 2).join(':'), // Normaliza para HH:MM
+      payment_method: null,
+      token_paciente: dadosUsuarioData.pessoaDados?.cod_token_pes!,
+      vlr_procedimento: assinante ? convertStringToNumber(procedure.vlr_procedimento_assinatura) : convertStringToNumber(procedure.vlr_procedimento_particular),
+      cod_parceiro: Number(route.params.procedimento.cod_parceiro), // Add cod_parceiro
+    };
+
+    navigate('user-select-payment-method', schedule);
   };
 
-  navigate('user-select-payment-method', schedule);
-};
-
   const handleTimeSelect = (time: string, professional: any) => {
-  const normalizedTime = time.split(':').slice(0, 2).join(':'); // Remove os segundos
-  setSelectedProfessional({
-    ...professional,
-    selected_time: normalizedTime,
-  });
-  openBottomSheet();
-};
+    const normalizedTime = time.split(':').slice(0, 2).join(':'); // Remove os segundos
+    setSelectedProfessional({
+      ...professional,
+      selected_time: normalizedTime,
+    });
+    openBottomSheet();
+  };
 
   const getFilteredProcedures = () => {
-  const procedures = procedureTimeDetailsData.procedureTimeDetails;
-  if (!procedures || !selectedDate) return [];
-  return procedures[selectedDate] || [];
-};
+    const procedures = procedureTimeDetailsData.procedureTimeDetails;
+    if (!procedures || !selectedDate) return [];
+    return procedures[selectedDate] || [];
+  };
 
   return (
     <>
@@ -244,8 +244,8 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
 
                     {/* Horários disponíveis */}
                     {selectedDate &&
-                      getFilteredProcedures().map(professional => (
-                        <View key={professional.cod_profissional} style={styles.professionalContainer}>
+                      getFilteredProcedures().map((professional, profIndex) => (
+                        <View key={`${professional.cod_profissional}-${professional.cod_agenda}-${profIndex}`} style={styles.professionalContainer}>
                           <View style={styles.professionalHeader}>
                             <MaterialIcons name="person" size={20} color={colors.onSurface} />
                             <Text variant="bodyLarge" style={[styles.professionalName, { color: colors.onSurface }]}>
@@ -253,20 +253,16 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
                             </Text>
                           </View>
 
-                          {/* <Text variant="bodySmall" style={[styles.professionalInfo, { color: colors.onSurfaceVariant }]}>
-                          {professional.conselho_profissional} - {professional.sigla_conselho}
-                        </Text> */}
-
                           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.timesScrollView}>
                             <View style={styles.timesContainer}>
-                              {professional.horarios_list.map((time: string) => (
+                              {professional.horarios_list.map((time: string, timeIndex: number) => (
                                 <Button
-                                  key={time}
+                                  key={`${professional.cod_profissional}-${time}-${timeIndex}`}
                                   mode="outlined"
                                   onPress={() => handleTimeSelect(time, professional)}
                                   style={[styles.timeButton, { borderColor: colors.primary }]}
                                   labelStyle={[styles.timeButtonLabel, { color: colors.primary }]}>
-                                  {time.slice(0, 5)} {/* exibe só "08:00" */}
+                                  {time.slice(0, 5)}
                                 </Button>
                               ))}
                             </View>
@@ -352,41 +348,38 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
                       </Text>
                     </View> */}
 
-                     <Button
-  mode="contained"
-  icon="star"
-  contentStyle={styles.buttonContent}
-  style={[
-    styles.button,
-    {
-      backgroundColor: colors.primary,
-      marginTop: 20,
-    },
-  ]}
-  disabled={!dadosUsuarioData.pessoaAssinatura?.assinatura_liberada}
-  onPress={() => getScheduleRequestData(true, selectedProfessional)}
-  labelStyle={styles.buttonLabel}
->
-  {`Assinante - R$ ${selectedProfessional.vlr_procedimento_assinatura}`}
-</Button>
-
+                    <Button
+                      mode="contained"
+                      icon="star"
+                      contentStyle={styles.buttonContent}
+                      style={[
+                        styles.button,
+                        {
+                          backgroundColor: colors.primary,
+                          marginTop: 20,
+                        },
+                      ]}
+                      disabled={!dadosUsuarioData.pessoaAssinatura?.assinatura_liberada}
+                      onPress={() => getScheduleRequestData(true, selectedProfessional)}
+                      labelStyle={styles.buttonLabel}>
+                      {`Assinante - R$ ${selectedProfessional.vlr_procedimento_assinatura}`}
+                    </Button>
 
                     <Button
-  mode="outlined"
-  icon="account-circle"
-  contentStyle={styles.buttonContent}
-  style={[
-    styles.button,
-    {
-      borderColor: colors.primary,
-      marginTop: 12,
-    },
-  ]}
-  onPress={() => getScheduleRequestData(false, selectedProfessional)}
-  labelStyle={[styles.buttonLabel, { color: colors.primary }]}
->
-  {`Particular - R$ ${selectedProfessional.vlr_procedimento_particular}`}
-</Button>
+                      mode="outlined"
+                      icon="account-circle"
+                      contentStyle={styles.buttonContent}
+                      style={[
+                        styles.button,
+                        {
+                          borderColor: colors.primary,
+                          marginTop: 12,
+                        },
+                      ]}
+                      onPress={() => getScheduleRequestData(false, selectedProfessional)}
+                      labelStyle={[styles.buttonLabel, { color: colors.primary }]}>
+                      {`Particular - R$ ${selectedProfessional.vlr_procedimento_particular}`}
+                    </Button>
                   </View>
                 </>
               ) : (

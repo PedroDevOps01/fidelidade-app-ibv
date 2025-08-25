@@ -82,7 +82,7 @@ android {
         applicationId "br.com.gees.leiria"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 39
+        versionCode 40
         versionName "1.2"
     }
     signingConfigs {
