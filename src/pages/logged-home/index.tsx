@@ -261,65 +261,65 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
     }
   }
 
-  async function showAppointmentReminder(userId: string) {
-    if (!userId) {
-      console.error('ID do usuário inválido para notificação de agendamento');
-      return;
-    }
+  // async function showAppointmentReminder(userId: string) {
+  //   if (!userId) {
+  //     console.error('ID do usuário inválido para notificação de agendamento');
+  //     return;
+  //   }
 
-    const today = new Date().toISOString().slice(0, 10);
-    const lastNotificationDate = await AsyncStorage.getItem(`last_notification_date_${userId}`);
-    if (lastNotificationDate === today) {
-      console.log('Notificação já enviada hoje, ignorando...');
-      return;
-    }
+  //   const today = new Date().toISOString().slice(0, 10);
+  //   const lastNotificationDate = await AsyncStorage.getItem(`last_notification_date_${userId}`);
+  //   if (lastNotificationDate === today) {
+  //     console.log('Notificação já enviada hoje, ignorando...');
+  //     return;
+  //   }
 
-    const settings = await notifee.getNotificationSettings();
-    if (settings.authorizationStatus !== 1) {
-      console.log('Permissões de notificação não concedidas');
-      return;
-    }
+  //   const settings = await notifee.getNotificationSettings();
+  //   if (settings.authorizationStatus !== 1) {
+  //     console.log('Permissões de notificação não concedidas');
+  //     return;
+  //   }
 
-    const schedules = userSchedules || [];
-    const todayDateString = today;
-    const todaySchedules = schedules.filter(schedule => schedule.data === todayDateString) || [];
+  //   const schedules = userSchedules || [];
+  //   const todayDateString = today;
+  //   const todaySchedules = schedules.filter(schedule => schedule.data === todayDateString) || [];
 
-    const scheduleNotificationId = `schedule-reminder-${userId}`;
-    let title = 'Nenhum Agendamento para Hoje';
-    let body = 'Você não tem agendamentos marcados para hoje.';
+  //   const scheduleNotificationId = `schedule-reminder-${userId}`;
+  //   let title = 'Nenhum Agendamento para Hoje';
+  //   let body = 'Você não tem agendamentos marcados para hoje.';
 
-    if (todaySchedules.length > 0) {
-      const summary = todaySchedules
-        .map(schedule => `${Array.isArray(schedule.nome_procedimento) ? schedule.nome_procedimento.join(', ') : schedule.nome_procedimento} às ${schedule.inicio.substring(0, 5)}`)
-        .join(', ');
-      title = 'Lembrete de Agendamento!!';
-      body = `Você tem agendamento(s) hoje: ${summary}`;
-    }
+  //   if (todaySchedules.length > 0) {
+  //     const summary = todaySchedules
+  //       .map(schedule => `${Array.isArray(schedule.nome_procedimento) ? schedule.nome_procedimento.join(', ') : schedule.nome_procedimento} às ${schedule.inicio.substring(0, 5)}`)
+  //       .join(', ');
+  //     title = 'Lembrete de Agendamento!!';
+  //     body = `Você tem agendamento(s) hoje: ${summary}`;
+  //   }
 
-    try {
-      await notifee.displayNotification({
-        id: scheduleNotificationId,
-        title: title,
-        body: body,
-        android: {
-          channelId: 'schedule-channel',
-          smallIcon: 'ic_notification',
-          color: '#644086',
-          pressAction: { id: 'default' },
-        },
-        ios: {
-          foregroundPresentationOptions: {
-            alert: true,
-            badge: true,
-            sound: true,
-          },
-        },
-      });
-      await AsyncStorage.setItem(`last_notification_date_${userId}`, today);
-    } catch (error) {
-      console.error('Erro ao exibir notificação:', error);
-    }
-  }
+  //   try {
+  //     await notifee.displayNotification({
+  //       id: scheduleNotificationId,
+  //       title: title,
+  //       body: body,
+  //       android: {
+  //         channelId: 'schedule-channel',
+  //         smallIcon: 'ic_notification',
+  //         color: '#644086',
+  //         pressAction: { id: 'default' },
+  //       },
+  //       ios: {
+  //         foregroundPresentationOptions: {
+  //           alert: true,
+  //           badge: true,
+  //           sound: true,
+  //         },
+  //       },
+  //     });
+  //     await AsyncStorage.setItem(`last_notification_date_${userId}`, today);
+  //   } catch (error) {
+  //     console.error('Erro ao exibir notificação:', error);
+  //   }
+  // }
 
   useEffect(() => {
     if (userSchedules && userSchedules.length > 0) {
@@ -419,7 +419,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
     useCallback(() => {
       if (dadosUsuarioData.user.id_usuario_usr && authData.access_token) {
         fetchAllData().then(() => {
-          showAppointmentReminder(dadosUsuarioData.user.id_usuario_usr.toString());
+          // showAppointmentReminder(dadosUsuarioData.user.id_usuario_usr.toString());
         });
       }
     }, [dadosUsuarioData, authData]),
