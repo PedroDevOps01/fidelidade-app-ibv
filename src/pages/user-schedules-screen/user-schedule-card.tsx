@@ -20,6 +20,7 @@ type Props = {
 
 const UserScheduleCard = (props: Props) => {
   const { index, appointment, onPress, setGlobalLoading, showCheckinButton = true } = props;
+  console.log('Rendering UserScheduleCard for appointment:', appointment);
   const { colors } = useTheme();
   const [checkinRealizado, setCheckinRealizado] = useState(false);
   const { authData } = useAuth();

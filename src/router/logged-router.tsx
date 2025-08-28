@@ -14,6 +14,7 @@ import SchedulesStackNavigator from './schedules-stack-navigator';
 import ProfileStackNavigator from './profile-stack-navigator';
 import { MdvStackNavigator } from './mdv-stack-navigator';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import UserPersonalCarteirinhaScreen from '../pages/user-personal-carteirinha-screen';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createNativeStackNavigator();
@@ -62,6 +63,9 @@ const MainTabs = () => {
               break;
             case 'user-schedules':
               iconName = 'calendar';
+              break;
+            case 'user-personal-carteirinha-screen':
+              iconName = 'card-account-details'; // ícone da carteirinha
               break;
             default:
               iconName = 'circle';
@@ -117,6 +121,16 @@ const MainTabs = () => {
           title: 'Meus Dados',
         }}
       />
+      {/* <Tab.Screen
+        name="user-personal-carteirinha-screen"
+        component={UserPersonalCarteirinhaScreen}
+        options={{
+          tabBarLabel: 'Carteirinha',
+          headerShown: false,
+          headerShadowVisible: false,
+          title: 'Carteirinha',
+        }}
+      /> */}
       <Tab.Screen
         name="user-mdv"
         component={MdvStackNavigator}

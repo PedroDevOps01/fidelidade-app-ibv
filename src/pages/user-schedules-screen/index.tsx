@@ -83,7 +83,7 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
     const cod_paciente = dadosUsuarioData.pessoaDados?.id_pessoa_pes;
 
     try {
-      const response = await api.get(`/integracao/listAgendamentos?token_paciente=${token}&cod_paciente=${cod_paciente}`, {
+      const response = await api.get(`/integracao/listAgendamentos?cod_paciente=${cod_paciente}`, {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
