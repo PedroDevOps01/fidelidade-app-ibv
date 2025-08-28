@@ -1025,135 +1025,144 @@ const styles = StyleSheet.create({
   },
   purpleSection: {
     backgroundColor: '#644086',
-    height: SCREEN_HEIGHT * 0.35,
+    height: Platform.select({
+      ios: Platform.isPad ? SCREEN_HEIGHT * 0.20 : SCREEN_HEIGHT * 0.38,
+      android: Platform.isPad ? SCREEN_HEIGHT * 0.20 : SCREEN_HEIGHT * 0.38,
+    }),
     justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingTop: 20,
+    paddingTop: Platform.select({
+      ios: Platform.isPad ? 10 : 15,
+      android: Platform.isPad ? 10 : 15,
+    }),
     // borderBottomLeftRadius: 20,
     // borderBottomRightRadius: 20,
   },
   logo: {
-    width: 150,
-    height: 150,
-    marginTop: 10,
+    width: 120, // Reduzido para evitar dominância visual
+    height: 120,
+    marginTop: 10, // Reduzido para mais equilíbrio
   },
   welcomeContainer: {
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 15, // Reduzido para evitar excesso de espaço
   },
   welcomeText: {
-    fontSize: 24,
+    fontSize: 20, // Reduzido para legibilidade sem zoom (mínimo 17pt)
     color: '#fff',
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 5, // Reduzido para equilíbrio
   },
   subtitleText: {
-    fontSize: 16,
+    fontSize: 14, // Reduzido para harmonia com o layout
     color: '#fff',
     opacity: 0.9,
   },
   whiteSection: {
     flex: 1,
     backgroundColor: '#f7f7f7',
-    marginTop: -20,
-    borderTopLeftRadius: 20,
+    marginTop: -15, // Ajustado para menor sobreposição
+    borderTopLeftRadius: 20, // Mantido para consistência
     borderTopRightRadius: 20,
   },
   scrollContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 20,
+    paddingHorizontal: 16, // Reduzido para espaço mais natural
+    paddingBottom: 20, // Reduzido para equilíbrio
   },
   sectionContainer: {
-    marginTop: 25,
-    marginBottom: 10,
+    marginTop: 20, // Reduzido para separar sem exagerar
+    marginBottom: 10, // Reduzido para equilíbrio
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 12, // Reduzido para harmonia
   },
   sectionTitle: {
     fontWeight: '700',
-    fontSize: 18,
+    fontSize: 16, // Reduzido para legibilidade sem dominância
     letterSpacing: 0.2,
   },
   parceirosList: {
-    paddingHorizontal: (SCREEN_WIDTH - SCREEN_WIDTH * 0.99) / 2,
+    paddingHorizontal: (SCREEN_WIDTH - SCREEN_WIDTH * 0.98) / 2, // Ajustado para menos padding
   },
   credenciadosList: {
-    paddingTop: 8,
+    paddingTop: 8, // Reduzido para equilíbrio
   },
   card: {
-    borderRadius: 15,
-    elevation: 2,
-    marginBottom: 16,
+    borderRadius: 12, // Reduzido para proporção
+    elevation: 2, // Reduzido para sombra mais suave
+    marginBottom: 12, // Reduzido para espaço adequado
+    padding: 10, // Adicionado padding interno para exibir botões
   },
   emptyCardContent: {
-    paddingVertical: 20,
+    paddingVertical: 15, // Reduzido para equilíbrio
   },
   indicatorContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 12,
+    marginTop: 10, // Reduzido para harmonia
   },
   indicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginHorizontal: 4,
+    width: 6, // Reduzido para visibilidade sem excesso
+    height: 6,
+    borderRadius: 3, // Reduzido para consistência
+    marginHorizontal: 3, // Reduzido para equilíbrio
   },
   credenciadoCard: {
-    borderRadius: 12,
-    marginBottom: 12,
-    elevation: 2,
+    borderRadius: 10, // Reduzido para proporção
+    marginBottom: 10, // Reduzido para espaço adequado
+    elevation: 2, // Reduzido para sombra mais suave
     overflow: 'hidden',
     backgroundColor: '#f8f8f8',
+    padding: 10, // Adicionado padding interno para exibir botões
   },
   credenciadoContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    padding: 10, // Reduzido para equilíbrio
   },
   credenciadoImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 10,
-    marginRight: 16,
+    width: 50, // Reduzido para evitar dominância
+    height: 50,
+    borderRadius: 8, // Reduzido para consistência
+    marginRight: 10, // Reduzido para equilíbrio
   },
   credenciadoInfo: {
     flex: 1,
   },
   credenciadoTitle: {
     fontWeight: '600',
-    marginBottom: 4,
+    fontSize: 14, // Reduzido para legibilidade sem zoom
+    marginBottom: 4, // Reduzido para equilíbrio
   },
   credenciadoLocation: {
-    marginBottom: 8,
+    marginBottom: 6, // Reduzido para harmonia
     color: '#666',
   },
   credenciadoBadge: {
     alignSelf: 'flex-start',
-    borderRadius: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    borderRadius: 4, // Reduzido para proporção
+    paddingHorizontal: 6, // Reduzido para equilíbrio
+    paddingVertical: 4, // Reduzido para equilíbrio
   },
   credenciadoBadgeText: {
     fontWeight: '500',
-    fontSize: 12,
+    fontSize: 12, // Reduzido para harmonia
   },
   credenciadoArrow: {
     margin: 0,
-    marginLeft: 8,
+    marginLeft: 8, // Reduzido para equilíbrio
   },
   termsHeader: {
     backgroundColor: '#644086',
-    padding: 25,
-    paddingTop: 15,
-    borderBottomLeftRadius: 15,
+    padding: 15, // Reduzido para proporção
+    paddingTop: 10, // Reduzido para equilíbrio
+    borderBottomLeftRadius: 15, // Reduzido para consistência
     borderBottomRightRadius: 15,
-    elevation: 4,
+    elevation: 4, // Reduzido para sombra mais suave
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -1161,36 +1170,38 @@ const styles = StyleSheet.create({
   },
   webViewContainer: {
     flex: 1,
-    margin: 15,
+    margin: 10, // Reduzido para equilíbrio
     marginBottom: 0,
-    borderRadius: 10,
+    borderRadius: 8, // Reduzido para proporção
     overflow: 'hidden',
     backgroundColor: 'white',
-    elevation: 2,
+    elevation: 2, // Reduzido para sombra mais suave
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
   },
   termsFooter: {
-    padding: 20,
-    paddingTop: 15,
+    padding: 15, // Reduzido para equilíbrio
+    paddingTop: 10, // Reduzido para harmonia
     backgroundColor: 'white',
     borderTopWidth: 1,
     borderTopColor: '#e0e0e0',
   },
   acceptButton: {
-    borderRadius: 8,
-    elevation: 2,
+    borderRadius: 8, // Reduzido para proporção
+    elevation: 2, // Reduzido para sombra mais suave
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 3,
+    minHeight: 44, // Mínimo 44x44 pontos para toque
+    paddingVertical: 8, // Ajustado para equilíbrio
   },
   footerText: {
     textAlign: 'center',
-    marginTop: 12,
-    fontSize: 12,
+    marginTop: 10, // Reduzido para harmonia
+    fontSize: 12, // Reduzido para equilíbrio
     color: '#666',
   },
   loadingContainer: {
@@ -1205,66 +1216,100 @@ const styles = StyleSheet.create({
   modalContainer: {
     position: 'absolute',
     bottom: 0,
-    width: '100%',
+    width: Platform.select({
+      ios: Platform.isPad ? '100%' : '100%', // Ajuste para iPad, original para iPhone
+      android: Platform.isPad ? '100%' : '100%',
+    }),
+    alignSelf: 'center',
     backgroundColor: 'white',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    padding: 20,
-    maxHeight: '100%',
+    padding: Platform.select({
+      ios: Platform.isPad ? 10 : 15, // Ajuste para iPad, original para iPhone
+      android: Platform.isPad ? 10 : 15,
+    }),
+    maxHeight: Platform.select({
+      ios: Platform.isPad ? '100%' : '100%', // Ajuste para iPad, original para iPhone
+      android: Platform.isPad ? '100%' : '100%',
+    }),
   },
   modalImage: {
     width: '100%',
-    height: 250,
-    borderRadius: 15,
-    marginBottom: 15,
+    height: 200, // Reduzido para proporção
+    borderRadius: 12, // Reduzido para consistência
+    marginBottom: 10, // Reduzido para equilíbrio
   },
   modalContent: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 10, // Reduzido para harmonia
   },
   modalTitle: {
     fontWeight: 'bold',
-    marginBottom: 10,
+    fontSize: 18, // Reduzido para legibilidade sem zoom
+    marginBottom: 8, // Reduzido para equilíbrio
     textAlign: 'center',
   },
   modalDescription: {
-    marginBottom: 15,
+    marginBottom: 12, // Reduzido para harmonia
     textAlign: 'center',
     color: '#666',
   },
   modalSectionTitle: {
     fontWeight: 'bold',
-    marginTop: 10,
-    marginBottom: 10,
+    fontSize: 14, // Reduzido para equilíbrio
+    marginTop: 10, // Reduzido para harmonia
+    marginBottom: 8, // Reduzido para equilíbrio
   },
   benefitItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 8, // Reduzido para harmonia
   },
   benefitIcon: {
     margin: 0,
-    marginRight: 8,
+    marginRight: 8, // Reduzido para equilíbrio
     padding: 0,
   },
   benefitText: {
     flex: 1,
   },
-  modalButton: {
-    marginTop: 20,
-    borderRadius: 10,
-    paddingVertical: 8,
+   modalButton: {
+    marginTop: Platform.select({
+      ios: Platform.isPad ? 12 : 15, // Ajuste para iPad, original para iPhone
+      android: Platform.isPad ? 12 : 15,
+    }),
+    borderRadius: Platform.select({
+      ios: Platform.isPad ? 6 : 8, // Ajuste para iPad, original para iPhone
+      android: Platform.isPad ? 6 : 8,
+    }),
+    paddingVertical: Platform.select({
+      ios: Platform.isPad ? 6 : 2, // Ajuste para iPad, original para iPhone
+      android: Platform.isPad ? 6 : 2,
+    }),
+    minHeight: 44,
   },
   modalButtonText: {
     fontWeight: 'bold',
+    fontSize: 14, // Reduzido para harmonia
   },
   modalCloseButton: {
-    marginTop: 10,
-    borderRadius: 10,
-    paddingVertical: 8,
+    marginTop: Platform.select({
+      ios: Platform.isPad ? 8 : 5, // Ajuste para iPad, original para iPhone
+      android: Platform.isPad ? 8 : 5,
+    }),
+    borderRadius: Platform.select({
+      ios: Platform.isPad ? 6 : 8, // Ajuste para iPad, original para iPhone
+      android: Platform.isPad ? 6 : 8,
+    }),
+    paddingVertical: Platform.select({
+      ios: Platform.isPad ? 4 : 2, // Ajuste para iPad, original para iPhone
+      android: Platform.isPad ? 4 : 2,
+    }),
     borderWidth: 1,
+    minHeight: 44,
   },
   modalCloseButtonText: {
     fontWeight: 'bold',
+    fontSize: 14, // Reduzido para harmonia
   },
 });
 

@@ -5,6 +5,8 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
+    "ipad": "react-native run-ios --scheme fidelidadedemoapp --udid A8C8557E-C8E9-4086-AE5E-850961E46235",
+
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest"
