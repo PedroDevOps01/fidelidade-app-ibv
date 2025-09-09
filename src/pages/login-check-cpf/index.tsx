@@ -132,7 +132,11 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
 
   return (
     <ImageBackground source={require('../../assets/images/fundologin.jpeg')} style={styles.background} resizeMode="cover">
-      <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.container}>
+<KeyboardAwareScrollView
+  keyboardShouldPersistTaps="handled"
+  contentContainerStyle={styles.container}
+  scrollEnabled={false} // 🔹 impede scroll ao segurar no iOS
+>
         <ModalContainer visible={isRecoverPassworrdModalVisible} handleVisible={() => setIsRecoverPassworrdModalVisible(false)}>
           <EsqueceuSenhaForm />
         </ModalContainer>

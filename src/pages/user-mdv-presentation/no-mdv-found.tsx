@@ -47,7 +47,7 @@ export default function NoMdvFound() {
   labelStyle={styles.buttonLabel}
   contentStyle={styles.buttonContent}
 >
-  Quero Ser um Vendedor!
+  Quero ser um vendedor!
 </Button>
         </View>
       </KeyboardAwareScrollView>

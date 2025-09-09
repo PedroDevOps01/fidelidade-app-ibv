@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Alert, RefreshControl, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, RefreshControl, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View, Dimensions } from 'react-native';
 import { Button, Icon, Menu, Text, useTheme } from 'react-native-paper';
 import { navigate } from '../../router/navigationRef';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -14,8 +14,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import ModalContainer from '../../components/modal';
 import CustomDatePicker from '../../components/custom-date-picker';
 import { TextInput } from 'react-native-paper';
-import {useLayoutEffect} from "react";
-
+import { useLayoutEffect } from "react";
 import dayjs from 'dayjs';
 
 type DashboardDates = {
@@ -23,7 +22,9 @@ type DashboardDates = {
   endDate: Date | null;
 };
 
-export default function UserMdvHome({navigation}: {navigation: any}) {
+const { width } = Dimensions.get('window');
+
+export default function UserMdvHome({ navigation }: { navigation: any }) {
   const { colors } = useTheme();
   const { dadosUsuarioData } = useDadosUsuario();
   const { authData } = useAuth();
@@ -38,20 +39,27 @@ export default function UserMdvHome({navigation}: {navigation: any}) {
   const [dates, setDates] = useState<DashboardDates>({
     startDate: null,
     endDate: null,
-
   });
 
   const [totalSales, setTotalSales] = useState<Sale[]>([]);
- useLayoutEffect(() => {
-     navigation.setOptions({ headerShown: true,
-                  title: 'Minhas Vendas',
-                          headerTitleAlign: 'center',
-
-                    headerStyle: { backgroundColor: colors.primaryContainer },
-    headerTintColor: colors.onPrimaryContainer,
   
-       });
-    }, [navigation]);
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: true,
+      title: 'Minhas Vendas',
+      headerTitleAlign: 'center',
+      headerStyle: { 
+        backgroundColor: colors.primary,
+        elevation: 0,
+        shadowOpacity: 0,
+      },
+      headerTintColor: colors.onPrimary,
+      headerTitleStyle: {
+        fontWeight: '700',
+        fontSize: 20,
+      },
+    });
+  }, [navigation]);
 
   const data = dadosUsuarioData.pessoaMdv?.map(e => {
     let tipo = '';
@@ -81,8 +89,8 @@ export default function UserMdvHome({navigation}: {navigation: any}) {
     const response = await api.get(qry, generateRequestHeader(authData.access_token));
     if (response.status == 200) {
       const { data } = response;
-      //log(`usuario-mdv/relatorio/vendas/${id_pessoa}`, data);
       setTotalSales(data.response);
+      console.log('fetchMonthlySales -> data', data);
       setLoading(false);
     } else {
       Alert.alert('Aviso', 'Erro ao carregar vendas! Tente novamente mais tarde.');
@@ -96,27 +104,23 @@ export default function UserMdvHome({navigation}: {navigation: any}) {
   useFocusEffect(handleFocusEffect);
 
   return (
-<ScrollView
-  style={{ flex: 1 }}
-  contentContainerStyle={{
-    padding: 16,
-    paddingBottom: 0, // ou remova completamente
-    minHeight: '100%', // força o conteúdo a ocupar pelo menos a tela toda
-    backgroundColor: colors.background,
-  }}
-  refreshControl={
-    <RefreshControl
-      colors={[colors.primary]}
-      tintColor={colors.primary}
-      onRefresh={fetchMonthlySales}
-    />
-  }
->
-
-
+    <ScrollView
+      style={{ flex: 1, backgroundColor: colors.background }}
+      contentContainerStyle={{
+        padding: 16,
+        paddingBottom: 30,
+      }}
+      refreshControl={
+        <RefreshControl
+          colors={[colors.primary]}
+          tintColor={colors.primary}
+          onRefresh={fetchMonthlySales}
+        />
+      }
+    >
       {/* Filtros */}
       <View style={styles.filtersContainer}>
-        <View style={[styles.filterCard, { backgroundColor: colors.surface }]}>
+        <View style={[styles.filterCard, { backgroundColor: colors.surface, borderRadius: 16, elevation: 3 }]}>
           <Text variant="labelMedium" style={[styles.filterLabel, { color: colors.onSurfaceVariant }]}>
             NÍVEL DE VENDEDOR
           </Text>
@@ -124,13 +128,13 @@ export default function UserMdvHome({navigation}: {navigation: any}) {
             style={[
               styles.dropdown,
               {
-                backgroundColor: colors.primary,
-                borderColor: isFocus ? colors.primary : colors.outline,
+                backgroundColor: colors.surface,
+                borderColor: isFocus ? colors.primaryContainer : colors.primaryContainer,
               },
             ]}
-            placeholderStyle={styles.placeholderStyle}
-            selectedTextStyle={[styles.selectedTextStyle, { color: colors.onTertiary }]}
-            iconStyle={[styles.iconStyle, { color: colors.onTertiary }]}
+            placeholderStyle={[styles.placeholderStyle, { color: colors.primaryContainer }]}
+            selectedTextStyle={[styles.selectedTextStyle, { color: colors.primaryContainer }]}
+            iconStyle={[styles.iconStyle, { tintColor: colors.primary }]}
             data={data!}
             labelField="label"
             valueField="value"
@@ -145,17 +149,24 @@ export default function UserMdvHome({navigation}: {navigation: any}) {
           />
         </View>
       </View>
-      <TouchableOpacity onPress={() => setPeriodModalVisible(true)} style={[styles.dateFilterButton, { backgroundColor: colors.primary }]}>
-        <Icon source="calendar" size={20} color={colors.onTertiary} />
-        <Text variant="labelMedium" style={{ color: colors.onTertiary, marginLeft: 8 }}>
+      
+      <TouchableOpacity 
+        onPress={() => setPeriodModalVisible(true)} 
+        style={[styles.dateFilterButton, { backgroundColor: colors.surface, borderColor: colors.primary }]}
+      >
+        <Icon source="calendar" size={20} color={colors.primary} />
+        <Text variant="labelMedium" style={{ color: colors.primary, marginLeft: 8 }}>
           Filtro Data: {dates.startDate ? formatDate(dates.startDate) : 'Início'} - {dates.endDate ? formatDate(dates.endDate) : 'Fim'}
         </Text>
+
       </TouchableOpacity>
+                      <CopyMdvLink id={value} codigoPromocional={codigoPromocional} />
+
       {/* Dashboard de Métricas */}
       <View style={styles.metricsContainer}>
         <TotalSalesValue salesData={totalSales} currentMdv={value} />
 
-        <View style={styles.chartContainer}>
+        <View style={[styles.chartContainer, { backgroundColor: colors.surface, borderRadius: 16, elevation: 2 }]}>
           <SalesChart salesData={totalSales} loading={loading} />
         </View>
       </View>
@@ -163,34 +174,23 @@ export default function UserMdvHome({navigation}: {navigation: any}) {
       {/* Ações Rápidas */}
       <View style={styles.actionsContainer}>
         <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: colors.surface, borderColor: colors.primary,  }]}
+          style={[styles.actionButton, { backgroundColor: colors.surface, borderColor: colors.primary }]}
           onPress={() => navigate('user-mdv-sales-extract', { recipient_id: dadosUsuarioData.pessoaMdv?.filter(e => e.id_usuario_mdv_umv == value)[0].cod_recipients_umv })}>
           <Icon source="file-document" size={24} color={colors.primary} />
           <Text variant="labelLarge" style={[styles.actionText, { color: colors.primary }]}>
-            Meu Extrato
+            Meu extrato
           </Text>
         </TouchableOpacity>
 
-        {/* <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: colors.surface, borderColor: colors.primary, }]}
-          onPress={() => {
-            setInputCodigo(codigoPromocional ?? '');
-            setModalCodigoVisible(true);
-          }}>
-          <Icon source="ticket" size={24} color={colors.primary} />
-          <Text variant="labelLarge" style={[styles.actionText, { color: colors.primary }]}>
-            Código Promocional
-          </Text>
-        </TouchableOpacity> */}
-
-        <CopyMdvLink id={value} codigoPromocional={codigoPromocional} />
       </View>
 
       {/* Modal de Código Promocional */}
       <ModalContainer visible={modalCodigoVisible} handleVisible={() => setModalCodigoVisible(false)}>
-        <Text variant="titleMedium" style={styles.modalTitle}>
-          Código Promocional
-        </Text>
+        <View style={styles.modalHeader}>
+          <Text variant="titleMedium" style={styles.modalTitle}>
+            Código Promocional
+          </Text>
+        </View>
 
         <TextInput
           mode="outlined"
@@ -203,7 +203,12 @@ export default function UserMdvHome({navigation}: {navigation: any}) {
         />
 
         <View style={styles.modalActions}>
-          <Button mode="outlined" style={styles.modalButton} onPress={() => setModalCodigoVisible(false)}>
+          <Button 
+            mode="outlined" 
+            style={[styles.modalButton, { borderColor: colors.primary }]} 
+            onPress={() => setModalCodigoVisible(false)}
+            labelStyle={{ color: colors.primary }}
+          >
             Cancelar
           </Button>
           <Button
@@ -219,7 +224,9 @@ export default function UserMdvHome({navigation}: {navigation: any}) {
                 setCodigoPromocional(novoCodigo);
                 setInputCodigo(novoCodigo);
               }
-            }}>
+            }}
+            labelStyle={{ color: colors.onPrimary }}
+          >
             Salvar
           </Button>
         </View>
@@ -227,20 +234,22 @@ export default function UserMdvHome({navigation}: {navigation: any}) {
 
       {/* Modal de Período */}
       <ModalContainer visible={periodModalVisible} handleVisible={() => setPeriodModalVisible(false)}>
-        <Text variant="titleMedium" style={styles.modalTitle}>
-          Selecionar Período
-        </Text>
+        <View style={styles.modalHeader}>
+          <Text variant="titleMedium" style={styles.modalTitle}>
+            Selecionar Período
+          </Text>
+        </View>
 
         <View style={styles.datePickerContainer}>
           <View style={styles.dateInput}>
-            <Text variant="bodyMedium" style={styles.dateLabel}>
+            <Text variant="bodyMedium" style={[styles.dateLabel, { color: colors.onSurface }]}>
               Data Inicial
             </Text>
             <CustomDatePicker value={dates.startDate} onChange={(e, date) => date && setDates(prev => ({ ...prev, startDate: date }))} mode="date" />
           </View>
 
           <View style={styles.dateInput}>
-            <Text variant="bodyMedium" style={styles.dateLabel}>
+            <Text variant="bodyMedium" style={[styles.dateLabel, { color: colors.onSurface }]}>
               Data Final
             </Text>
             <CustomDatePicker value={dates.endDate} onChange={(e, date) => date && setDates(prev => ({ ...prev, endDate: date }))} mode="date" />
@@ -248,7 +257,12 @@ export default function UserMdvHome({navigation}: {navigation: any}) {
         </View>
 
         <View style={styles.modalActions}>
-          <Button mode="outlined" style={styles.modalButton} onPress={() => setPeriodModalVisible(false)}>
+          <Button 
+            mode="outlined" 
+            style={[styles.modalButton, { borderColor: colors.primary }]} 
+            onPress={() => setPeriodModalVisible(false)}
+            labelStyle={{ color: colors.primary }}
+          >
             Cancelar
           </Button>
           <Button
@@ -257,7 +271,9 @@ export default function UserMdvHome({navigation}: {navigation: any}) {
             onPress={() => {
               setPeriodModalVisible(false);
               fetchMonthlySales();
-            }}>
+            }}
+            labelStyle={{ color: colors.onPrimary }}
+          >
             Aplicar
           </Button>
         </View>
@@ -271,7 +287,6 @@ const formatDate = (date: Date) => dayjs(date).format('DD/MM/YY');
 
 // Estilos Atualizados (com adições para o novo modal)
 const styles = StyleSheet.create({
-
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -296,36 +311,44 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 16,
     padding: 16,
-    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   filterLabel: {
     marginBottom: 8,
     opacity: 0.8,
+    fontWeight: '600',
   },
   dateFilterButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 16,
+    borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    marginLeft: 15,
+    marginBottom: 20,
+    borderWidth: 1,
     alignSelf: 'flex-start',
   },
   dropdown: {
-    height: 40,
+    height: 45,
     borderRadius: 12,
     paddingHorizontal: 12,
+    borderWidth: 1,
   },
   placeholderStyle: {
     fontSize: 14,
-    color: '#999',
   },
   selectedTextStyle: {
     fontSize: 14,
     fontWeight: '500',
   },
   iconStyle: {
-    color: '#FFFFFF',
     width: 20,
     height: 20,
   },
@@ -336,6 +359,14 @@ const styles = StyleSheet.create({
   chartContainer: {
     borderRadius: 16,
     overflow: 'hidden',
+    padding: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
     elevation: 3,
   },
   actionsContainer: {
@@ -345,25 +376,37 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   actionButton: {
-  flex: 1,
-  minWidth: 120,
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderRadius: 16,
-  padding: 12,
-  elevation: 1,
-
-  borderWidth: 1, // largura da borda
-},
+    flex: 1,
+    minWidth: 120,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
   actionText: {
     marginLeft: 12,
-    fontWeight: '500',
+    fontWeight: '600',
+  },
+  modalHeader: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    paddingBottom: 16,
+    marginBottom: 20,
   },
   modalTitle: {
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 24,
+    fontSize: 18,
   },
   datePickerContainer: {
     gap: 20,
@@ -373,6 +416,7 @@ const styles = StyleSheet.create({
   },
   dateLabel: {
     opacity: 0.8,
+    fontWeight: '500',
   },
   modalActions: {
     flexDirection: 'row',
@@ -382,27 +426,28 @@ const styles = StyleSheet.create({
   modalButton: {
     flex: 1,
     marginHorizontal: 6,
-    borderRadius: 12,
+    borderRadius: 8,
+    paddingVertical: 4,
   },
   textInput: {
-    backgroundColor: '#FEF7FF',
     marginBottom: 20,
+    backgroundColor: 'transparent',
   },
 });
 
 async function enviarCodigoPromo(id: number, codigo: string, token: string) {
   try {
-    console.log('enviarCodigoPromo chamado com:', { id, codigo }); // <-- log aqui
+    console.log('enviarCodigoPromo chamado com:', { id, codigo });
 
     const response = await api.post('/usuario-mdv/relatorio/receberCodigoPromo', { id, codigo }, generateRequestHeader(token));
-    console.log('Resposta do servidor:', response.data); // <-- log resposta
+    console.log('Resposta do servidor:', response.data);
 
     if (response.data.success) {
       Alert.alert('Sucesso', response.data.mensagem);
       return response.data.codigoPromocional; // Retorna o código válido
     }
   } catch (error: any) {
-    console.error('Erro ao enviar código promocional:', error); // <-- log erro
+    console.error('Erro ao enviar código promocional:', error);
 
     if (error.response && error.response.data.errors) {
       const mensagens = Object.values(error.response.data.errors).flat().join('\n');

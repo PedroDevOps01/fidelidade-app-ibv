@@ -162,7 +162,7 @@ export default function UserConsultasScreen({ navigation }: { navigation: any })
             tabLabelStyle={{ fontWeight: '600' }}
           >
             <TabScreen
-              label={currentProcedureMethod === 'exame' ? 'Procedimento' : 'Área de Atuação'}
+              label={currentProcedureMethod === 'exame' ? 'Procedimento' : 'Procedimento'}
               icon="stethoscope"
             >
               <View style={styles.tabContent}>

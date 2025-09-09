@@ -48,6 +48,7 @@ end
 
 target 'fidelidadedemoapp' do
   config = use_native_modules!
+project 'fidelidadeappajudda.xcodeproj'
 
   use_react_native!(
     :path => config[:reactNativePath],

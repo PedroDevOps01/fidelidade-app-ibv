@@ -45,22 +45,25 @@ export default function UserMdvSalesDetails() {
         </View>
         <View style={styles.infoRow}>
           <Text style={[styles.label, { color: colors.onSurface }]}>Valor:</Text>
-          <Text style={[styles.value, { color: colors.primary }]}>
-            R$ {maskBrazilianCurrency(item.vlr_parcela_ppg)}
-          </Text>
+         <Text style={[styles.value, { color: colors.primary }]}>
+  {maskBrazilianCurrency(item.vlr_parcela_ppg ?? 0)}
+</Text>
+
+
         </View>
         <View style={styles.infoRow}>
           <Text style={[styles.label, { color: colors.onSurface }]}>Data de Pagamento:</Text>
-          <Text style={[styles.value, { color: colors.onSurface }]}>
-            {formatDateToDDMMYYYY(item.dta_pagamento_cpp) || 'Não pago'}
-          </Text>
+          
+<Text style={[styles.value, { color: colors.onSurface }]}>
+  {item.dta_pagamento_cpp ? formatDateToDDMMYYYY(item.dta_pagamento_cpp) : 'Não pago'}
+</Text>
         </View>
       </Card.Content>
     </Card>
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.fundo }]}>
      
       <FlatList
         data={sales}

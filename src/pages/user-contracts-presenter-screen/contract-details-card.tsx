@@ -11,10 +11,9 @@ interface ContractDetailCardProps {
 
 export default function ContractDetailCard({ contract, onPress }: ContractDetailCardProps) {
   const { colors } = useTheme();
-  const isPopular = contract.id_plano_pla === 2;
+  const isPopular = contract.id_plano_pla === 72;
   const scaleValue = useRef(new Animated.Value(1)).current;
-  console.log('ContractDetailCardProps:', contract);
-
+  console.log(contract)
   const handlePressIn = () => {
     Animated.spring(scaleValue, {
       toValue: 0.98,
@@ -86,23 +85,28 @@ export default function ContractDetailCard({ contract, onPress }: ContractDetail
           }]} />
 
           <View style={styles.featuresContainer}>
-            {contract.des_descricao_pla?.split('\n').map((feature, index) => (
-              <View key={index} style={styles.featureItem}>
-                <Icon 
-                  name="check-circle" 
-                  size={16} 
-                  color={isPopular ? '#FFD700' : colors.primary} 
-                  style={styles.featureIcon} 
-                />
-                <Text style={[
-                  styles.featureText,
-                  { color: isPopular ? '#FFF' : colors.text }
-                ]}>
-                  {feature}
-                </Text>
-              </View>
-            ))}
-          </View>
+  {contract.des_descricao_pla
+    ?.split(/\n|\|/) // divide por quebra de linha OU barra reta
+    .map((feature, index) => (
+      <View key={index} style={styles.featureItem}>
+        <Icon
+          name="check-circle"
+          size={16}
+          color={isPopular ? '#FFD700' : colors.primary}
+          style={styles.featureIcon}
+        />
+        <Text
+          style={[
+            styles.featureText,
+            { color: isPopular ? '#FFF' : colors.text }
+          ]}
+        >
+          {feature.trim()} 
+        </Text>
+      </View>
+    ))}
+</View>
+
 
           {Number(contract.qtd_max_dependentes_pla) > 0 && (
             <View style={[
@@ -156,13 +160,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
+    marginTop:15,
     borderWidth: 1,
     borderColor: '#EEE',
   },
   popularTouchable: {
-    backgroundColor: '#6E45E2',
+    backgroundColor: '#b183ff',
     borderColor: 'transparent',
-    shadowColor: '#6E45E2',
+    shadowColor: '#b183ff',
     shadowOpacity: 0.3,
   },
   card: {
@@ -171,7 +176,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   popularCard: {
-    backgroundColor: '#6E45E2',
+    backgroundColor: '#b183ff',
   },
   popularBadge: {
     position: 'absolute',
@@ -270,7 +275,7 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   popularSelectButtonText: {
-    color: '#6E45E2',
+    color: '#b183ff',
   },
   arrowIcon: {
     marginLeft: 8,

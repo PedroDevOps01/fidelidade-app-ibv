@@ -33,7 +33,7 @@ export default function CopyMdvLink({ id, codigoPromocional }: Props) {
   return (
     <View style={{ width: '100%', paddingVertical: 20, borderRadius: 12, padding: 12, overflow: 'hidden', backgroundColor: colors.surface }}>
       <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.onSurface, marginBottom: 10 }}>
-        Meu link de venda
+        Link de venda:
       </Text>
 
       <Button key={'get_all_money'} mode="contained" onPress={shareMessage}>

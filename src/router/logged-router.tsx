@@ -101,7 +101,7 @@ const MainTabs = () => {
         name="user-schedules"
         component={SchedulesStackNavigator}
         options={{
-          tabBarLabel: 'Agendamentos',
+          tabBarLabel: 'Agendar',
           headerShown: false,
           headerShadowVisible: false,
           title: 'Agendamentos',
@@ -121,7 +121,7 @@ const MainTabs = () => {
           title: 'Meus Dados',
         }}
       />
-      {/* <Tab.Screen
+      <Tab.Screen
         name="user-personal-carteirinha-screen"
         component={UserPersonalCarteirinhaScreen}
         options={{
@@ -130,7 +130,7 @@ const MainTabs = () => {
           headerShadowVisible: false,
           title: 'Carteirinha',
         }}
-      /> */}
+      />
       <Tab.Screen
         name="user-mdv"
         component={MdvStackNavigator}

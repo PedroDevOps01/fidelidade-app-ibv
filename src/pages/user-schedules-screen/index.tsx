@@ -31,13 +31,13 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
     {
       icon: 'calendar-today',
       onPress: () => handleFabPress('consulta'),
-      label: 'Nova consulta',
+      label: 'Nova Consulta',
       style: { backgroundColor: colors.primary },
     },
     {
       icon: 'stethoscope',
       onPress: () => handleFabPress('exame'),
-      label: `${selectedExams.length > 0 ? 'Adicionar' : 'Novo'} exame`,
+      label: `${selectedExams.length > 0 ? 'Adicionar' : 'Novo'} Exame`,
       style: { backgroundColor: colors.primary },
     },
     {
@@ -45,7 +45,7 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
       onPress: () => {
         navigate('user-shcdules-history-screen');
       },
-      label: 'Agendamentos realizados',
+      label: 'Agendamentos Realizados',
       style: { backgroundColor: colors.primary },
     },
   ];
@@ -90,11 +90,13 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
           Authorization: `Bearer ${authData.access_token}`,
         },
       });
-  console.log('Response:', response.data);
 
       if (response.status == 200) {
         const { data } = response;
+   
         setUserSchedulesData(data);
+                console.log(data) 
+
       }
     } catch (err: any) {
       //console.log(err);
@@ -103,7 +105,11 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
       setLoading(false);
     }
   };
-
+useEffect(() => {
+  if (isFocused) {
+    fetchSchedules();
+  }
+}, [isFocused]);
   const NoSchedulesComponent = () => (
     <View style={[styles.containerErrorComponent, { backgroundColor: colors.background }]}>
       <IconButton icon="calendar-remove-outline" size={64} iconColor={colors.primary} style={styles.icon} />

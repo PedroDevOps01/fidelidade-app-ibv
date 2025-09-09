@@ -16,6 +16,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 import { maskBrazilianCurrency } from '../../utils/app-utils';
+import { Alert } from 'react-native';
 
 dayjs.locale('pt-br');
 
@@ -115,41 +116,77 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
   };
 
   const getScheduleRequestData = (assinante: boolean, procedure: any) => {
-    if (dadosUsuarioData.user.id_usuario_usr == 0) {
-      CustomToast('Você precisa estar logado para continuar.', colors, 'error');
-      navigate('user-login-screen-exams');
-      return;
-    }
+  if (dadosUsuarioData.user.id_usuario_usr == 0) {
+    CustomToast('Você precisa estar logado para continuar.', colors, 'error');
+    navigate('user-login-screen-exams');
+    return;
+  }
 
-    let schedule: ScheduleRequest = {
-      data_agenda: selectedDate!,
-      cod_agenda: Number(procedure.cod_agenda),
-      cod_empresa: Number(procedure.cod_empresa),
-      cod_horarioagenda: Number(procedure.cod_horarioagenda),
-      cod_paciente: Number(dadosUsuarioData.pessoaDados?.id_pessoa_pes),
+  // 🚨 Verificação de assinatura antes de seguir
+  if (assinante && !dadosUsuarioData.pessoaAssinatura?.assinatura_liberada) {
+    Alert.alert(
+      'Torne-se um Assinante!',
+      'Não é assinante? Venha agora e aproveite descontos exclusivos para agendar seus procedimentos com preços especiais!',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Assinar Agora',
+          onPress: () => navigate('user-contracts-stack'),
+          style: 'default',
+        },
+      ],
+      { cancelable: true }
+    );
+    return;
+  }
 
-      cod_pessoa_pes: Number(dadosUsuarioData.pessoaDados?.id_pessoa_pes),
-      cod_procedimento: assinante ? Number(procedure.cod_procedimento_assinatura) : Number(procedure.cod_procedimento_particular),
-      cod_profissional: Number(procedure.cod_profissional),
-      cod_sala: Number(procedure.cod_sala),
-      hora_agenda: procedure.selected_time.split(':').slice(0, 2).join(':'), // Normaliza para HH:MM
-      payment_method: null,
-      token_paciente: dadosUsuarioData.pessoaDados?.cod_token_pes!,
-      vlr_procedimento: assinante ? convertStringToNumber(procedure.vlr_procedimento_assinatura) : convertStringToNumber(procedure.vlr_procedimento_particular),
-      cod_parceiro: Number(route.params.procedimento.cod_parceiro), // Add cod_parceiro
-    };
+  let schedule: ScheduleRequest = {
+    data_agenda: selectedDate!,
+    cod_agenda: Number(procedure.cod_agenda),
+    cod_empresa: Number(procedure.cod_empresa),
+    cod_horarioagenda: Number(procedure.cod_horarioagenda),
+    cod_paciente: Number(dadosUsuarioData.pessoaDados?.id_pessoa_pes),
 
-    navigate('user-select-payment-method', schedule);
+    cod_pessoa_pes: Number(dadosUsuarioData.pessoaDados?.id_pessoa_pes),
+    cod_procedimento: assinante
+      ? Number(procedure.cod_procedimento_assinatura)
+      : Number(procedure.cod_procedimento_particular),
+    cod_profissional: Number(procedure.cod_profissional),
+    cod_sala: Number(procedure.cod_sala),
+    hora_agenda: procedure.selected_time.split(':').slice(0, 2).join(':'), // Normaliza HH:MM
+    payment_method: null,
+    token_paciente: dadosUsuarioData.pessoaDados?.cod_token_pes!,
+    vlr_procedimento: assinante
+      ? convertStringToNumber(procedure.vlr_procedimento_assinatura)
+      : convertStringToNumber(procedure.vlr_procedimento_particular),
+    cod_parceiro: Number(route.params.procedimento.cod_parceiro),
   };
 
-  const handleTimeSelect = (time: string, professional: any) => {
-    const normalizedTime = time.split(':').slice(0, 2).join(':'); // Remove os segundos
-    setSelectedProfessional({
-      ...professional,
-      selected_time: normalizedTime,
-    });
-    openBottomSheet();
-  };
+  navigate('user-select-payment-method', schedule);
+};
+
+const handleTimeSelect = (time: string, professional: any) => {
+  const normalizedTime = time.split(':').slice(0, 2).join(':'); // HH:mm
+  const selectedDateTime = dayjs(`${selectedDate} ${normalizedTime}`, "YYYY-MM-DD HH:mm");
+
+  // 🚨 Verifica se a data/hora selecionada já passou
+  if (selectedDateTime.isBefore(dayjs())) {
+    Alert.alert(
+      "Horário inválido",
+      "Esse horário já passou. Por favor, selecione um horário válido."
+    );
+    return;
+  }
+
+  setSelectedProfessional({
+    ...professional,
+    selected_time: normalizedTime,
+  });
+  openBottomSheet();
+};
 
   const getFilteredProcedures = () => {
     const procedures = procedureTimeDetailsData.procedureTimeDetails;
@@ -349,21 +386,21 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
                     </View> */}
 
                     <Button
-                      mode="contained"
-                      icon="star"
-                      contentStyle={styles.buttonContent}
-                      style={[
-                        styles.button,
-                        {
-                          backgroundColor: colors.primary,
-                          marginTop: 20,
-                        },
-                      ]}
-                      disabled={!dadosUsuarioData.pessoaAssinatura?.assinatura_liberada}
-                      onPress={() => getScheduleRequestData(true, selectedProfessional)}
-                      labelStyle={styles.buttonLabel}>
-                      {`Assinante - R$ ${selectedProfessional.vlr_procedimento_assinatura}`}
-                    </Button>
+  mode="contained"
+  icon="star"
+  contentStyle={styles.buttonContent}
+  style={[
+    styles.button,
+    {
+      backgroundColor: colors.primary,
+      marginTop: 20,
+    },
+  ]}
+  onPress={() => getScheduleRequestData(true, selectedProfessional)}
+  labelStyle={styles.buttonLabel}
+>
+  {`Assinante - R$ ${selectedProfessional.vlr_procedimento_assinatura}`}
+</Button>
 
                     <Button
                       mode="outlined"

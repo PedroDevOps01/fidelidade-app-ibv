@@ -26,7 +26,6 @@ export default function UserExamsCheckLocal() {
   const { colors } = useTheme();
   const { selectedExams, setScheduleRequestData, scheduleRequest } = useExames();
   const { dadosUsuarioData } = useDadosUsuario();
-
   const [loading, setLoading] = useState<boolean>(false);
   const [locals, setLocals] = useState<ExamsLocals[]>([]);
   const [prices, setPrices] = useState<valueTypes>();
@@ -43,46 +42,75 @@ export default function UserExamsCheckLocal() {
   });
 
   // Busca os locais sempre que um exame é selecionado
-useEffect(() => {
-  if (selectedExams.length > 0) {
-    // extrai todos os ids dos exames selecionados
-    const procedimentosArray = selectedExams.map(exam => exam.id_procedimento_tpr);
-    fetchExamsLocals(procedimentosArray);
-  } else {
-    setLocals([]);
-  }
-}, [selectedExams]);
-
+  useEffect(() => {
+    if (selectedExams.length > 0) {
+      // extrai todos os ids dos exames selecionados
+      const procedimentosArray = selectedExams.map(exam => exam.id_procedimento_tpr);
+      fetchExamsLocals(procedimentosArray);
+    } else {
+      setLocals([]);
+    }
+  }, [selectedExams]);
 
   async function fetchExamsLocals(procedimentosArray: number[]) {
-  console.log('Fetching exams locals for IDs:', procedimentosArray);
-  setLoading(true);
+    console.log('Fetching exams locals for IDs:', procedimentosArray);
+    setLoading(true);
 
-  try {
-    const url = `integracao/listUnidadeProcedimentoExame`;
+    try {
+      const url = `integracao/listUnidadeProcedimentoExame`;
 
-    // envia o array via params usando axios
-    const response = await api.get(url, {
-      ...generateRequestHeader(authData.access_token),
-      params: { procedimentos_array: procedimentosArray }, // <- array enviado corretamente
-    });
+      const response = await api.get(url, {
+        ...generateRequestHeader(authData.access_token),
+        params: { procedimentos_array: procedimentosArray },
+      });
 
-    console.log('Response Status:', response.status);
-    console.log('Response Data:', response.data);
+      console.log('Response Status:', response.status);
+      console.log('Response Data:', response.data);
 
-    if (response.status === 200) {
-      setLocals(response.data);
-    } else {
-      Alert.alert('Aviso', 'Não foi possível carregar os locais.');
+      if (response.status === 200) {
+        const localsWithGroup = response.data.map(local => ({
+          ...local,
+          procedimentos: local.procedimentos.map((proc, index) => {
+            // Associa des_grupo_tpr com base no índice, assumindo que a API retorna na mesma ordem
+            const selectedExam = selectedExams[index] || null;
+            console.log('Matching proc:', {
+              proc,
+              selectedExam,
+              index,
+              procedimentosArray,
+            });
+            return {
+              ...proc,
+              des_grupo_tpr: selectedExam?.des_grupo_tpr || 'Grupo não encontrado',
+            };
+          }),
+        }));
+
+        // Ordena os locais pelo menor valor (considerando particular ou assinante)
+       
+
+          const sortedLocals = localsWithGroup.sort((a, b) => {
+  const priceA = setValuePrices(a.procedimentos);
+  const priceB = setValuePrices(b.procedimentos);
+
+  // pega sempre o menor valor entre particular e assinante para comparar
+  const minA = Math.min(priceA.vlr_particular || Infinity, priceA.vlr_assinante || Infinity);
+  const minB = Math.min(priceB.vlr_particular || Infinity, priceB.vlr_assinante || Infinity);
+
+  return minA - minB;
+});
+
+setLocals(sortedLocals);
+      } else {
+        Alert.alert('Aviso', 'Não foi possível carregar os locais.');
+      }
+    } catch (err: any) {
+      console.error('Error:', err);
+      Alert.alert('Aviso', 'Erro ao buscar dados. Tente novamente');
+    } finally {
+      setLoading(false);
     }
-
-  } catch (err: any) {
-    console.error('Error:', err);
-    Alert.alert('Aviso', 'Erro ao buscar dados. Tente novamente');
-  } finally {
-    setLoading(false);
   }
-}
 
   function setValuePrices(items: ExamsLocalsProcedure[]) {
     const result = items.reduce(
@@ -106,6 +134,26 @@ useEffect(() => {
   };
 
   function onTypeSelect(vlr_total: number, typeProcedure: 'particular' | 'assinante') {
+    if (typeProcedure === 'assinante' && !dadosUsuarioData.pessoaAssinatura?.assinatura_liberada) {
+      Alert.alert(
+        'Torne-se um Assinante!',
+        'Não é assinante? Venha agora e aproveite descontos exclusivos para agendar seus exames com preços especiais!',
+        [
+          {
+            text: 'Cancelar',
+            style: 'cancel',
+          },
+          {
+            text: 'Assinar Agora',
+            onPress: () => navigate('user-contracts-stack'), // Redirect to "Meu Plano" screen
+            style: 'default',
+          },
+        ],
+        { cancelable: true },
+      );
+      return;
+    }
+
     if (currentItem) {
       let convertedData: ScheduleRequest = convertExamsLocalsToScheduleRequest(
         currentItem!,
@@ -139,27 +187,53 @@ useEffect(() => {
       {loading ? (
         <LoadingFull />
       ) : (
+        
         <View style={[styles.container, { backgroundColor: colors.fundo }]}>
           {locals.length > 0 ? (
-            <FlatList
-              data={locals}
-              renderItem={({ item }) => <ExamsLocalsCard data={item} onPress={onCardPress} />}
-              contentContainerStyle={styles.listContent}
-              refreshControl={
-                <RefreshControl 
-                  refreshing={loading} 
-                  onRefresh={() => {
-                    if (selectedExams.length > 0) {
-                      fetchExamsLocals(selectedExams[selectedExams.length - 1].cod_procedimento);
-                    }
-                  }}
-                  colors={[colors.primary]}
-                  tintColor={colors.primary}
-                />
-              }
-              removeClippedSubviews={false}
-              ItemSeparatorComponent={() => <View style={styles.separator} />}
-            />
+            
+           <FlatList
+  data={locals}
+  renderItem={({ item }) => (
+    <ExamsLocalsCard data={item} onPress={onCardPress} />
+  )}
+  contentContainerStyle={styles.listContent}
+  ListHeaderComponent={
+     <View style={{ flexDirection: 'row', gap: 0 }}>
+            {[1, 2, 3].map((_, index) => (
+              <View
+                key={index}
+                style={{
+                  flex: 1,
+                  height: 6,
+                  marginRight: 20,
+                  marginTop:12,
+                  marginLeft: 20,
+                  borderRadius: 5,
+                  backgroundColor: index < 1 ? colors.primary : colors.onSecondary,
+                }}
+              />
+            ))}
+          </View>
+  }
+  refreshControl={
+    <RefreshControl
+      refreshing={loading}
+      onRefresh={() => {
+        if (selectedExams.length > 0) {
+          const procedimentosArray = selectedExams.map(
+            exam => exam.id_procedimento_tpr
+          );
+          fetchExamsLocals(procedimentosArray);
+        }
+      }}
+      colors={[colors.primary]}
+      tintColor={colors.primary}
+    />
+  }
+  removeClippedSubviews={false}
+  ItemSeparatorComponent={() => <View style={styles.separator} />}
+/>
+
           ) : (
             <ProcedureError
               icon="alert-circle"
@@ -174,7 +248,7 @@ useEffect(() => {
             index={-1}
             snapPoints={['38%']}
             enablePanDownToClose
-            handleIndicatorStyle={{ 
+            handleIndicatorStyle={{
               backgroundColor: colors.primary,
               width: 40,
               height: 4,
@@ -192,19 +266,18 @@ useEffect(() => {
                   <Text variant="titleMedium" style={[styles.bottomSheetTitle, { color: colors.onSurface }]}>
                     Selecione o tipo de atendimento
                   </Text>
-                  
+
                   <Button
-                    disabled={!dadosUsuarioData.pessoaAssinatura?.assinatura_liberada}
-                    style={[styles.button, { backgroundColor: dadosUsuarioData.pessoaAssinatura?.assinatura_liberada ? colors.primary : colors.surfaceDisabled }]}
+                    style={[styles.button, { backgroundColor: colors.primary }]}
                     mode="contained"
                     labelStyle={styles.buttonLabel}
                     onPress={() => onTypeSelect(prices?.vlr_assinante as number, 'assinante')}>
                     {`Assinante: ${maskBrazilianCurrency(prices?.vlr_assinante as number)}`}
                   </Button>
 
-                  <Button 
+                  <Button
                     style={[styles.button, { borderColor: colors.outline }]}
-                    mode="outlined" 
+                    mode="outlined"
                     labelStyle={[styles.buttonLabel, { color: colors.onSurface }]}
                     onPress={() => onTypeSelect(prices?.vlr_particular as number, 'particular')}>
                     {`Particular: ${maskBrazilianCurrency(prices?.vlr_particular as number)}`}
@@ -237,7 +310,7 @@ const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: 16,
     paddingBottom: 24,
-  paddingTop: 15,
+    paddingTop: 15,
   },
   separator: {
     height: 12,

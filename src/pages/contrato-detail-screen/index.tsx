@@ -92,7 +92,7 @@ const ContratosDetailScreen = ({ contrato, title }: ContratosDetailScreenProps) 
         {/* Plan Details Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Detalhes do Plano</Text>
-          {renderDetailItem('currency-usd', 'Valor Inicial', `R$ ${maskBrazilianCurrency(contrato.vlr_inicial_ctt)}`)}
+          {renderDetailItem('currency-usd', 'Valor Inicial', `${maskBrazilianCurrency(contrato.vlr_inicial_ctt)}`)}
           {renderDetailItem(
             'file-document-multiple-outline', 
             'Parcelas', 

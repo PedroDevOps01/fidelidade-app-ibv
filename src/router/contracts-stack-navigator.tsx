@@ -5,6 +5,8 @@ import ContratoParcelaDetailScren from '../pages/contrato-parcela-detail-screen'
 import UserPaymentScreen from '../pages/user-payment-screen';
 import UserPaymentCreditCardScreen from '../pages/user-payment-creditcard-screen';
 import UserPaymentSuccessfull from '../pages/user-payment-successfull';
+import UserPaymentSuccessfullParcela from '../pages/user-payment-successfull-parcela';
+
 import UserPaymentContractResumeScreen from '../pages/user-payment-contract-resume-screen';
 import UserCreateCreditCard from '../pages/user-create-credit-card';
 import UserPaymentAttemptScreen from '../pages/user-payment-attempt-screen';
@@ -64,7 +66,7 @@ const ContractsStackNavigator = () => {
         />
         <ContractsStack.Screen name="user-payment-screen" component={UserPaymentScreen} />
         <ContractsStack.Screen name="user-payment-creditcard-screen" component={UserPaymentCreditCardScreen} />
-        <ContractsStack.Screen name="user-payment-successfull-screen" component={UserPaymentSuccessfull} />
+        <ContractsStack.Screen name="user-payment-successfull-screen" component={UserPaymentSuccessfullParcela}  options={{ headerShown: false }}/>
         <ContractsStack.Screen name="user-contratos-payment-resume-screen" component={UserPaymentContractResumeScreen} />
         {/* <ContractsStack.Screen name="contrato-details" component={ContratosDetailScreen} /> */}
         <ContractsStack.Screen name="user-create-credit-card-screen" component={UserCreateCreditCard} options={{ headerShown: true, title: '' }} />

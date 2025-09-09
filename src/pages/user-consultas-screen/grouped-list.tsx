@@ -40,36 +40,95 @@ const GroupedList = ({ list, loading }: GroupedListProps) => {
   }, []);
 
   const handleItemPress = (procedimento: ConsultaReposta) => {
-    console.log('handleItemPresssss:', { currentProcedureMethod, procedimento }); // Debug log
     if (currentProcedureMethod === 'exame') {
       addSelectedExam(procedimento);
     } else {
       try {
         navigate('user-procedure-details-screen', { procedimento });
-        console.log('Navigated to user-procedure-details-screen:', procedimento);
       } catch (error) {
         console.error('Navigation error:', error);
       }
     }
   };
 
+  // Extrai render do item para usar tanto na lista "consulta" quanto no accordion
+  const renderProcedureItem = ({ item: procedimento, index }: { item: ConsultaReposta; index: number }) => {
+    // Quando for exame, mostra des_grupo_tpr (com fallback para des_descricao_tpr)
+    const title =
+      currentProcedureMethod === 'exame'
+        ? procedimento.des_grupo_tpr && procedimento.des_grupo_tpr.trim().length > 0
+          ? procedimento.des_grupo_tpr
+          : procedimento.des_descricao_tpr
+        : procedimento.des_descricao_tpr;
+
+    return (
+      <TouchableOpacity
+        key={`proc-${procedimento.id_procedimento_tpr}-${index}`}
+        onPress={() => handleItemPress(procedimento)}
+        activeOpacity={0.8}
+      >
+        <View
+          style={[
+            styles.listItem,
+            {
+              backgroundColor: colors.fundo,
+              marginTop: index === 0 ? 0 : 12,
+            },
+          ]}
+        >
+          <View style={styles.itemContent}>
+            <MaterialIcons
+              name={currentProcedureMethod === 'exame' ? 'science' : 'healing'}
+              size={28}
+              color={colors.primary}
+              style={styles.itemIcon}
+            />
+            <View style={styles.textContainer}>
+              <Text
+                style={[styles.listItemTitle, { color: colors.onSurface }]}
+                numberOfLines={2}
+                ellipsizeMode="tail"
+              >
+                {title}
+              </Text>
+              <View style={styles.codeContainer}>
+                <MaterialIcons name="tag" size={16} color={colors.onSurfaceVariant} />
+                <Text
+                  style={[styles.listItemDescription, { color: colors.onSurfaceVariant }]}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  Código: {procedimento.id_procedimento_tpr}
+                </Text>
+              </View>
+            </View>
+            <MaterialIcons name="chevron-right" size={24} color={colors.onSurfaceVariant} />
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  // transforma objeto em [grupo, procedimentos][]
+  const groupedData = Object.entries(list).filter(
+    ([_, procedimentos]) => Array.isArray(procedimentos) && procedimentos.length > 0
+  );
+
+  // Se for "consulta", desagrupa tudo e mostra uma lista única com todos procedimentos
+  const isConsulta = currentProcedureMethod === 'consulta';
+  const allProcedures: ConsultaReposta[] = groupedData.reduce((acc, [, procedimentos]) => {
+    return acc.concat(procedimentos as ConsultaReposta[]);
+  }, [] as ConsultaReposta[]);
+
   const renderAccordion = ({ item, index }: { item: [string, ConsultaReposta[]]; index: number }) => {
     const [grupo, procedimentos] = item;
     const isOpen = openGroups.includes(grupo);
 
-    if (!Array.isArray(procedimentos)) {
-      console.warn(`❌ Erro: procedimentos inválido no grupo "${grupo}":`, procedimentos);
-      return null;
-    }
-
-    if (procedimentos.length === 0) {
-      console.log(`No procedures in group "${grupo}"`);
-      return null;
-    }
+    if (!Array.isArray(procedimentos) || procedimentos.length === 0) return null;
 
     return (
       <Animated.View
-        key={`group-${grupo}-${index}`} // Ensure unique key for each accordion
+        key={`group-${grupo}-${index}`}
         style={{
           opacity: fadeAnim,
           transform: [{ translateY: slideAnim }],
@@ -86,9 +145,13 @@ const GroupedList = ({ list, loading }: GroupedListProps) => {
             },
           ]}
         >
-          <TouchableOpacity style={styles.groupHeader} activeOpacity={0.7} onPress={() => setOpenGroups(prev =>
-            prev.includes(grupo) ? prev.filter(g => g !== grupo) : [...prev, grupo]
-          )}>
+          <TouchableOpacity
+            style={styles.groupHeader}
+            activeOpacity={0.7}
+            onPress={() =>
+              setOpenGroups(prev => (prev.includes(grupo) ? prev.filter(g => g !== grupo) : [...prev, grupo]))
+            }
+          >
             <MaterialIcons name="medical-services" size={28} color={colors.primary} style={styles.groupIcon} />
             <Text variant="titleMedium" style={[styles.accordionTitle, { color: colors.onSurface }]}>
               {grupo}
@@ -106,52 +169,7 @@ const GroupedList = ({ list, loading }: GroupedListProps) => {
 
           {isOpen && (
             <View style={styles.procedimentosContainer}>
-              {procedimentos.map((procedimento, idx) => (
-                <TouchableOpacity
-                  key={`proc-${procedimento.id_procedimento_tpr}-${idx}`} // Unique key for each procedure
-                  onPress={() => handleItemPress(procedimento)}
-                  activeOpacity={0.8}
-                >
-                  <View
-                    style={[
-                      styles.listItem,
-                      {
-                        backgroundColor: colors.fundo,
-                        marginTop: idx === 0 ? 0 : 12,
-                      },
-                    ]}
-                  >
-                    <View style={styles.itemContent}>
-                      <MaterialIcons
-                        name={currentProcedureMethod === 'exame' ? 'science' : 'healing'}
-                        size={28}
-                        color={colors.primary}
-                        style={styles.itemIcon}
-                      />
-                      <View style={styles.textContainer}>
-                        <Text
-                          style={[styles.listItemTitle, { color: colors.onSurface }]}
-                          numberOfLines={2}
-                          ellipsizeMode="tail"
-                        >
-                          {procedimento.des_descricao_tpr}
-                        </Text>
-                        <View style={styles.codeContainer}>
-                          <MaterialIcons name="tag" size={16} color={colors.onSurfaceVariant} />
-                          <Text
-                            style={[styles.listItemDescription, { color: colors.onSurfaceVariant }]}
-                            numberOfLines={1}
-                            ellipsizeMode="tail"
-                          >
-                            Código: {procedimento.id_procedimento_tpr}
-                          </Text>
-                        </View>
-                      </View>
-                      <MaterialIcons name="chevron-right" size={24} color={colors.onSurfaceVariant} />
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              ))}
+              {procedimentos.map((procedimento, idx) => renderProcedureItem({ item: procedimento, index: idx }))}
             </View>
           )}
         </View>
@@ -159,16 +177,27 @@ const GroupedList = ({ list, loading }: GroupedListProps) => {
     );
   };
 
-  const groupedData = Object.entries(list).filter(
-    ([_, procedimentos]) => Array.isArray(procedimentos) && procedimentos.length > 0
-  );
+  if (loading) return <LoadingFull />;
 
-  return loading ? (
-    <LoadingFull />
+  // Render principal: se for consulta, lista desagrupada; se não, lista agrupada (accordion)
+  return isConsulta ? (
+    <FlatList
+      data={allProcedures}
+      keyExtractor={(item, index) => `proc-${item.id_procedimento_tpr}-${index}`}
+      renderItem={renderProcedureItem}
+      style={{
+        backgroundColor: colors.background,
+        paddingHorizontal: 16,
+        paddingTop: 16,
+      }}
+      contentContainerStyle={{ paddingBottom: 24 }}
+      removeClippedSubviews={false}
+      showsVerticalScrollIndicator={false}
+    />
   ) : (
     <FlatList
       data={groupedData}
-      keyExtractor={(item, index) => `group-${item[0]}-${index}`} // Ensure unique key
+      keyExtractor={(item, index) => `group-${item[0]}-${index}`}
       renderItem={renderAccordion}
       style={{
         backgroundColor: colors.background,

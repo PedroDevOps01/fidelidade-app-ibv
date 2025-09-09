@@ -1,13 +1,12 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
-import { View, StyleSheet, FlatList, ScrollView, SafeAreaView, Animated, Dimensions, Modal, TouchableWithoutFeedback, Image } from 'react-native';
-import { Card, useTheme, Text, Portal, ActivityIndicator, Avatar, Button, IconButton } from 'react-native-paper';
+import { View, StyleSheet, FlatList, ScrollView, SafeAreaView, Animated, Dimensions, Modal, TouchableWithoutFeedback, Image, TouchableOpacity } from 'react-native';
+import { Card, useTheme, Text, Portal, ActivityIndicator, Avatar, Button, IconButton, Badge } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import { card_data } from './card_data';
 import { promotion_data } from './promotion_data';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
 import PagarmeErrorsDialog from './pagarme-errors-dialog';
 import ProximosAgendamentosDialog from './proximosagendamentosdialog';
-import { TouchableOpacity } from 'react-native';
 import { navigate } from '../../router/navigationRef';
 import InadimplenciaDialog from './inadimplencias-dialog';
 import { useConsultas } from '../../context/consultas-context';
@@ -23,6 +22,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 import CustomToast from '../../components/custom-toast';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { ImageBackground } from 'react-native';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -66,9 +67,63 @@ interface Termo {
   txt_texto_tde: string;
 }
 
+interface Contrato {
+  des_descricao_tsi: string;
+  des_nome_pes: string;
+  des_nome_pla: string;
+  des_origem_ori: string;
+  dth_cadastro_ctt: string;
+  id_contrato_ctt: number;
+  inclui_telemedicina_pla: number;
+  is_ativo_ctt: number;
+  qtd_max_dependentes_pla: number;
+  qtd_parcelas_ctt: number;
+  vlr_dependente_adicional_pla: number;
+  vlr_exclusao_dependente_pla: number;
+  vlr_inicial_ctt: number;
+}
+
+const TelemedicineCard: React.FC<{ onPress: () => void }> = ({ onPress }) => {
+  const { colors } = useTheme();
+  const scaleValue = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.spring(scaleValue, {
+      toValue: 0.98,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleValue, {
+      toValue: 1,
+      friction: 3,
+      tension: 40,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  return (
+    <Animated.View style={{ transform: [{ scale: scaleValue }], marginBottom: 16 }}>
+      <TouchableOpacity onPress={onPress} onPressIn={handlePressIn} onPressOut={handlePressOut} activeOpacity={0.8}>
+        <ImageBackground
+          source={require('../../assets/images/telemedicina.png')}
+          style={styles.telemedicineCard}
+          imageStyle={{ borderRadius: 16 }} // mantém os cantos arredondados
+        >
+          <View style={styles.telemedicineContent}>
+            <View style={styles.telemedicineHeader}></View>
+          </View>
+        </ImageBackground>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
+
 const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   const { colors } = useTheme();
   const { dadosUsuarioData, userCreditCards, setCreditCards, userContracts, setContracts, setDadosUsuarioData } = useDadosUsuario();
+// console.log(JSON.stringify(dadosUsuarioData, null, 2));
   const { authData } = useAuth();
   const { setUserSchedulesData, userSchedules } = useConsultas();
   const [lastHistoricSchedule, setLastHistoricSchedule] = useState<UserSchedule | null>(null);
@@ -80,6 +135,8 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   const [agendamentosDialogVisible, setAgendamentosDialogVisible] = useState<boolean>(false);
   const [schedulesLoading, setSchedulesLoading] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [partnersLoading, setPartnersLoading] = useState<boolean>(true);
+  const [hasTelemedicine, setHasTelemedicine] = useState<boolean>(false); // New state for telemedicine
   const scrollXPromo = useRef(new Animated.Value(0)).current;
   const scrollXConsultas = useRef(new Animated.Value(0)).current;
   const isLogged = !!dadosUsuarioData.user.id_usuario_usr;
@@ -90,12 +147,17 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   const [terms, setTerms] = useState<Termo[]>([]);
   const [termsLoading, setTermsLoading] = useState<boolean>(false);
   const [termsError, setTermsError] = useState<string | null>(null);
+  const flatListRef = useRef<FlatList>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const maisConsultasData: { id: string; image: any; action: () => void }[] = parceiros.map(parceiro => ({
+    id: parceiro.id_parceiro_prc.toString(),
+    image: parceiro.img_parceiro_prc ? { uri: `${parceiro.img_parceiro_prc}` } : require('../../assets/images/logonova.png'),
+    action: () => handleParceiroPress(parceiro.id_parceiro_prc),
+  }));
 
   useEffect(() => {
-    const isSigned =
-      dadosUsuarioData.pessoa?.is_assinado_pes === 1 ||
-      dadosUsuarioData.pessoaDados?.is_assinado_pes === 1;
-
+    const isSigned = dadosUsuarioData.pessoa?.is_assinado_pes === 1 || dadosUsuarioData.pessoaDados?.is_assinado_pes === 1;
     const isLogged = !!dadosUsuarioData.user?.id_usuario_usr && !!authData.access_token;
 
     if (!isSigned && isLogged) {
@@ -119,16 +181,220 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
           },
     });
   }, [navigation, showTerms, colors.background, insets.bottom]);
+  const AppointmentCard = ({ appointment, onPress, type }: { appointment: any; onPress: () => void; type: 'next' | 'history' }) => {
+    const { colors } = useTheme();
+    const scaleValue = useRef(new Animated.Value(1)).current;
 
-  async function createNotificationChannel() {
-    if (Platform.OS === 'android') {
-      await notifee.createChannel({
-        id: 'schedule-channel',
-        name: 'Schedule Notifications',
-        importance: AndroidImportance.HIGH,
+    const getStatusInfo = () => {
+      if (type === 'next') {
+        const today = new Date();
+        const appointmentDate = new Date(appointment.data);
+        const diffTime = appointmentDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 0) return { text: 'Hoje', color: '#FF6B6B', icon: 'today' };
+        if (diffDays === 1) return { text: 'Amanhã', color: '#FFA726', icon: 'event-available' };
+        if (diffDays <= 7) return { text: `Em ${diffDays} dias`, color: '#42A5F5', icon: 'event' };
+        return { text: formatDateToDDMMYYYY(appointment.data), color: colors.onSurfaceVariant, icon: 'calendar-month' };
+      } else {
+        const appointmentDate = new Date(appointment.data);
+        const today = new Date();
+        const diffTime = today.getTime() - appointmentDate.getTime();
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        const isRecent = diffDays <= 7;
+        return {
+          text: formatDateToDDMMYYYY(appointment.data),
+          color: colors.primary,
+          icon: 'event',
+          isRecent,
+        };
+      }
+    };
+
+    const status = getStatusInfo();
+
+    const handlePressIn = () => {
+      Animated.spring(scaleValue, {
+        toValue: 0.98,
+        useNativeDriver: true,
+      }).start();
+    };
+
+    const handlePressOut = () => {
+      Animated.spring(scaleValue, {
+        toValue: 1,
+        friction: 3,
+        tension: 40,
+        useNativeDriver: true,
+      }).start();
+    };
+
+    return (
+    <Animated.View style={{ transform: [{ scale: scaleValue }], marginVertical: 8 }}>
+      <TouchableOpacity onPress={onPress} onPressIn={handlePressIn} onPressOut={handlePressOut} activeOpacity={0.9}>
+        <Card style={[styles.card, type === 'next' ? styles.nextAppointmentCard : styles.historyCard]}>
+      <View style={{ overflow: 'hidden', borderRadius: 16 }}>
+            <Card.Content style={styles.cardContent}>
+              {/* Header */}
+              <View style={styles.cardHeader}>
+                <View style={styles.statusContainer}>
+                  <Icon name={status.icon} size={16} color={status.color} />
+                  <Text variant={type === 'next' ? 'labelSmall' : 'bodyMedium'} style={[styles.statusText, { color: status.color }]}>
+                    {status.text}
+                  </Text>
+                </View>
+                {type === 'next' ? (
+                  <IconButton icon="chevron-right" size={20} iconColor={colors.onSurfaceVariant} style={styles.chevron} />
+                ) : (
+                  status.isRecent && <Badge style={[styles.recentBadge, { backgroundColor: colors.primary }]}>Recente</Badge>
+                )}
+              </View>
+
+              {/* Main Content */}
+              <View style={styles.mainContent}>
+                <Image
+                  source={appointment.fachada_profissional ? { uri: appointment.fachada_profissional } : require('../../assets/images/fallback_image.png')}
+                  style={styles.professionalImage}
+                  resizeMode="cover"
+                  onError={() => console.log('Image load error')}
+                />
+                <View style={styles.infoContainer}>
+                  <Text variant="titleMedium" style={[styles.procedureName, { color: colors.onSurface }]} numberOfLines={2}>
+                    {Array.isArray(appointment.nome_procedimento) ? appointment.nome_procedimento.join(', ') : appointment.nome_procedimento}
+                  </Text>
+                  <View style={styles.professionalInfo}>
+                    <Icon name="person" size={14} color={colors.primary} />
+                    <Text variant="bodyMedium" style={[styles.professionalName, { color: colors.primary }]} numberOfLines={1}>
+                      {appointment.nome_profissional || 'Profissional não especificado'}
+                    </Text>
+                  </View>
+                  <View style={styles.detailsRow}>
+                    <View style={styles.detailItem}>
+                      <Icon name="access-time" size={14} color={colors.onSurfaceVariant} />
+                      <Text variant="bodySmall" style={[styles.detailText, { color: colors.onSurfaceVariant }]}>
+                        {String(appointment.inicio).substring(0, 5)}
+                      </Text>
+                    </View>
+                    <View style={styles.detailItem}>
+                      <Icon name={type === 'next' ? 'location-on' : 'location-on'} size={14} color={colors.onSurfaceVariant} />
+                      <Text variant="bodySmall" style={[styles.detailText, { color: colors.onSurfaceVariant }]} numberOfLines={1}>
+                        {appointment.nome_unidade}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+
+              {/* Footer */}
+              <View style={[styles.cardFooter, { backgroundColor: `${colors.onSecondary}15`, borderTopWidth: 0 }]}>
+                {type === 'next' ? (
+                  <>
+                    <View style={[styles.priorityIndicator, { backgroundColor: status.color }]} />
+                    <Text variant="bodySmall" style={[styles.footerText, { color: colors.onSurfaceVariant }]}>
+                      Confirme sua presença com antecedência
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    <Icon name="check-circle" size={16} color={colors.primary} />
+                    <Text variant="bodySmall" style={[styles.footerText, { color: colors.onSurfaceVariant }]}>
+                      Consulta realizada
+                    </Text>
+                  </>
+                )}
+              </View>
+            </Card.Content>
+          </View>
+        </Card>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
+
+ const EmptyAppointmentCard = ({ type = 'next', onPress }: { type?: 'next' | 'history'; onPress: () => void }) => {
+  const { colors } = useTheme();
+  const scaleValue = useRef(new Animated.Value(1)).current;
+
+  const config = {
+    next: {
+      title: 'Nenhum agendamento',
+      subtitle: 'Toque para agendar uma nova consulta',
+      icon: 'event-available',
+      color: colors.primary,
+    },
+    history: {
+      title: 'Nenhum histórico',
+      subtitle: 'Seus agendamentos aparecerão aqui',
+      icon: 'history',
+      color: colors.primary,
+    },
+  };
+
+  const { title, subtitle, icon, color } = config[type];
+
+  const handlePressIn = () => {
+    Animated.spring(scaleValue, {
+      toValue: 0.98,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleValue, {
+      toValue: 1,
+      friction: 3,
+      tension: 40,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  return (
+    <Animated.View style={{ transform: [{ scale: scaleValue }], marginVertical: 8 }}>
+      <TouchableOpacity onPress={onPress} onPressIn={handlePressIn} onPressOut={handlePressOut} activeOpacity={0.8}>
+        <Card style={[styles.card, styles.emptyCard]}>
+      <View style={{ overflow: 'hidden', borderRadius: 16 }}>
+            <Card.Content style={styles.emptyCardContent}>
+              <Icon name={icon} size={48} color={`${color}40`} style={styles.emptyIcon} />
+              <Text variant="titleMedium" style={[styles.emptyTitle, { color: colors.onSurface }]}>
+                {title || 'Nenhum agendamento'}
+              </Text>
+              <Text variant="bodyMedium" style={[styles.emptySubtitle, { color: colors.onSurfaceVariant }]}>
+                {subtitle || 'Toque para continuar'}
+              </Text>
+            </Card.Content>
+          </View>
+        </Card>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
+  useEffect(() => {
+    if (maisConsultasData.length <= 1) return;
+
+    const interval = setInterval(() => {
+      let nextIndex = currentIndex + 1;
+      if (nextIndex >= maisConsultasData.length) {
+        nextIndex = 0;
+      }
+      setCurrentIndex(nextIndex);
+      flatListRef.current?.scrollToIndex({
+        index: nextIndex,
+        animated: true,
       });
-    }
-  }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [currentIndex, maisConsultasData.length]);
+
+  // async function createNotificationChannel() {
+  //   if (Platform.OS === 'android') {
+  //     await notifee.createChannel({
+  //       id: 'schedule-channel',
+  //       name: 'Schedule Notifications',
+  //       importance: AndroidImportance.HIGH,
+  //     });
+  //   }
+  // }
 
   async function fetchTerms(): Promise<void> {
     if (!authData.access_token) {
@@ -167,10 +433,13 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
               ${termo.des_descricao_tde}
             </h2>
             <div style="font-size: 14px; color: #333; line-height: 1.6;">
-              ${termo.txt_texto_tde.split('\n').map(line => `<p style="margin-bottom: 10px;">${line.trim()}</p>`).join('')}
+              ${termo.txt_texto_tde
+                .split('\n')
+                .map(line => `<p style="margin-bottom: 10px;">${line.trim()}</p>`)
+                .join('')}
             </div>
           </div>
-        `
+        `,
         )
         .join('');
     } else {
@@ -223,7 +492,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
         setTermsError('Token de autenticação não disponível.');
         return;
       }
-      
+
       const idPessoa = dadosUsuarioData.pessoaDados?.id_pessoa_pes;
       if (!idPessoa) {
         setTermsError('ID da pessoa não encontrado.');
@@ -249,77 +518,11 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
     }
   }
 
-  async function showAppointmentReminder(userId: string) {
-    if (!userId) {
-      console.error('ID do usuário inválido para notificação de agendamento');
-      return;
-    }
-
-    const today = new Date().toISOString().slice(0, 10);
-    const lastNotificationDate = await AsyncStorage.getItem(`last_notification_date_${userId}`);
-    if (lastNotificationDate === today) {
-      console.log('Notificação já enviada hoje, ignorando...');
-      return;
-    }
-
-    const settings = await notifee.getNotificationSettings();
-    if (settings.authorizationStatus !== 1) {
-      console.log('Permissões de notificação não concedidas');
-      return;
-    }
-
-    const schedules = userSchedules || [];
-    const todayDateString = today;
-    const todaySchedules = schedules.filter(schedule => schedule.data === todayDateString) || [];
-
-    const scheduleNotificationId = `schedule-reminder-${userId}`;
-    let title = 'Nenhum Agendamento para Hoje';
-    let body = 'Você não tem agendamentos marcados para hoje.';
-
-    if (todaySchedules.length > 0) {
-      const summary = todaySchedules
-        .map(schedule => `${Array.isArray(schedule.nome_procedimento) ? schedule.nome_procedimento.join(', ') : schedule.nome_procedimento} às ${schedule.inicio.substring(0, 5)}`)
-        .join(', ');
-      title = 'Lembrete de Agendamento!!';
-      body = `Você tem agendamento(s) hoje: ${summary}`;
-    }
-
-    try {
-      await notifee.displayNotification({
-        id: scheduleNotificationId,
-        title: title,
-        body: body,
-        android: {
-          channelId: 'schedule-channel',
-          smallIcon: 'ic_notification',
-          color: '#b183ff',
-          pressAction: { id: 'default' },
-        },
-        ios: {
-          foregroundPresentationOptions: {
-            alert: true,
-            badge: true,
-            sound: true,
-          },
-        },
-      });
-      await AsyncStorage.setItem(`last_notification_date_${userId}`, today);
-    } catch (error) {
-      console.error('Erro ao exibir notificação:', error);
-    }
-  }
-
   useEffect(() => {
     if (userSchedules && userSchedules.length > 0) {
       setAgendamentosDialogVisible(true);
     }
   }, [userSchedules]);
-
-  const maisConsultasData = parceiros.map(parceiro => ({
-    id: parceiro.id_parceiro_prc.toString(),
-    image: parceiro.img_parceiro_prc ? { uri: `${parceiro.img_parceiro_prc}` } : require('../../assets/images/logonova.png'),
-    action: () => handleParceiroPress(parceiro.id_parceiro_prc),
-  }));
 
   const handleParceiroPress = (parceiroId: number) => {
     setSelectedParceiroId(parceiroId);
@@ -333,10 +536,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
     if (!token || !authData.access_token) return;
 
     try {
-      const response = await api.get(
-        `/integracao/listHistoricoAgendamentos?token_paciente=${token}&cod_paciente=${cod_paciente}`,
-        generateRequestHeader(authData.access_token)
-      );
+      const response = await api.get(`/integracao/listHistoricoAgendamentos?token_paciente=${token}&cod_paciente=${cod_paciente}`, generateRequestHeader(authData.access_token));
 
       const data = response.data;
       if (data.length > 0) {
@@ -348,15 +548,17 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   }
 
   async function fetchParceiros(): Promise<void> {
+    setPartnersLoading(true);
     try {
-      const headers = isLogged && authData.access_token
-        ? generateRequestHeader(authData.access_token)
-        : {
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
-            },
-          };
+      const headers =
+        isLogged && authData.access_token
+          ? generateRequestHeader(authData.access_token)
+          : {
+              headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+              },
+            };
       const response = await api.get('/parceiro/app', headers);
       const dataApi = response.data;
       if (dataApi && dataApi.response && dataApi.response.data && dataApi.response.data.length > 0) {
@@ -367,7 +569,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
     } catch (error: any) {
       console.error('Erro ao buscar parceiros:', error.message, error.response?.data);
     } finally {
-      setLoading(false);
+      setPartnersLoading(false);
     }
   }
 
@@ -380,9 +582,9 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   useFocusEffect(
     useCallback(() => {
       if (dadosUsuarioData.user.id_usuario_usr && authData.access_token) {
-        createNotificationChannel();
+        // createNotificationChannel();
         fetchAllData().then(() => {
-          showAppointmentReminder(dadosUsuarioData.user.id_usuario_usr.toString());
+          // showAppointmentReminder(dadosUsuarioData.user.id_usuario_usr.toString());
         });
       }
     }, [dadosUsuarioData, authData]),
@@ -391,7 +593,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   async function fetchSchedules(access_token: string): Promise<void> {
     const token = dadosUsuarioData.pessoaDados?.cod_token_pes!;
     const cod_paciente = dadosUsuarioData.pessoaDados?.id_pessoa_pes;
-    
+
     return new Promise(async (resolve, reject) => {
       if (userSchedules.length > 0) {
         reject('Já existem dados');
@@ -443,10 +645,13 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
       }
 
       try {
-        const resp = await api.get(`/contrato?id_pessoa_ctt=${id_pessoa_usr}`, generateRequestHeader(authData.access_token));
+        const resp = await api.get(`/contrato?id_pessoa_ctt=${id_pessoa_usr}&is_ativo_ctt=1`, generateRequestHeader(authData.access_token));
         if (resp.status == 200) {
           const { data: content } = resp;
           setContracts(content.response.data);
+          // Check if any contract has telemedicine active
+          const hasTelemed = content.response.data.some((contract: Contrato) => contract.inclui_telemedicina_pla === 1);
+          setHasTelemedicine(hasTelemed);
           resolve();
         }
       } catch (err: any) {
@@ -551,8 +756,17 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
     );
   };
 
+  const handleQuickAccessPress = () => {
+    CustomToast('Funcionalidade em manutenção', colors, 'error');
+  };
+
+  const handleTelemedicinePress = () => {
+    CustomToast('Telemedicina em manutenção', colors, 'error');
+    // Add navigation or logic for telemedicine consultation here
+  };
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#b183ff' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#e7d7ff' }}>
       {showTerms ? (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
           {termsLoading ? (
@@ -562,22 +776,9 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             </View>
           ) : termsError ? (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-              <IconButton
-                icon="alert-circle-outline"
-                size={40}
-                color={colors.error}
-                style={{ marginBottom: 10 }}
-              />
-              <Text style={{ textAlign: 'center', marginBottom: 20, fontSize: 16, color: colors.text }}>
-                {termsError}
-              </Text>
-              <Button
-                mode="contained"
-                onPress={fetchTerms}
-                style={{ borderRadius: 8, width: '80%' }}
-                labelStyle={{ fontSize: 16 }}
-                contentStyle={{ height: 50 }}
-              >
+              <IconButton icon="alert-circle-outline" size={40} color={colors.error} style={{ marginBottom: 10 }} />
+              <Text style={{ textAlign: 'center', marginBottom: 20, fontSize: 16, color: colors.text }}>{termsError}</Text>
+              <Button mode="contained" onPress={fetchTerms} style={{ borderRadius: 8, width: '80%' }} labelStyle={{ fontSize: 16 }} contentStyle={{ height: 50 }}>
                 Tentar novamente
               </Button>
             </View>
@@ -591,11 +792,10 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                   Por favor, leia e aceite os termos para continuar
                 </Text>
               </View>
-
               <View style={styles.webViewContainer}>
-                <WebView 
-                  originWhitelist={['*']} 
-                  source={{ html: generateContractHtml() }} 
+                <WebView
+                  originWhitelist={['*']}
+                  source={{ html: generateContractHtml() }}
                   style={{ flex: 1 }}
                   injectedJavaScript={`
                     document.body.style.background = '#ffffff';
@@ -607,20 +807,16 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                   `}
                 />
               </View>
-
               <View style={styles.termsFooter}>
                 <Button
                   mode="contained"
                   onPress={acceptTerms}
                   style={[styles.acceptButton, { backgroundColor: colors.primary }]}
                   labelStyle={{ color: 'white', fontSize: 16, fontWeight: '600' }}
-                  contentStyle={{ height: 50 }}
-                >
+                  contentStyle={{ height: 50 }}>
                   Aceitar e Continuar
                 </Button>
-                <Text style={styles.footerText}>
-                  Ao aceitar, você concorda com os termos acima
-                </Text>
+                <Text style={styles.footerText}>Ao aceitar, você concorda com os termos acima</Text>
               </View>
             </View>
           )}
@@ -629,59 +825,60 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
         <LoadingFull title="Carregando..." />
       ) : (
         <View style={styles.container}>
-          {/* Purple Header Section */}
           <View style={styles.purpleSection}>
-            <Image 
-              source={require('../../assets/images/logotransparente.png')} 
-              style={styles.logo} 
-              resizeMode="contain" 
-            />
+            <Image source={require('../../assets/images/logotransparente.png')} style={styles.logo} resizeMode="contain" />
             <View style={styles.welcomeContainer}>
-              <Text style={styles.welcomeText}>
-                {isLogged ? `Olá, ${dadosUsuarioData.pessoaDados?.des_genero_pes}!!` : 'Olá!'}
+              <Text style={styles.welcomeText}>Olá {dadosUsuarioData.pessoaDados?.des_genero_pes || ''}!!</Text>
+              <Text style={styles.subtitleText}>
+                {dadosUsuarioData.pessoaDados?.des_sexo_biologico_pes === 'M'
+                  ? 'Seja Bem Vindo.'
+                  : dadosUsuarioData.pessoaDados?.des_sexo_biologico_pes === 'F'
+                  ? 'Seja Bem Vinda.'
+                  : 'Seja Bem Vindo(a).'}
               </Text>
-              <Text style={styles.subtitleText}>Seja Bem Vindo(a)!!</Text>
             </View>
           </View>
+          <ScrollView style={styles.whiteSection} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            {error && <Text style={{ color: 'red', textAlign: 'center', marginVertical: 10 }}>{error}</Text>}
 
-          {/* White Content Section */}
-          <ScrollView 
-            style={styles.whiteSection}
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-          >
-            {error && (
-              <Text style={{ color: 'red', textAlign: 'center', marginVertical: 10 }}>
-                {error}
-              </Text>
+            {/* Telemedicine Card Section */}
+            {hasTelemedicine && (
+              <View style={styles.sectionContainer}>
+                <View style={styles.sectionHeader}>
+                  <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary, marginBottom: 10 }]}>
+                    Telemedicina
+                  </Text>
+                </View>
+                <TelemedicineCard onPress={handleTelemedicinePress} />
+              </View>
             )}
 
-            {/* Partners Section */}
             <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
                 <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
                   Nossos Parceiros
                 </Text>
-                <Button 
-                  mode="text" 
-                  compact 
-                  labelStyle={{ fontSize: 12, color: colors.primary }} 
-                  onPress={() => navigation.navigate('ParceirosScreen', { partnerType: 'regular' })}
-                >
+                <Button mode="text" compact labelStyle={{ fontSize: 12, color: colors.primary }} onPress={() => navigation.navigate('ParceirosScreen', { partnerType: 'regular' })}>
                   Ver todos
                 </Button>
               </View>
-              
-              {parceiros.length > 0 ? (
+              {partnersLoading ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator animating={true} size="small" color={colors.primary} />
+                </View>
+              ) : parceiros.length > 0 ? (
                 <>
                   <Animated.FlatList
+                    ref={flatListRef}
                     data={maisConsultasData}
                     renderItem={renderConsultasItem}
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     snapToInterval={SCREEN_WIDTH * 0.8}
                     decelerationRate="fast"
-                    contentContainerStyle={styles.parceirosList}
+                    contentContainerStyle={{
+                      paddingHorizontal: (SCREEN_WIDTH - SCREEN_WIDTH * 0.99) / 2,
+                    }}
                     onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollXConsultas } } }], { useNativeDriver: true })}
                     scrollEventThrottle={16}
                     removeClippedSubviews={true}
@@ -698,17 +895,10 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                   {renderConsultasIndicator()}
                 </>
               ) : (
-                <Card mode="elevated" style={[styles.card, { backgroundColor: colors.surface }]}>
-                  <Card.Content style={styles.emptyCardContent}>
-                    <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant, textAlign: 'center' }}>
-                      Nenhum parceiro disponível no momento
-                    </Text>
-                  </Card.Content>
-                </Card>
+                <Text style={{ textAlign: 'center', color: colors.onSurfaceVariant, marginTop: 10 }}>Nenhum parceiro disponível no momento.</Text>
               )}
             </View>
 
-            {/* Consultations Section */}
             <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
                 <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
@@ -733,156 +923,43 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
               </View>
             </View>
 
-            {/* Upcoming Appointments Section */}
+            {/* Próximos Agendamentos */}
             <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
                 <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
                   Próximos Agendamentos
                 </Text>
-                <Button 
-                  mode="text" 
-                  compact 
-                  labelStyle={{ fontSize: 12, color: colors.primary }} 
-                  onPress={() => navigate('user-schedules')}
-                >
+                <Button mode="text" compact labelStyle={{ fontSize: 12, color: colors.primary }} onPress={() => navigate('user-schedules')}>
                   Ver todos
                 </Button>
               </View>
+
               {schedulesLoading ? (
                 <ActivityIndicator style={{ marginTop: 10 }} color={colors.primary} />
+              ) : userSchedules.length === 0 ? (
+                <EmptyAppointmentCard type="next" onPress={() => navigate('user-schedules')} />
               ) : (
-                <>
-                  {userSchedules.length === 0 ? (
-                    <Card 
-                      mode="elevated" 
-                      style={[styles.card, { backgroundColor: colors.surface }]} 
-                      onPress={() => navigate('user-schedules')} 
-                      contentStyle={{ borderRadius: 16 }}
-                    >
-                      <Card.Content style={styles.emptyCardContent}>
-                        <Text
-                          variant="titleMedium"
-                          style={{
-                            color: colors.onSurface,
-                            marginTop: 10,
-                            textAlign: 'center',
-                          }}>
-                          Nenhum agendamento
-                        </Text>
-                        <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant, textAlign: 'center' }}>
-                          Toque para agendar uma nova consulta
-                        </Text>
-                      </Card.Content>
-                    </Card>
-                  ) : (
-                    <Card 
-                      onPress={() => navigate('user-schedules')} 
-                      mode="elevated" 
-                      style={[styles.card, { backgroundColor: colors.surface }]} 
-                      contentStyle={{ borderRadius: 16 }}
-                    >
-                      <Card.Content>
-                        <View style={styles.scheduleCardContent}>
-                          <Avatar.Image 
-                            source={{ uri: userSchedules[0].fachada_profissional }} 
-                            size={60} 
-                            style={[styles.avatar, { backgroundColor: colors.background }]} 
-                          />
-                          <View style={styles.scheduleInfo}>
-                            <Text variant="titleMedium" style={{ color: colors.onSurface, fontWeight: '600' }}>
-                              {userSchedules[0].nome_procedimento?.join(', ') ?? userSchedules[0].nome_procedimento}
-                            </Text>
-                            <View style={styles.professionalContainer}>
-                              <Text variant="bodyMedium" style={{ color: colors.primary, fontWeight: '500' }}>
-                                {userSchedules[0].nome_profissional ?? 'Exame'}
-                              </Text>
-                            </View>
-                            <View style={styles.dateContainer}>
-                              <View style={[styles.dateBadge, { backgroundColor: colors.primaryContainer }]}>
-                                <Text variant="labelSmall" style={{ color: colors.onPrimaryContainer, fontWeight: 'bold' }}>
-                                  {formatDateToDDMMYYYY(userSchedules[0].data)}
-                                </Text>
-                              </View>
-                            </View>
-                          </View>
-                          <IconButton icon="chevron-right" size={24} iconColor={colors.onSurfaceVariant} />
-                        </View>
-                      </Card.Content>
-                    </Card>
-                  )}
-                </>
+                <AppointmentCard appointment={userSchedules[0]} onPress={() => navigate('user-schedules')} type="next" />
               )}
             </View>
 
-            {/* History Section */}
+            {/* Histórico de Agendamentos */}
             <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
                 <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
-                  Histórico de Atendimentos
+                  Histórico de Agendamentos
                 </Text>
-                <Button 
-                  mode="text" 
-                  compact 
-                  labelStyle={{ fontSize: 12, color: colors.primary }} 
-                  onPress={() => navigate('user-shcdules-history-screen')}
-                >
+                <Button mode="text" compact labelStyle={{ fontSize: 12, color: colors.primary }} onPress={() => navigate('user-shcdules-history-screen')}>
                   Ver histórico
                 </Button>
               </View>
 
               {lastHistoricSchedule ? (
-              <Card
-                onPress={() => navigate('user-shcdules-history-screen')}
-                mode="elevated"
-                style={[styles.card, { backgroundColor: colors.surface }]}
-                contentStyle={{ borderRadius: 16 }}>
-                <Card.Content>
-                  <View style={styles.scheduleCardContent}>
-                    <Avatar.Image source={{ uri: lastHistoricSchedule.fachada_profissional }} size={60} style={[styles.avatar, { backgroundColor: colors.background }]} />
-                    <View style={styles.scheduleInfo}>
-                      <Text variant="titleMedium" style={{ color: colors.onSurface, fontWeight: '600' }}>
-                        {Array.isArray(lastHistoricSchedule.nome_procedimento) ? lastHistoricSchedule.nome_procedimento.join(', ') : lastHistoricSchedule.nome_procedimento}
-                      </Text>
-                      <View style={styles.professionalContainer}>
-                        <Text variant="bodyMedium" style={{ color: colors.primary, fontWeight: '500' }}>
-                          {lastHistoricSchedule.nome_profissional ?? 'Exame'}
-                        </Text>
-                      </View>
-                      <View style={styles.dateContainer}>
-                        <View style={[styles.dateBadge, { backgroundColor: colors.primaryContainer }]}>
-                          <Text variant="labelSmall" style={{ color: colors.onPrimaryContainer, fontWeight: 'bold' }}>
-                            {formatDateToDDMMYYYY(lastHistoricSchedule.data)}
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-                    <IconButton icon="chevron-right" size={24} iconColor={colors.onSurfaceVariant} />
-                  </View>
-                </Card.Content>
-              </Card>
-            ) : (
-              <Card
-                onPress={() => navigate('user-shcdules-history-screen')}
-                mode="elevated"
-                style={[styles.card, { backgroundColor: colors.surface }]}
-                contentStyle={{ borderRadius: 16 }}>
-                <Card.Content style={styles.emptyCardContent}>
-                  <Text
-                    variant="titleMedium"
-                    style={{
-                      color: colors.onSurface,
-                      marginTop: 10,
-                      textAlign: 'center',
-                    }}>
-                    Nenhum atendimento realizado
-                  </Text>
-                  <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant, textAlign: 'center' }}>
-                    Toque para visualizar o histórico quando disponível
-                  </Text>
-                </Card.Content>
-              </Card>
-            )}
-          </View>
+                <AppointmentCard appointment={lastHistoricSchedule} onPress={() => navigate('user-shcdules-history-screen')} type="history" />
+              ) : (
+                <EmptyAppointmentCard type="history" onPress={() => navigate('user-shcdules-history-screen')} />
+              )}
+            </View>
 
             <Portal>
               <PagarmeErrorsDialog
@@ -905,16 +982,10 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
               />
             </Portal>
 
-            <Modal
-              animationType="slide"
-              transparent={true}
-              visible={modalVisible}
-              onRequestClose={() => setModalVisible(false)}
-            >
+            <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
               <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
                 <View style={styles.modalOverlay} />
               </TouchableWithoutFeedback>
-
               <View style={styles.modalContainer}>
                 {selectedParceiroId && (
                   <>
@@ -942,19 +1013,13 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                                 {selectedParceiro.des_email_responsavel_prc}
                               </Text>
                             </View>
-                            <View style={styles.benefitItem}>
-                              <IconButton icon="phone" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
-                              <Text variant="bodyMedium" style={styles.benefitText}>
-                                {selectedParceiro.num_celular_prc || selectedParceiro.num_telefone_prc}
-                              </Text>
-                            </View>
                             <Text variant="titleSmall" style={styles.modalSectionTitle}>
-                              Dados:
+                              Descrição:
                             </Text>
                             <View style={styles.benefitItem}>
                               <IconButton icon="card-text" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
                               <Text variant="bodyMedium" style={styles.benefitText}>
-                                Descrição: {selectedParceiro.des_parceiro_prc || 'N/A'}
+                                {selectedParceiro.des_parceiro_prc || 'N/A'}
                               </Text>
                             </View>
                             <Button
@@ -964,16 +1029,10 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                                 navigation.navigate('ParceirosScreen', { partnerType: 'regular' });
                               }}
                               style={styles.modalButton}
-                              labelStyle={styles.modalButtonText}
-                            >
+                              labelStyle={styles.modalButtonText}>
                               Ver mais detalhes
                             </Button>
-                            <Button 
-                              mode="outlined" 
-                              onPress={() => setModalVisible(false)} 
-                              style={styles.modalCloseButton} 
-                              labelStyle={styles.modalCloseButtonText}
-                            >
+                            <Button mode="outlined" onPress={() => setModalVisible(false)} style={styles.modalCloseButton} labelStyle={styles.modalCloseButtonText}>
                               Fechar
                             </Button>
                           </View>
@@ -999,8 +1058,8 @@ const styles = StyleSheet.create({
   purpleSection: {
     backgroundColor: '#b183ff',
     height: Platform.select({
-      ios: Platform.isPad ? SCREEN_HEIGHT * 0.20 : SCREEN_HEIGHT * 0.27,
-      android: Platform.isPad ? SCREEN_HEIGHT * 0.50 : SCREEN_HEIGHT * 0.35,
+      ios: Platform.isPad ? SCREEN_HEIGHT * 0.2 : SCREEN_HEIGHT * 0.35,
+      android: Platform.isPad ? SCREEN_HEIGHT * 0.5 : SCREEN_HEIGHT * 0.35,
     }),
     justifyContent: 'flex-start',
     alignItems: 'center',
@@ -1008,23 +1067,21 @@ const styles = StyleSheet.create({
       ios: Platform.isPad ? 10 : 15,
       android: Platform.isPad ? 10 : 15,
     }),
-    // borderBottomLeftRadius: 20,
-    // borderBottomRightRadius: 20,
   },
   logo: {
-    width: 250,
+    width: 200,
     height: 150,
     marginTop: 20,
   },
   welcomeContainer: {
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: -20,
   },
   welcomeText: {
-    fontSize: 24,
+    fontSize: 22,
     color: '#fff',
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 0,
   },
   subtitleText: {
     fontSize: 16,
@@ -1034,7 +1091,7 @@ const styles = StyleSheet.create({
   whiteSection: {
     flex: 1,
     backgroundColor: '#f7f7f7',
-    marginTop: -20,
+    marginTop: -80,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
@@ -1050,24 +1107,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 5,
   },
   sectionTitle: {
     fontWeight: '700',
     fontSize: 18,
     letterSpacing: 0.2,
   },
-  parceirosList: {
-    paddingHorizontal: (SCREEN_WIDTH - SCREEN_WIDTH * 0.99) / 2,
-  },
-  card: {
-    borderRadius: 15,
-    elevation: 2,
-    marginBottom: 16,
-  },
-  emptyCardContent: {
-    paddingVertical: 20,
-  },
+
+ emptyCard: {
+  justifyContent: 'center',       // centraliza verticalmente
+  alignItems: 'center',           // centraliza horizontalmente
+  minHeight: 140,                 // altura mínima
+  borderColor: '#b183ff',         // cor da borda
+  borderWidth: 1,                  // largura da borda
+  borderRadius: 12,                // cantos arredondados (opcional)
+  padding: 16,                     // espaçamento interno
+},
+
   scheduleCardContent: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1123,7 +1180,6 @@ const styles = StyleSheet.create({
     margin: 15,
     marginBottom: 0,
     borderRadius: 10,
-    overflow: 'hidden',
     backgroundColor: 'white',
     elevation: 2,
     shadowColor: '#000',
@@ -1146,12 +1202,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-  footerText: {
-    textAlign: 'center',
-    marginTop: 12,
-    fontSize: 12,
-    color: '#666',
-  },
+
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -1165,7 +1216,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     width: Platform.select({
-      ios: Platform.isPad ? '100%' : '100%', // Ajuste para iPad, original para iPhone
+      ios: Platform.isPad ? '100%' : '100%',
       android: Platform.isPad ? '100%' : '100%',
     }),
     alignSelf: 'center',
@@ -1173,11 +1224,11 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: Platform.select({
-      ios: Platform.isPad ? 10 : 15, // Ajuste para iPad, original para iPhone
+      ios: Platform.isPad ? 10 : 25,
       android: Platform.isPad ? 10 : 15,
     }),
     maxHeight: Platform.select({
-      ios: Platform.isPad ? '100%' : '100%', // Ajuste para iPad, original para iPhone
+      ios: Platform.isPad ? '100%' : '100%',
       android: Platform.isPad ? '100%' : '100%',
     }),
   },
@@ -1220,15 +1271,15 @@ const styles = StyleSheet.create({
   },
   modalButton: {
     marginTop: Platform.select({
-      ios: Platform.isPad ? 12 : 15, // Ajuste para iPad, original para iPhone
+      ios: Platform.isPad ? 12 : -6,
       android: Platform.isPad ? 12 : 15,
     }),
     borderRadius: Platform.select({
-      ios: Platform.isPad ? 6 : 8, // Ajuste para iPad, original para iPhone
+      ios: Platform.isPad ? 6 : 8,
       android: Platform.isPad ? 6 : 8,
     }),
     paddingVertical: Platform.select({
-      ios: Platform.isPad ? 6 : 2, // Ajuste para iPad, original para iPhone
+      ios: Platform.isPad ? 6 : 2,
       android: Platform.isPad ? 6 : 2,
     }),
     minHeight: 44,
@@ -1236,17 +1287,17 @@ const styles = StyleSheet.create({
   modalButtonText: {
     fontWeight: 'bold',
   },
- modalCloseButton: {
+  modalCloseButton: {
     marginTop: Platform.select({
-      ios: Platform.isPad ? 8 : 5, // Ajuste para iPad, original para iPhone
+      ios: Platform.isPad ? 8 : 2,
       android: Platform.isPad ? 8 : 5,
     }),
     borderRadius: Platform.select({
-      ios: Platform.isPad ? 6 : 8, // Ajuste para iPad, original para iPhone
+      ios: Platform.isPad ? 6 : 8,
       android: Platform.isPad ? 6 : 8,
     }),
     paddingVertical: Platform.select({
-      ios: Platform.isPad ? 4 : 2, // Ajuste para iPad, original para iPhone
+      ios: Platform.isPad ? 4 : 2,
       android: Platform.isPad ? 4 : 2,
     }),
     borderWidth: 1,
@@ -1254,6 +1305,180 @@ const styles = StyleSheet.create({
   },
   modalCloseButtonText: {
     fontWeight: 'bold',
+  },
+  telemedicineCard: {
+    width: '100%', // Responsive width (70% of screen width)
+    height: 200, // Fixed height for consistency
+  },
+  telemedicineContent: {
+    flex: 1,
+  },
+  telemedicineHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  telemedicineIcon: {
+    marginRight: 12,
+  },
+  telemedicineTitle: {
+    color: '#fff',
+    fontWeight: '700',
+    flex: 1,
+  },
+  badge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 12,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  telemedicineDescription: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginBottom: 16,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  telemedicineButton: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+  },
+  telemedicineButtonText: {
+    color: '#b183ff',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+
+  card: {
+    borderRadius: 16,
+    marginVertical: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    backgroundColor: '#fff',
+  },
+  nextAppointmentCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#b183ff',
+  },
+  historyCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#b183ff',
+  },
+
+  cardContent: {
+    padding: 16,
+  },
+
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  statusContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    gap: 6,
+  },
+  statusText: {
+    fontWeight: '600',
+    fontSize: 12,
+  },
+  chevron: {
+    margin: -8,
+  },
+  recentBadge: {
+    fontSize: 10,
+    paddingHorizontal: 12,
+    paddingVertical: -2,
+  },
+  mainContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  professionalImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 12,
+    marginRight: 16,
+    backgroundColor: '#ffffffff',
+  },
+  infoContainer: {
+    flex: 1,
+  },
+  procedureName: {
+    fontWeight: '600',
+    marginBottom: 6,
+    fontSize: 16,
+  },
+  professionalInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    gap: 4,
+  },
+  professionalName: {
+    fontWeight: '500',
+    fontSize: 14,
+  },
+  detailsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  detailText: {
+    fontSize: 12,
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+    gap: 8,
+  },
+  priorityIndicator: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  footerText: {
+    fontSize: 12,
+    flex: 1,
+  },
+  emptyIcon: {
+    marginBottom: 10,
+    alignSelf: 'center', // garante centralização horizontal
+  },
+  emptyTitle: {
+    fontWeight: '600',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  emptyCardContent: {
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  emptySubtitle: {
+    textAlign: 'center',
+    fontSize: 14,
   },
 });
 

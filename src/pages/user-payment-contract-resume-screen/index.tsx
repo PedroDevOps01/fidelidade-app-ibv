@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, FlatList } from 'react-native';
-import { Text, Card, Button, useTheme, List, RadioButton } from 'react-native-paper';
+import { View, StyleSheet, FlatList } from 'react-native';
+import { Text, Card, useTheme } from 'react-native-paper';
 import { useRoute } from '@react-navigation/native';
 import { fetchOptionsAutoFormaPagamentoContract } from '../../utils/fetch-select-data';
 import { useAuth } from '../../context/AuthContext';
 import { navigate } from '../../router/navigationRef';
 import LoadingFull from '../../components/loading-full';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function UserPaymentContractResumeScreen() {
   const route = useRoute();
@@ -13,43 +14,65 @@ export default function UserPaymentContractResumeScreen() {
   const { authData } = useAuth();
   const item = route.params?.item;
 
-  // Forma de pagamentos
   const [formasPagamento, setFormasPagamento] = useState<FormaPagamento[]>([]);
-  const [loading, setLoading] = useState<boolean>(true)
-  // const [selectedFormasPagamento, setSelectedFormasPagamento] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     (async () => {
-      setLoading(true)
+      setLoading(true);
       const data = await fetchOptionsAutoFormaPagamentoContract(authData.access_token);
       const newData = data.filter((item: any) => {
-        if (String(item.id_forma_pagamento_fmp).length == 5 && String(item.id_forma_pagamento_fmp).slice(0, 2) == '10') {
-          return item;
-        }
+        return (
+          String(item.id_forma_pagamento_fmp).length === 5 &&
+          String(item.id_forma_pagamento_fmp).startsWith('10')
+        );
       });
       setFormasPagamento(newData);
-      setLoading(false)
+      setLoading(false);
     })();
   }, []);
 
   const handleSubmit = (selectedFormasPagamento: string) => {
-    if (!selectedFormasPagamento) {
-      console.log('Nenhuma forma de pagamento selecionada');
-      return;
-    }
+    if (!selectedFormasPagamento) return;
 
-    if (selectedFormasPagamento == '10001') {
+    if (selectedFormasPagamento === '10001') {
       navigate('user-payment-screen', {
         item,
-        formaPagamento: formasPagamento.find(forma => forma.id_forma_pagamento_fmp.toString() === selectedFormasPagamento),
+        formaPagamento: formasPagamento.find(
+          forma => forma.id_forma_pagamento_fmp.toString() === selectedFormasPagamento
+        ),
       });
     }
 
-    if (selectedFormasPagamento == '10002') {
+    if (selectedFormasPagamento === '10002') {
       navigate('user-payment-creditcard-screen', {
         item,
-        formaPagamento: formasPagamento.find(forma => forma.id_forma_pagamento_fmp.toString() === selectedFormasPagamento),
+        formaPagamento: formasPagamento.find(
+          forma => forma.id_forma_pagamento_fmp.toString() === selectedFormasPagamento
+        ),
       });
+    }
+  };
+
+  const getPaymentIcon = (id: string) => {
+    switch (id) {
+      case '10001': // PIX
+        return 'qrcode';
+      case '10002': // Cartão de crédito
+        return 'credit-card';
+      default:
+        return 'cash';
+    }
+  };
+
+  const getPaymentColor = (id: string) => {
+    switch (id) {
+      case '10001':
+        return '#32BCAD';
+      case '10002':
+        return '#5B6ABF';
+      default:
+        return colors.primary;
     }
   };
 
@@ -62,23 +85,63 @@ export default function UserPaymentContractResumeScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.fundo }]}>
+      {/* Barra de progresso igual às outras telas */}
+      
+
+      <Text
+        variant="bodyMedium"
+        style={[styles.headerSubtitle, { color: colors.onSurfaceVariant }]}
+      >
+        Selecione como deseja efetuar o pagamento
+      </Text>
+
       {loading ? (
         <LoadingFull />
       ) : (
-        <List.Section title='Selecione uma Forma de pagamento'>
-          <FlatList
-            data={formasPagamento}
-            renderItem={({ item }) => (
-              <List.Item
-                title={item.des_nome_fmp}
-                right={props => <List.Icon {...props} icon={'chevron-right'} />}
-                onPress={() => handleSubmit(String(item.id_forma_pagamento_fmp))}
-              />
-            )}
-            removeClippedSubviews={false}
-          />
-        </List.Section>
+        <FlatList
+          data={formasPagamento}
+          renderItem={({ item }) => (
+            <Card
+              style={[styles.paymentCard, { backgroundColor: colors.surface }]}
+              onPress={() => handleSubmit(String(item.id_forma_pagamento_fmp))}
+            >
+              <Card.Content style={styles.cardContent}>
+                <View style={styles.iconContainer}>
+                  <MaterialCommunityIcons
+                    name={getPaymentIcon(String(item.id_forma_pagamento_fmp))}
+                    size={28}
+                    color={getPaymentColor(String(item.id_forma_pagamento_fmp))}
+                  />
+                </View>
+                <View style={styles.textContainer}>
+                  <Text
+                    variant="titleMedium"
+                    style={[styles.paymentTitle, { color: colors.onSurface }]}
+                  >
+                    {item.des_nome_fmp}
+                  </Text>
+                  {item.id_forma_pagamento_fmp === '10001' && (
+                    <Text
+                      variant="bodySmall"
+                      style={[styles.paymentSubtitle, { color: colors.primary }]}
+                    >
+                      Pagamento instantâneo • Sem taxas
+                    </Text>
+                  )}
+                </View>
+                <MaterialCommunityIcons
+                  name="chevron-right"
+                  size={24}
+                  color={colors.onSurfaceVariant}
+                />
+              </Card.Content>
+            </Card>
+          )}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          removeClippedSubviews={false}
+          contentContainerStyle={{ paddingBottom: 16 }}
+        />
       )}
     </View>
   );
@@ -87,25 +150,54 @@ export default function UserPaymentContractResumeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: 24,
   },
-  card: {
-    marginBottom: 16,
+  headerSubtitle: {
+    textAlign: 'center',
+    marginBottom: 24,
+    opacity: 0.8,
+    letterSpacing: 0.25,
   },
-  payButton: {
-    marginTop: 16,
+  paymentCard: {
+    borderRadius: 12,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+  },
+  cardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+  },
+  iconContainer: {
+    marginRight: 16,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(50, 188, 173, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textContainer: {
+    flex: 1,
+  },
+  paymentTitle: {
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  paymentSubtitle: {
+    fontWeight: '500',
+    fontSize: 13,
+  },
+  separator: {
+    height: 12,
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  radioGroup: {
-    marginTop: 16,
-  },
-  radioGroupLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
   },
 });

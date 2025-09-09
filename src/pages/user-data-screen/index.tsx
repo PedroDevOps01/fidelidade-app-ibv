@@ -20,6 +20,7 @@ const UserDataScreen = ({ navigation }: { navigation: any }) => {
   const { clearSelectedExams } = useExames();
   const { authData, clearAuthData } = useAuth();
   const { setUserSchedulesData } = useConsultas();
+// console.log("dadosUsuarioData:", JSON.stringify(dadosUsuarioData, null, 2));
 
   const handleLogout = () => {
     Alert.alert('Aviso', 'Deseja sair do aplicativo?', [
@@ -88,6 +89,7 @@ const UserDataScreen = ({ navigation }: { navigation: any }) => {
             <TouchableOpacity
               style={styles.optionCard}
               onPress={() => {
+                console.log(dadosUsuarioData.pessoaAssinatura);
                 if (dadosUsuarioData.pessoaAssinatura?.id_contrato_ctt) {
                   navigate('user-contracts-stack');
                   return;
@@ -98,7 +100,7 @@ const UserDataScreen = ({ navigation }: { navigation: any }) => {
                 <Icon name="file-document" size={24} color={theme.colors.onTertiary} />
               </View>
               <View style={styles.optionTextContainer}>
-                <Text style={styles.optionTitle}>Meu Plano</Text>
+                <Text style={styles.optionTitle}>Planos</Text>
                 <Text style={styles.optionSubtitle}>Confira detalhes sobre seu plano</Text>
               </View>
               <Icon name="chevron-right" size={24} color="#999" />
@@ -107,7 +109,7 @@ const UserDataScreen = ({ navigation }: { navigation: any }) => {
         )}
 
         {/* Carteirinha */}
-        {dadosUsuarioData.pessoaDados?.id_pessoa_pes != 0 && (
+        {/* {dadosUsuarioData.pessoaDados?.id_pessoa_pes != 0 && (
           <TouchableOpacity style={styles.optionCard} onPress={() => navigation.navigate('user-personal-carteirinha-screen')}>
             <View style={styles.optionIconContainer}>
               <Icon name="card-account-details" size={24} color={theme.colors.onTertiary} />
@@ -118,7 +120,7 @@ const UserDataScreen = ({ navigation }: { navigation: any }) => {
             </View>
             <Icon name="chevron-right" size={24} color="#999" />
           </TouchableOpacity>
-        )}
+        )} */}
 
         <Button icon={'logout'} textColor={theme.colors.error} mode="outlined" style={[styles.button, { borderColor: theme.colors.error, marginTop:20 }]} onPress={handleLogout}>
           Sair

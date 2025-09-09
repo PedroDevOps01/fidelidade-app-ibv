@@ -1,13 +1,18 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, View, Dimensions } from 'react-native';
-import { Button, Card, Divider, Text, useTheme } from 'react-native-paper';
+import { Button, Card, Text, useTheme } from 'react-native-paper';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 import { navigate } from '../../router/navigationRef';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useExames } from '../../context/exames-context';
-dayjs.locale('pt-br');  // Definindo o locale para português do Brasil
+import { useConsultas } from '../../context/consultas-context';
+import { useAuth } from '../../context/AuthContext';
+import { api } from '../../network/api';
+import { generateRequestHeader } from '../../utils/app-utils';
+import { useDadosUsuario } from '../../context/pessoa-dados-context';
+
+dayjs.locale('pt-br'); 
 
 type UserExamsSelectDateRouteParams = {
   params: {
@@ -16,55 +21,76 @@ type UserExamsSelectDateRouteParams = {
 };
 
 const { width } = Dimensions.get('window');
-const DAY_BUTTON_SIZE = (width - 64) / 4; // 4 colunas com padding
+const DAY_BUTTON_SIZE = (width - 64) / 4; 
 
 export default function UserExamsSelectDate() {
   const { colors } = useTheme();
   const route = useRoute<RouteProp<UserExamsSelectDateRouteParams>>();
   const { item } = route.params;
   const { scheduleRequest, setScheduleRequestData } = useExames();
+  const { userSchedules, setUserSchedulesData } = useConsultas();
+  const { dadosUsuarioData } = useDadosUsuario();
+  const { authData } = useAuth();
 
-  // Configuração de datas - agora mostra 14 dias (máximo)
   const today = new Date();
   const maxDate = new Date();
-  maxDate.setDate(today.getDate() + 13); // 14 dias no total (hoje + 13 dias)
+  maxDate.setDate(today.getDate() + 13); 
 
-  // Gerar dias disponíveis (excluindo domingos)
   const generateAvailableDays = () => {
     const days = [];
     const currentDate = new Date(today);
-    
     while (currentDate <= maxDate) {
-      if (currentDate.getDay() !== 0) { // Exclui domingos
-        days.push(new Date(currentDate));
-      }
+      if (currentDate.getDay() !== 0) days.push(new Date(currentDate));
       currentDate.setDate(currentDate.getDate() + 1);
     }
-    
     return days;
   };
-
   const availableDays = generateAvailableDays();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-  function saveAndContinue() {
-    if (!selectedDate) {
-      Alert.alert('Atenção', 'Por favor, selecione um dia para continuar.');
-      return;
-    }
-
-    let data: ScheduleRequest = {
-      ...scheduleRequest,
-      data_agenda: dayjs(selectedDate).format('YYYY-MM-DD'),
-          cod_parceiro: item.cod_parceiro, // ⚠️ importante adicionar
-  cod_paciente: scheduleRequest.cod_pessoa_pes, // 👈 garante que vai junto no payload
-
+  // Buscar agendamentos ao carregar
+  useEffect(() => {
+    const fetchUserSchedules = async () => {
+      if (!authData.access_token || !dadosUsuarioData.pessoaDados?.id_pessoa_pes) return;
+      try {
+        const cod_paciente = dadosUsuarioData.pessoaDados.id_pessoa_pes;
+        const response = await api.get(`/integracao/listAgendamentos?cod_paciente=${cod_paciente}`, generateRequestHeader(authData.access_token));
+        setUserSchedulesData(response.data || []);
+      } catch (err) {
+        console.log('Erro ao buscar agendamentos:', err);
+      }
     };
-  console.log('ScheduleRequest atual antes de enviar:', data);
+    fetchUserSchedules();
+  }, [authData.access_token, dadosUsuarioData.pessoaDados]);
 
-    setScheduleRequestData(data);
-    navigate('user-select-payment-method');
+const saveAndContinue = () => {
+  if (!selectedDate) {
+    Alert.alert('Atenção', 'Por favor, selecione um dia para continuar.');
+    return;
   }
+
+  const selectedDay = dayjs(selectedDate);
+  const currentHour = dayjs().hour();
+
+  // Validação: não permitir agendamento no período da tarde (após 12h)
+  if (currentHour >= 12) {
+    Alert.alert(
+      'Atenção',
+      'Não é permitido agendar exames no período da tarde (após as 12h).'
+    );
+    return;
+  }
+
+  setScheduleRequestData({
+    ...scheduleRequest,
+    data_agenda: selectedDay.format('YYYY-MM-DD'),
+    cod_parceiro: item.cod_parceiro,
+    cod_paciente: scheduleRequest.cod_pessoa_pes,
+  });
+
+  navigate('user-select-payment-method');
+};
+
 
   return (
     <View style={[styles.container, { backgroundColor: colors.fundo }]}>
