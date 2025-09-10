@@ -133,9 +133,9 @@ const styles = StyleSheet.create({
     borderColor: '#EEE',
   },
   popularTouchable: {
-    backgroundColor: '#b183ff',
+    backgroundColor: '#644086',
     borderColor: 'transparent',
-    shadowColor: '#b183ff',
+    shadowColor: '#644086',
     shadowOpacity: 0.3,
   },
   card: {
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   popularCard: {
-    backgroundColor: '#b183ff',
+    backgroundColor: '#644086',
   },
   popularBadge: {
     position: 'absolute',
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#b183ff',
+    backgroundColor: '#644086',
   },
   popularSelectButton: {
     backgroundColor: '#FFF',
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   popularSelectButtonText: {
-    color: '#b183ff',
+    color: '#644086',
   },
   arrowIcon: {
     marginLeft: 8,

@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
   noAccessTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#7b5cbf',
+    color: '#644086',
     marginBottom: 10,
     textAlign: 'center',
   },
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   loginButton: {
-    backgroundColor: '#b183ff',
+    backgroundColor: '#644086',
     borderRadius: 25,
     paddingVertical: 12,
     paddingHorizontal: 25,
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
   },
   instructionText: {
     marginLeft: 8,
-    color: '#b183ff',
+    color: '#644086',
     fontSize: 14,
   },
   landscapeWrapper: {
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#b183ff',
+    borderColor: '#644086',
   },
   gradientBackground: {
     position: 'absolute',
@@ -278,18 +278,18 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     position: 'absolute',
-    top: -45,
-    right: 10,
+    top: 10,
+    right: 15,
     zIndex: 2,
   },
   cardLogo: {
-    width: 180,
-    height: 180,
+    width: 100,
+    height: 100,
     opacity: 0.9,
   },
   zoomedLogo: {
-    width: 180,
-    height: 180,
+    width: 140,
+    height: 140,
   },
   chipContainer: {
     position: 'absolute',
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   infoLabel: {
-    color: '#7b5cbf',
+    color: '#644086',
     fontSize: 14,
     fontWeight: '700',
     letterSpacing: 0.5,
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   cardFooter: {
-    backgroundColor: '#b183ff',
+    backgroundColor: '#644086',
     padding: 12,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,

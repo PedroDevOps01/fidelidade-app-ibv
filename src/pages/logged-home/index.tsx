@@ -134,6 +134,11 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   const [inadimplenciasDialogVisible, setInadimplenciasDialogVisible] = useState<boolean>(false);
   const [agendamentosDialogVisible, setAgendamentosDialogVisible] = useState<boolean>(false);
   const [schedulesLoading, setSchedulesLoading] = useState<boolean>(false);
+    const [parceirosCredenciados, setParceirosCredenciados] = useState<Parceiro[]>([]);
+  const scrollXCredenciados = useRef(new Animated.Value(0)).current;
+  const [modalCredenciadosVisible, setModalCredenciadosVisible] = useState(false);
+  const [selectedParceiroCredenciadoId, setSelectedParceiroCredenciadoId] = useState<number | null>(null);
+
   const [loading, setLoading] = useState<boolean>(false);
   const [partnersLoading, setPartnersLoading] = useState<boolean>(true);
   const [hasTelemedicine, setHasTelemedicine] = useState<boolean>(false); // New state for telemedicine
@@ -429,7 +434,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
         .map(
           termo => `
           <div style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
-            <h2 style="color: #b183ff; font-size: 24px; margin-bottom: 15px; font-weight: 600; text-align: center;">
+            <h2 style="color: #644086; font-size: 24px; margin-bottom: 15px; font-weight: 600; text-align: center;">
               ${termo.des_descricao_tde}
             </h2>
             <div style="font-size: 14px; color: #333; line-height: 1.6;">
@@ -459,7 +464,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             color: #333;
           }
           h2 { 
-            color: #b183ff; 
+            color: #644086; 
             font-size: 18px; 
             margin-bottom: 15px; 
             font-weight: 600;
@@ -572,12 +577,38 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
       setPartnersLoading(false);
     }
   }
+async function fetchParceirosCredenciados(): Promise<void> {
+    try {
+      setLoading(true);
+      const headers = isLogged && authData.access_token
+        ? generateRequestHeader(authData.access_token)
+        : {
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+            },
+          };
+      const response = await api.get('/parceiro/appcred', headers);
+      const dataApi = response.data;
+      if (dataApi && dataApi.response && dataApi.response.data && dataApi.response.data.length > 0) {
+        setParceirosCredenciados(dataApi.response.data);
+      } else {
+        console.log('Nenhum parceiro credenciado encontrado');
+      }
+    } catch (error: any) {
+      console.error('Erro ao buscar parceiros credenciados:', error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useFocusEffect(
     useCallback(() => {
       fetchParceiros();
+      fetchParceirosCredenciados();
     }, []),
   );
+
 
   useFocusEffect(
     useCallback(() => {
@@ -668,6 +699,8 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
       fetchSchedules(authData.access_token),
       fetchLastHistoricSchedule(),
       fetchParceiros(),
+            fetchParceirosCredenciados(),
+
     ])
       .then(_ => {})
       .catch(err => {
@@ -677,6 +710,43 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
         setLoading(false);
       });
   }
+const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
+    return (
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() => {
+          setSelectedParceiroCredenciadoId(item.id_parceiro_prc);
+          setModalCredenciadosVisible(true);
+        }}
+        style={[styles.credenciadoCard, { backgroundColor: "#f7f7f7" }]}>
+        <View style={styles.credenciadoContent}>
+          <Image
+            source={item.img_parceiro_prc ? { uri: `${item.img_parceiro_prc}` } : require('../../assets/images/logonova.png')}
+            style={[styles.credenciadoImage, { width: 80, height: 80 }]}
+          />
+          <View style={styles.credenciadoInfo}>
+            <Text variant="titleMedium" style={[styles.credenciadoTitle, { color: colors.primary }]}>
+              {item.des_nome_fantasia_prc}
+            </Text>
+            <Text variant="bodySmall" style={[styles.credenciadoLocation, { color: colors.primary }]}>
+              {item.des_municipio_mun}
+            </Text>
+            <View style={[styles.credenciadoBadge, { backgroundColor: colors.corpadrao }]}>
+              <Text variant="labelSmall" style={[styles.credenciadoBadgeText, { color: colors.onPrimary }]}>
+                Credenciado
+              </Text>
+            </View>
+          </View>
+          <IconButton 
+            icon="chevron-right" 
+            size={24} 
+            iconColor={colors.primary} 
+            style={styles.credenciadoArrow}
+          />
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   const renderPromoIndicator = () => {
     return (
@@ -766,7 +836,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#e7d7ff' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f7f7f7' }}>
       {showTerms ? (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
           {termsLoading ? (
@@ -898,8 +968,43 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                 <Text style={{ textAlign: 'center', color: colors.onSurfaceVariant, marginTop: 10 }}>Nenhum parceiro disponível no momento.</Text>
               )}
             </View>
-
+{/* Seção de Credenciados */}
             <View style={styles.sectionContainer}>
+              <View style={styles.sectionHeader}>
+                <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
+                  Nossos Credenciados
+                </Text>
+                <Button 
+                  mode="text" 
+                  compact 
+                  labelStyle={{ fontSize: 12, color: colors.primary }} 
+                  onPress={() => navigation.navigate('ParceirosScreen', { partnerType: 'accredited' })}
+                >
+                  Ver todos
+                </Button>
+              </View>
+              
+              {parceirosCredenciados.length > 0 ? (
+                <FlatList
+                  data={parceirosCredenciados}
+                  renderItem={renderCredenciadosItem}
+                  keyExtractor={(item) => item.id_parceiro_prc.toString()}
+                  scrollEnabled={false}
+                  contentContainerStyle={styles.credenciadosList}
+                  ListFooterComponent={<View style={{ height: 10 }} />}
+                />
+              ) : (
+                <Card mode="elevated" style={[styles.card, { backgroundColor: colors.surface }]}>
+                  <Card.Content style={styles.emptyCardContent}>
+                    <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant, textAlign: 'center' }}>
+                      Nenhum credenciado disponível no momento
+                    </Text>
+                  </Card.Content>
+                </Card>
+              )}
+            </View>
+
+            {/* <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
                 <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
                   Marcar Consultas
@@ -921,10 +1026,10 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                 />
                 {renderPromoIndicator()}
               </View>
-            </View>
+            </View> */}
 
             {/* Próximos Agendamentos */}
-            <View style={styles.sectionContainer}>
+            {/* <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
                 <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
                   Próximos Agendamentos
@@ -941,10 +1046,10 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
               ) : (
                 <AppointmentCard appointment={userSchedules[0]} onPress={() => navigate('user-schedules')} type="next" />
               )}
-            </View>
+            </View> */}
 
             {/* Histórico de Agendamentos */}
-            <View style={styles.sectionContainer}>
+            {/* <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
                 <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
                   Histórico de Agendamentos
@@ -959,7 +1064,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
               ) : (
                 <EmptyAppointmentCard type="history" onPress={() => navigate('user-shcdules-history-screen')} />
               )}
-            </View>
+            </View> */}
 
             <Portal>
               <PagarmeErrorsDialog
@@ -981,7 +1086,109 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                 handlePress={status => setAgendamentosDialogVisible(status)}
               />
             </Portal>
+ <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalCredenciadosVisible}
+            onRequestClose={() => {
+              setModalCredenciadosVisible(false);
+            }}>
+            <TouchableWithoutFeedback onPress={() => setModalCredenciadosVisible(false)}>
+              <View style={styles.modalOverlay} />
+            </TouchableWithoutFeedback>
 
+            <View style={styles.modalContainer}>
+              {selectedParceiroCredenciadoId && (
+  (() => {
+    const selectedParceiro = parceirosCredenciados.find(
+      p => p.id_parceiro_prc === selectedParceiroCredenciadoId
+    );
+
+    if (!selectedParceiro) return null;
+
+    return (
+      <>
+        <Image
+          source={
+            selectedParceiro.img_parceiro_prc
+              ? { uri: `${selectedParceiro.img_parceiro_prc}` }
+              : require('../../assets/images/logonova.png')
+          }
+          style={styles.modalImage}
+        />
+        <View style={styles.modalContent}>
+          <Text variant="titleLarge" style={styles.modalTitle}>
+            {selectedParceiro.des_nome_fantasia_prc}
+          </Text>
+          <Text variant="bodyMedium" style={styles.modalDescription}>
+            {selectedParceiro.des_razao_social_prc} - {selectedParceiro.des_endereco_prc},{' '}
+            {selectedParceiro.des_bairro_prc}, {selectedParceiro.des_municipio_mun}
+          </Text>
+          <Text variant="titleSmall" style={styles.modalSectionTitle}>
+            Contato:
+          </Text>
+          <View style={styles.benefitItem}>
+            <IconButton
+              icon="email"
+              size={16}
+              iconColor={colors.primary}
+              style={styles.benefitIcon}
+            />
+            <Text variant="bodyMedium" style={styles.benefitText}>
+              {selectedParceiro.des_email_responsavel_prc}
+            </Text>
+          </View>
+          <View style={styles.benefitItem}>
+            <IconButton
+              icon="phone"
+              size={16}
+              iconColor={colors.primary}
+              style={styles.benefitIcon}
+            />
+            <Text variant="bodyMedium" style={styles.benefitText}>
+              {selectedParceiro.num_celular_prc || selectedParceiro.num_telefone_prc}
+            </Text>
+          </View>
+          <Text variant="titleSmall" style={styles.modalSectionTitle}>
+            Dados:
+          </Text>
+          <View style={styles.benefitItem}>
+            <IconButton
+              icon="card-text"
+              size={16}
+              iconColor={colors.primary}
+              style={styles.benefitIcon}
+            />
+            <Text variant="bodyMedium" style={styles.benefitText}>
+              Descrição: {selectedParceiro.des_parceiro_prc || 'N/A'}
+            </Text>
+          </View>
+          <Button
+            mode="contained"
+            onPress={() => {
+              setModalCredenciadosVisible(false);
+              navigation.navigate('ParceirosScreen', { partnerType: 'accredited' });
+            }}
+            style={styles.modalButton}
+            labelStyle={styles.modalButtonText}
+          >
+            Ver mais detalhes
+          </Button>
+          <Button
+            mode="outlined"
+            onPress={() => setModalCredenciadosVisible(false)}
+            style={styles.modalCloseButton}
+            labelStyle={styles.modalCloseButtonText}
+          >
+            Fechar
+          </Button>
+        </View>
+      </>
+    );
+  })()
+)}
+            </View>
+          </Modal>
             <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
               <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
                 <View style={styles.modalOverlay} />
@@ -1056,15 +1263,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#f7f7f7',
   },
   purpleSection: {
-    backgroundColor: '#b183ff',
+    backgroundColor: '#644086',
     height: Platform.select({
-<<<<<<< HEAD
       ios: Platform.isPad ? SCREEN_HEIGHT * 0.20 : SCREEN_HEIGHT * 0.27,
       android: Platform.isPad ? SCREEN_HEIGHT * 0.20 : SCREEN_HEIGHT * 0.27,
-=======
-      ios: Platform.isPad ? SCREEN_HEIGHT * 0.2 : SCREEN_HEIGHT * 0.35,
-      android: Platform.isPad ? SCREEN_HEIGHT * 0.5 : SCREEN_HEIGHT * 0.35,
->>>>>>> refs/remotes/origin/main
     }),
     justifyContent: 'flex-start',
     alignItems: 'center',
@@ -1074,30 +1276,30 @@ const styles = StyleSheet.create({
     }),
   },
   logo: {
-    width: 200,
-    height: 150,
-    marginTop: 20,
+    width: 120, // Reduzido para evitar dominância visual
+    height: 120,
+    marginTop: 20, // Reduzido para mais equilíbrio
   },
   welcomeContainer: {
     alignItems: 'center',
-    marginTop: -20,
+    marginTop: 10, // Reduzido para evitar excesso de espaço
   },
   welcomeText: {
-    fontSize: 22,
+    fontSize: 20, // Reduzido para legibilidade sem zoom (mínimo 17pt)
     color: '#fff',
     fontWeight: 'bold',
-    marginBottom: 0,
+    marginBottom: 0, // Reduzido para equilíbrio
   },
   subtitleText: {
-    fontSize: 16,
+    fontSize: 14, // Reduzido para harmonia com o layout
     color: '#fff',
     opacity: 0.9,
   },
   whiteSection: {
     flex: 1,
     backgroundColor: '#f7f7f7',
-    marginTop: -80,
-    borderTopLeftRadius: 20,
+    marginTop: -15, // Ajustado para menor sobreposição
+    borderTopLeftRadius: 20, // Mantido para consistência
     borderTopRightRadius: 20,
   },
   scrollContent: {
@@ -1124,7 +1326,7 @@ const styles = StyleSheet.create({
   justifyContent: 'center',       // centraliza verticalmente
   alignItems: 'center',           // centraliza horizontalmente
   minHeight: 140,                 // altura mínima
-  borderColor: '#b183ff',         // cor da borda
+  borderColor: '#644086',         // cor da borda
   borderWidth: 1,                  // largura da borda
   borderRadius: 12,                // cantos arredondados (opcional)
   padding: 16,                     // espaçamento interno
@@ -1141,6 +1343,72 @@ const styles = StyleSheet.create({
   },
   scheduleInfo: {
     flex: 1,
+  },
+   parceirosList: {
+    paddingHorizontal: (SCREEN_WIDTH - SCREEN_WIDTH * 0.98) / 2, // Ajustado para menos padding
+  },
+  credenciadosList: {
+    paddingTop: 8, // Reduzido para equilíbrio
+  },
+  card: {
+    borderRadius: 12, // Reduzido para proporção
+    elevation: 2, // Reduzido para sombra mais suave
+    marginBottom: 12, // Reduzido para espaço adequado
+    padding: 10, // Adicionado padding interno para exibir botões
+  },
+  indicator: {
+    width: 6, // Reduzido para visibilidade sem excesso
+    height: 6,
+    borderRadius: 3, // Reduzido para consistência
+    marginHorizontal: 3, // Reduzido para equilíbrio
+  },
+  credenciadoCard: {
+    borderRadius: 10, // Reduzido para proporção
+    marginBottom: 10, // Reduzido para espaço adequado
+    elevation: 2, // Reduzido para sombra mais suave
+    overflow: 'hidden',
+    backgroundColor: '#f8f8f8',
+    padding: 10, // Adicionado padding interno para exibir botões
+  },
+  credenciadoContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10, // Reduzido para equilíbrio
+  },
+  credenciadoImage: {
+    width: 50, // Reduzido para evitar dominância
+    height: 50,
+    borderRadius: 8, // Reduzido para consistência
+    marginRight: 10, // Reduzido para equilíbrio
+  },
+  credenciadoInfo: {
+    flex: 1,
+  },
+  credenciadoTitle: {
+    fontWeight: '600',
+    fontSize: 14, // Reduzido para legibilidade sem zoom
+    marginBottom: 4, // Reduzido para equilíbrio
+  },
+  credenciadoLocation: {
+    marginBottom: 6, // Reduzido para harmonia
+    color: '#666',
+  },
+  credenciadoBadge: {
+    alignSelf: 'flex-start',
+    borderRadius: 4, // Reduzido para proporção
+    paddingHorizontal: 6, // Reduzido para equilíbrio
+    paddingVertical: 4, // Reduzido para equilíbrio
+  },
+  credenciadoBadgeText: {
+    fontWeight: '500',
+    fontSize: 12, // Reduzido para harmonia
+  },
+  credenciadoArrow: {
+    margin: 0,
+    marginLeft: 8, // Reduzido para equilíbrio
+  },
+  emptyCardContent: {
+    paddingVertical: 15, // Reduzido para equilíbrio
   },
   professionalContainer: {
     marginVertical: 4,
@@ -1169,7 +1437,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   termsHeader: {
-    backgroundColor: '#b183ff',
+    backgroundColor: '#644086',
     padding: 25,
     paddingTop: 15,
     borderBottomLeftRadius: 15,
@@ -1353,7 +1621,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   telemedicineButtonText: {
-    color: '#b183ff',
+    color: '#644086',
     fontWeight: '600',
     fontSize: 16,
   },
@@ -1370,11 +1638,11 @@ const styles = StyleSheet.create({
   },
   nextAppointmentCard: {
     borderLeftWidth: 4,
-    borderLeftColor: '#b183ff',
+    borderLeftColor: '#644086',
   },
   historyCard: {
     borderLeftWidth: 4,
-    borderLeftColor: '#b183ff',
+    borderLeftColor: '#644086',
   },
 
   cardContent: {

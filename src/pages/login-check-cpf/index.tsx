@@ -131,7 +131,7 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
   };
 
   return (
-    <ImageBackground source={require('../../assets/images/fundologin.jpeg')} style={styles.background} resizeMode="cover">
+    <ImageBackground source={require('../../assets/images/fundologin.png')} style={styles.background} resizeMode="cover">
 <KeyboardAwareScrollView
   keyboardShouldPersistTaps="handled"
   contentContainerStyle={styles.container}

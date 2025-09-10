@@ -25,7 +25,7 @@ export default function NoMdvFound() {
 
   return (
     <ImageBackground
-      source={require('../../assets/images/welcome.jpeg')}
+      source={require('../../assets/images/welcome.png')}
       style={styles.backgroundImage}
       resizeMode="cover"
     >

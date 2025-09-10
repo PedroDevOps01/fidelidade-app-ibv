@@ -4,10 +4,8 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android",
-"ios": "react-native run-ios --scheme fidelidadedemoapp",
-
+    "ios": "react-native run-ios --scheme fidelidadedemoapp",
     "ipad": "react-native run-ios --scheme fidelidadedemoapp --udid A8C8557E-C8E9-4086-AE5E-850961E46235",
-
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest"
@@ -30,6 +28,7 @@
     "@shopify/flash-list": "^1.8.0",
     "@types/axios": "^0.14.0",
     "axios": "^1.7.5",
+    "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "dayjs-plugin-utc": "^0.1.2",
     "firebase-admin": "^13.4.0",
@@ -75,6 +74,7 @@
     "@react-native/eslint-config": "0.76.3",
     "@react-native/metro-config": "0.76.3",
     "@react-native/typescript-config": "0.76.3",
+    "@types/date-fns": "^2.6.3",
     "@types/react": "^18.2.6",
     "@types/react-native-vector-icons": "^6.4.18",
     "@types/react-test-renderer": "^18.0.0",
