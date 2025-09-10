@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import { maskBrazilianCurrency } from '../../utils/app-utils';
 import { navigate } from '../../router/navigationRef';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import LoadingFull from '../../components/loading-full';
+
 interface ContratosDetailScreenProps {
   contrato: ContratoResponse;
   title: string;
@@ -43,17 +43,20 @@ const ContratosDetailScreen = ({ contrato, title }: ContratosDetailScreenProps) 
   };
 
   if (loading) {
-  return <LoadingFull title="Carregando detalhes do contrato..." />;
-}
+    return (
+      <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    );
+  }
 
-  
-if (!contrato) {
-  return (
-    <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
-      <Text style={styles.emptyText}>Nenhum dado disponível</Text>
-    </View>
-  );
-}
+  if (!contrato) {
+    return (
+      <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
+        <Text style={styles.emptyText}>Nenhum dado disponível</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -89,7 +92,7 @@ if (!contrato) {
         {/* Plan Details Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Detalhes do Plano</Text>
-          {renderDetailItem('currency-usd', 'Valor Inicial', `R$ ${maskBrazilianCurrency(contrato.vlr_inicial_ctt)}`)}
+          {renderDetailItem('currency-usd', 'Valor Inicial', `${maskBrazilianCurrency(contrato.vlr_inicial_ctt)}`)}
           {renderDetailItem(
             'file-document-multiple-outline', 
             'Parcelas', 
@@ -182,7 +185,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#644086',
+    backgroundColor: '#b183ff',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,

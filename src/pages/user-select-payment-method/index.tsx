@@ -1,20 +1,16 @@
 import { useRoute } from '@react-navigation/native';
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { View, StyleSheet, Alert, FlatList, Dimensions } from 'react-native';
-import { RadioButton, Text, Button, useTheme, ActivityIndicator, List, Card, IconButton } from 'react-native-paper';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, FlatList } from 'react-native';
+import { Text, useTheme, Card } from 'react-native-paper';
 import { fetchOptionsAutoFormaPagamentoContract } from '../../utils/fetch-select-data';
 import { useAuth } from '../../context/AuthContext';
-import { ScrollView } from 'react-native-gesture-handler';
 import { navigate } from '../../router/navigationRef';
 import { useExames } from '../../context/exames-context';
 import { useConsultas } from '../../context/consultas-context';
-import { log } from '../../utils/app-utils';
 import LoadingFull from '../../components/loading-full';
 import CustomToast from '../../components/custom-toast';
-import { ProgressBar, TextInput } from 'react-native-paper';
+import { log } from '../../utils/app-utils';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-
-const { width } = Dimensions.get('window');
 
 const UserSelectPaymentMethod = () => {
   const { colors } = useTheme();
@@ -23,7 +19,6 @@ const UserSelectPaymentMethod = () => {
   const { scheduleRequest, setScheduleRequestData } = useExames();
   const route = useRoute();
   const [formasPagamento, setFormasPagamento] = useState<FormaPagamento[]>([]);
-  const [selectedFormasPagamento, setSelectedFormasPagamento] = useState<string | null>('');
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -36,15 +31,12 @@ const UserSelectPaymentMethod = () => {
   }, []);
 
   const handleSubmit = (selectedFormasPagamento: string) => {
-    if(selectedFormasPagamento == '') {
+    if (!selectedFormasPagamento) {
       CustomToast('Selecione uma forma de pagamento.', colors);
       return;
     }
 
     let schedule: ScheduleRequest = (route.params as ScheduleRequest) ?? scheduleRequest;
-    console.log('Schedule with cod_parceiro:', schedule.cod_parceiro); // Log for verification
-  console.log('teste', schedule)
-
     schedule = {
       ...schedule,
       payment_method: selectedFormasPagamento === '10001' ? 'pix' : 'credit_card',
@@ -64,49 +56,23 @@ const UserSelectPaymentMethod = () => {
   };
 
   const getPaymentIcon = (id: string) => {
-    switch(id) {
-      case '10001': // PIX
-        return 'qrcode';
-      case '10002': // Cartão de crédito
-        return 'credit-card';
-      default:
-        return 'cash';
+    switch (id) {
+      case '10001': return 'qrcode';
+      case '10002': return 'credit-card';
+      default: return 'cash';
     }
   };
 
   const getPaymentColor = (id: string) => {
-    switch(id) {
-      case '10001': // PIX
-        return '#32BCAD';
-      case '10002': // Cartão de crédito
-        return '#5B6ABF';
-      default:
-        return colors.primary;
+    switch (id) {
+      case '10001': return '#32BCAD';
+      case '10002': return '#5B6ABF';
+      default: return colors.primary;
     }
   };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.fundo }]}>
-     <View style={{ flexDirection: 'row', marginBottom: 25, marginTop: 5, }}>
-  {[1, 2, 3].map((_, index) => (
-    <View
-      key={index}
-      style={{
-        flex: 1,
-        height: 6,
-          marginEnd: 20,
-        marginStart: 20,
-        borderRadius: 5,
-        backgroundColor: colors.primary,
-      }}
-    />
-  ))}
-</View>
-
-      {/* <Text variant="titleLarge" style={[styles.headerTitle, { color: colors.onBackground }]}>
-        Método de Pagamento
-      </Text> */}
-      
       <Text variant="bodyMedium" style={[styles.headerSubtitle, { color: colors.onSurfaceVariant }]}>
         Selecione como deseja efetuar o pagamento
       </Text>
@@ -119,16 +85,16 @@ const UserSelectPaymentMethod = () => {
             data={formasPagamento}
             contentContainerStyle={styles.listContent}
             renderItem={({ item }) => (
-              <Card 
+              <Card
                 style={[styles.paymentCard, { backgroundColor: colors.surface }]}
                 onPress={() => handleSubmit(String(item.id_forma_pagamento_fmp))}
               >
                 <Card.Content style={styles.cardContent}>
                   <View style={styles.iconContainer}>
-                    <MaterialCommunityIcons 
-                      name={getPaymentIcon(String(item.id_forma_pagamento_fmp))} 
-                      size={28} 
-                      color={getPaymentColor(String(item.id_forma_pagamento_fmp))} 
+                    <MaterialCommunityIcons
+                      name={getPaymentIcon(String(item.id_forma_pagamento_fmp))}
+                      size={28}
+                      color={getPaymentColor(String(item.id_forma_pagamento_fmp))}
                     />
                   </View>
                   <View style={styles.textContainer}>
@@ -141,10 +107,10 @@ const UserSelectPaymentMethod = () => {
                       </Text>
                     )}
                   </View>
-                  <MaterialCommunityIcons 
-                    name="chevron-right" 
-                    size={24} 
-                    color={colors.onSurfaceVariant} 
+                  <MaterialCommunityIcons
+                    name="chevron-right"
+                    size={24}
+                    color={colors.onSurfaceVariant}
                   />
                 </Card.Content>
               </Card>
@@ -162,11 +128,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-  },
-  headerTitle: {
-    fontWeight: '700',
-    marginBottom: 4,
-    letterSpacing: 0.15,
   },
   headerSubtitle: {
     textAlign: 'center',

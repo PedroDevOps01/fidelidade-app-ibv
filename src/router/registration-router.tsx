@@ -148,7 +148,7 @@ const RegistrationRouter = ({ initialRoute }: { initialRoute: string }) => {
   component={ContractsStackNavigator}
   options={{
     headerShown: true,
-    title: 'Meu Plano',
+    title: 'Planos',
             headerTitleAlign: 'center',
 
     headerStyle: { backgroundColor: theme.colors.primaryContainer },
@@ -174,7 +174,7 @@ const RegistrationRouter = ({ initialRoute }: { initialRoute: string }) => {
   component={UserSchedulesHistoryScreen}
   options={{
     headerShown: true,
-    title: 'Agendamentos',
+    title: 'Histórico',
             headerTitleAlign: 'center',
 
     headerStyle: { backgroundColor: theme.colors.primaryContainer },

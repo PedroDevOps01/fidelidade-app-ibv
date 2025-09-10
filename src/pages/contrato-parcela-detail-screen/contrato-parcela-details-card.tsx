@@ -47,7 +47,7 @@ const ContratoParcelaDetailsCard = ({ item }: { item: ContratoParcelaDetails }) 
         <View style={styles.header}>
           <View>
             <Text variant="titleLarge" style={styles.parcelNumber}>
-              Parcela #{item.cod_numparcela_cpc}
+              {item.cod_numparcela_cpc}° Parcela
             </Text>
             <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant }}>
               Vencimento: {item.dta_dia_cpc} de {transformMonthNumberToString(Number(item.dta_mes_cpc))} {item.ano_pagamento ? `de ${item.ano_pagamento}` : ''}

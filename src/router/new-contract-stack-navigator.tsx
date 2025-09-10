@@ -43,22 +43,54 @@ export const NewContractStackNavigator = () => {
             headerTitleAlign: 'center', // <--- centraliza o título
           }}
         />
-        <NewContractStack.Screen
-          name="user-contracts-payment-method"
-          component={UserContractsPaymentMethod}
-           options={{
-            headerBackVisible: true,
-            headerStyle: { backgroundColor: colors.primaryContainer },
-            headerTintColor: colors.onPrimaryContainer,
-
-            headerShown: true,
-            title: 'Formas de Pagamento',
-            headerTitleAlign: 'center', // <--- centraliza o título
-          }}
-        />
-        <NewContractStack.Screen name="user-contracts-payment-method-router" component={UserContractsPaymentMethodRouter} options={{ headerShown: true, title: 'Pagamento' }} />
-        <NewContractStack.Screen name="user-contracts-payment-successfull" component={UserContractPaymentSuccessfull} options={{ headerShown: true, title: 'Pagamento' }} />
-        <NewContractStack.Screen name="user-contracts-payment-failed" component={UserContractPaymentFailed} options={{ headerShown: true, title: 'Pagamento' }} />
+<NewContractStack.Screen
+  name="user-contracts-payment-method"
+  component={UserContractsPaymentMethod}
+  options={{
+    headerBackVisible: true,
+    headerStyle: { backgroundColor: colors.primaryContainer },
+    headerTintColor: colors.onPrimaryContainer,
+    headerShown: true,
+    title: 'Formas de Pagamento',
+    headerTitleAlign: 'center',
+  }}
+/>
+<NewContractStack.Screen
+  name="user-contracts-payment-method-router"
+  component={UserContractsPaymentMethodRouter}
+  options={{
+    headerBackVisible: true,
+    headerStyle: { backgroundColor: colors.primaryContainer },
+    headerTintColor: colors.onPrimaryContainer,
+    headerShown: true,
+    title: 'Pagamento',
+    headerTitleAlign: 'center',
+  }}
+/>
+<NewContractStack.Screen
+  name="user-contracts-payment-successfull"
+  component={UserContractPaymentSuccessfull}
+  options={{
+    headerBackVisible: true,
+    headerStyle: { backgroundColor: colors.primaryContainer },
+    headerTintColor: colors.onPrimaryContainer,
+    headerShown: true,
+    title: 'Pagamento',
+    headerTitleAlign: 'center',
+  }}
+/>
+<NewContractStack.Screen
+  name="user-contracts-payment-failed"
+  component={UserContractPaymentFailed}
+  options={{
+    headerBackVisible: true,
+    headerStyle: { backgroundColor: colors.primaryContainer },
+    headerTintColor: colors.onPrimaryContainer,
+    headerShown: true,
+    title: 'Pagamento',
+    headerTitleAlign: 'center',
+  }}
+/>
       </NewContractStack.Navigator>
     </AccquirePlanProvider>
   );

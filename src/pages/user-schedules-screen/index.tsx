@@ -28,24 +28,24 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
   const [listItemIndex, setListItemIndex] = useState<number>(0);
 
   let initialFabOptionsState = [
-    // {
-    //   icon: 'calendar-today',
-    //   onPress: () => handleFabPress('consulta'),
-    //   label: 'Nova consulta',
-    //   style: { backgroundColor: colors.primary },
-    // },
-    // {
-    //   icon: 'stethoscope',
-    //   onPress: () => handleFabPress('exame'),
-    //   label: `${selectedExams.length > 0 ? 'Adicionar' : 'Novo'} exame`,
-    //   style: { backgroundColor: colors.primary },
-    // },
+    {
+      icon: 'calendar-today',
+      onPress: () => handleFabPress('consulta'),
+      label: 'Nova Consulta',
+      style: { backgroundColor: colors.primary },
+    },
+    {
+      icon: 'stethoscope',
+      onPress: () => handleFabPress('exame'),
+      label: `${selectedExams.length > 0 ? 'Adicionar' : 'Novo'} Exame`,
+      style: { backgroundColor: colors.primary },
+    },
     {
       icon: 'history',
       onPress: () => {
         navigate('user-shcdules-history-screen');
       },
-      label: 'Agendamentos realizados',
+      label: 'Agendamentos Realizados',
       style: { backgroundColor: colors.primary },
     },
   ];
@@ -83,18 +83,20 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
     const cod_paciente = dadosUsuarioData.pessoaDados?.id_pessoa_pes;
 
     try {
-      const response = await api.get(`/integracao/listAgendamentos?token_paciente=${token}&cod_paciente=${cod_paciente}`, {
+      const response = await api.get(`/integracao/listAgendamentos?cod_paciente=${cod_paciente}`, {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
           Authorization: `Bearer ${authData.access_token}`,
         },
       });
-  console.log('Response:', response.data);
 
       if (response.status == 200) {
         const { data } = response;
+   
         setUserSchedulesData(data);
+                console.log(data) 
+
       }
     } catch (err: any) {
       //console.log(err);
@@ -103,7 +105,11 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
       setLoading(false);
     }
   };
-
+useEffect(() => {
+  if (isFocused) {
+    fetchSchedules();
+  }
+}, [isFocused]);
   const NoSchedulesComponent = () => (
     <View style={[styles.containerErrorComponent, { backgroundColor: colors.background }]}>
       <IconButton icon="calendar-remove-outline" size={64} iconColor={colors.primary} style={styles.icon} />
@@ -130,7 +136,7 @@ export default function UserSchedulesScreen({ navigation }: { navigation: any })
       {loading ? (
         <LoadingFull />
       ) : (
-        <View style={[styles.container, { backgroundColor: '#f7f7f7' }]}>
+        <View style={[styles.container, { backgroundColor: '#e7d7ff' }]}>
           {userSchedules.length > 0 ? (
             <FlatList
               data={userSchedules}

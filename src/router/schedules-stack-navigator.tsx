@@ -156,7 +156,7 @@ const SchedulesStackNavigator = () => {
         }}
       />
 
-      <SchedulesStack.Screen name="user-payment-successfull-screen" component={UserPaymentSuccessfull} />
+      <SchedulesStack.Screen name="user-payment-successfull-screen" component={UserPaymentSuccessfull}  options={{ headerShown: false }}/>
       <SchedulesStack.Screen name="user-exams-check-local-screen" component={UserExamsCheckLocal} options={{ headerShown: true, title: 'Locais disponíveis' }} />
       <SchedulesStack.Screen name="user-exams-select-date" component={UserExamsSelectDate} options={{ headerShown: true, title: 'Datas disponíveis' }} />
       <SchedulesStack.Screen name="user-shcdules-history-screen" component={UserSchedulesHistoryScreen} options={{ headerShown: true, title: 'Agendamentos' }} />

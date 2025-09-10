@@ -18,11 +18,16 @@ export default function ContractsPresenterScreen() {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [plans, setPlans] = useState<Plano[]>([]);
+  const orderedPlans = [...plans].sort((a, b) => {
+    if (a.id_plano_pla === 72) return -1; // Popular primeiro
+    if (b.id_plano_pla === 72) return 1;
+    return a.vlr_adesao_pla - b.vlr_adesao_pla;
+  });
 
   async function fetchPlans() {
-    setLoading(true)
+    setLoading(true);
     try {
-      const response = await api.get('/plano?is_ativo_pla=1', generateRequestHeader(authData?.access_token));
+      const response = await api.get('/plano?is_ativo_pla=1&is_plano_b2b_pla=0', generateRequestHeader(authData?.access_token));
       const { data } = response;
       setPlans(data.response.data);
     } catch (err: any) {
@@ -43,7 +48,7 @@ export default function ContractsPresenterScreen() {
         <LoadingFull />
       ) : (
         <FlatList
-          data={plans}
+          data={orderedPlans} // Changed from plans to orderedPlans
           style={{ width: Dimensions.get('window').width }}
           contentContainerStyle={{ padding: 16 }}
           keyExtractor={item => item.id_plano_pla!.toString()}

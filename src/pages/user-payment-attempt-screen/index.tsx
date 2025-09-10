@@ -46,19 +46,21 @@ export default function UserPaymentAttemptScreen() {
 
       {/* Rodapé com Botão de Assinatura */}
       <View style={styles.footer}>
-        <Button key={'assinar_plano'} mode="contained" onPress={() => {
-          
-          if(!isLogged) {
-            navigate('user-login-screen-new-contract')
-            return
-          }
-          
-          navigate(url)
-          
-          
-          }} labelStyle={styles.buttonLabel}>
-          Confira nossos planos
-        </Button>
+       <Button
+  key={'assinar_plano'}
+  mode="contained"
+  onPress={() => {
+    if (!isLogged) {
+      navigate('user-login-screen-new-contract');
+      return;
+    }
+
+    navigate('new-contract-stack', { screen: 'user-contracts-presenter-screen' });
+  }}
+  labelStyle={styles.buttonLabel}
+>
+  Confira nossos planos
+</Button>
 
         <View style={{ height: 10 }} />
 
@@ -106,8 +108,9 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   footer: {
-    padding: 20,
-    borderTopWidth: 1,
+    padding: 10,
+    marginBottom: 70,
+    borderTopWidth: -1,
     borderTopColor: '#e0e0e0',
   },
   button: {

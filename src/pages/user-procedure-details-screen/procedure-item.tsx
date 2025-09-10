@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Image, StyleSheet } from 'react-native';
 import { Card, Text, useTheme, Divider, Button, List, Avatar } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -7,41 +7,38 @@ import { useDadosUsuario } from '../../context/pessoa-dados-context';
 import { api } from '../../network/api';
 import { useAuth } from '../../context/AuthContext';
 
-
 export default function ProcedureItem({ procedure, navigation, isFirst, isLast }) {
   const { colors } = useTheme();
-    const { authData } = useAuth();
-  
-  const { dadosUsuarioData } = useDadosUsuario(); // puxando os dados do usuário
-  // Exemplo: pegar o nome do usuário
-
+  const { authData } = useAuth();
+  const { dadosUsuarioData } = useDadosUsuario(); 
   const cod_paciente = dadosUsuarioData?.pessoa?.id_pessoa_usr;
-  
+
+  const [loading, setLoading] = useState(false); // 🔥 novo estado
+
   async function fetchPaciente(codParceiro: number, codPaciente: number) {
-  console.log('Fetching paciente for:', { codParceiro, codPaciente });
+    console.log('Fetching paciente for:', { codParceiro, codPaciente });
 
-  try {
-    const url = `integracao/setPaciente?cod_parceiro=${Number(codParceiro)}&cod_paciente=${Number(codPaciente)}`;
-    console.log('Request URL:', url);
+    try {
+      const url = `integracao/setPaciente?cod_parceiro=${Number(codParceiro)}&cod_paciente=${Number(codPaciente)}`;
+      console.log('Request URL:', url);
 
-    const response = await api.get(url, generateRequestHeader(authData.access_token));
+      const response = await api.get(url, generateRequestHeader(authData.access_token));
 
-    console.log('Response Status:', response.status);
-    console.log('Response Data:', response.data);
+      console.log('Response Status:', response.status);
+      console.log('Response Data:', response.data);
 
-    if (response.status === 200) {
-      return response.data; // pode setar em um state se preferir
-    } else {
-      console.log('Aviso', 'Não foi possível carregar os dados do paciente.');
+      if (response.status === 200) {
+        return response.data;
+      } else {
+        console.log('Aviso', 'Não foi possível carregar os dados do paciente.');
+        return null;
+      }
+    } catch (err: any) {
+      console.error('Error:', err);
+      console.log('Aviso', 'Erro ao buscar paciente. Tente novamente');
       return null;
     }
-
-  } catch (err: any) {
-    console.error('Error:', err);
-    console.log('Aviso', 'Erro ao buscar paciente. Tente novamente');
-    return null;
   }
-}
 
   return (
     <View style={{ marginHorizontal: 16, marginTop: isFirst ? 0 : 5, marginBottom: isLast ? 16 : 12 }}>
@@ -61,12 +58,13 @@ export default function ProcedureItem({ procedure, navigation, isFirst, isLast }
             </View>
 
             <Divider style={[styles.divider, { backgroundColor: colors.outlineVariant }]} />
+
             <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface, marginTop: 16 }]}>
               Procedimentos Disponíveis
             </Text>
 
             <List.Item
-              title={procedure.nome}
+              title={procedure.des_descricao_tpr || procedure.nome}
               titleNumberOfLines={2}
               titleStyle={[styles.procedureTitle, { color: colors.onSurface }]}
               description={`Assinante: ${maskBrazilianCurrency(procedure.valor_assinatura)}\nParticular: ${maskBrazilianCurrency(procedure.valor_particular)}`}
@@ -86,48 +84,51 @@ export default function ProcedureItem({ procedure, navigation, isFirst, isLast }
               style={styles.listItem}
             />
 
-<Button
-  mode="contained"
-  onPress={async () => {
-    try {
-      if (!procedure?.cod_parceiro || !cod_paciente) {
-        console.log('cod_parceiro ou cod_paciente não encontrado');
-        return;
-      }
-      
-      console.log('cod_parceiro:', procedure.cod_parceiro);
-      console.log('cod_paciente:', cod_paciente);
-      
-      // Chamada correta da função fetchPaciente
-      const paciente = await fetchPaciente(procedure.cod_parceiro, cod_paciente);
+            {/* 🔥 Botão com animação igual ao ExamsLocalsCard */}
+            <Button
+              mode="contained"
+              loading={loading}          // mostra spinner
+              disabled={loading}         // desabilita botão
+              onPress={async () => {
+                try {
+                  if (!procedure?.cod_parceiro || !cod_paciente) {
+                    console.log('cod_parceiro ou cod_paciente não encontrado');
+                    return;
+                  }
 
-      if (paciente) {
-        console.log('Retorno do backend:', paciente);
-        
-        // Ação de navegação
-        navigation.navigate('user-procedure-time', { procedimento: procedure });
+                  setLoading(true); // ativa spinner
 
-      } else {
-        console.log('Nenhum paciente retornado do backend.');
-      }
-    } catch (err) {
-      console.log('Erro ao buscar paciente:', err);
-    }
-  }}
-  style={[styles.actionButton, { backgroundColor: colors.primary }]}
-  labelStyle={styles.actionButtonLabel}
-  contentStyle={styles.actionButtonContent}
-  icon="check-circle"
->
-  Selecionar Local
-</Button>
+                  console.log('cod_parceiro:', procedure.cod_parceiro);
+                  console.log('cod_paciente:', cod_paciente);
 
+                  const paciente = await fetchPaciente(procedure.cod_parceiro, cod_paciente);
+
+                  if (paciente) {
+                    console.log('Retorno do backend:', paciente);
+                    navigation.navigate('user-procedure-time', { procedimento: procedure });
+                  } else {
+                    console.log('Nenhum paciente retornado do backend.');
+                  }
+                } catch (err) {
+                  console.log('Erro ao buscar paciente:', err);
+                } finally {
+                  setLoading(false); // desativa spinner
+                }
+              }}
+              style={[styles.actionButton, { backgroundColor: colors.primary }]}
+              labelStyle={styles.actionButtonLabel}
+              contentStyle={styles.actionButtonContent}
+              icon="check-circle"
+            >
+              Selecionar Local
+            </Button>
           </Card.Content>
         </View>
       </Card>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   card: {

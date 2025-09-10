@@ -58,7 +58,7 @@ const UserExamsBottomSheet = forwardRef<UserExamsBottomSheetRef>((_, ref) => {
   <Card style={[styles.card, { backgroundColor: colors.surface }]}>
     <Card.Content style={{ flexDirection: 'row' }}>
       <View style={{ flex: 8, justifyContent: 'center' }}>
-        <Text style={[styles.title, { color: colors.onBackground }]}>{item.des_descricao_tpr}</Text>
+        <Text style={[styles.title, { color: colors.onBackground }]}>{item.des_grupo_tpr}</Text>
         {/* Aqui mostramos a descrição */}
         <Text style={{ fontSize: 14, color: colors.onBackground, opacity: 0.7 }}>
           {item.des_tipo_tpr}
@@ -69,7 +69,7 @@ const UserExamsBottomSheet = forwardRef<UserExamsBottomSheetRef>((_, ref) => {
           icon="trash-can-outline"
           size={25}
           iconColor={colors.onErrorContainer}
-          onPress={() => removeSelectedExam(item.cod_procedimento)}
+          onPress={() => removeSelectedExam(item.id_procedimento_tpr)}
         />
       </View>
     </Card.Content>

@@ -81,10 +81,10 @@ const PartnersScreen = ({ navigation, route }: { navigation: any; route: any }) 
         },
       };
       const response = await api.get('/parceiro/app', headers);
-      console.log('Resposta da API /parceiro/app:', response.data); // Log para depuração
+      // console.log('Resposta da API /parceiro/app:', response.data); // Log para depuração
       const dataApi = response.data;
       if (dataApi && dataApi.response && dataApi.response.data && dataApi.response.data.length > 0) {
-        console.log('Parceiros encontrados:', dataApi.response.data);
+        // console.log('Parceiros encontrados:', dataApi.response.data);
         setParceiros(dataApi.response.data);
       } else {
         console.log('Nenhum parceiro encontrado');
@@ -182,7 +182,7 @@ const PartnersScreen = ({ navigation, route }: { navigation: any; route: any }) 
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#f7f7f7' },
+  safeArea: { flex: 1, backgroundColor: '#e7d7ff' },
   header: { padding: 20, alignItems: 'center' },
   title: { fontSize: 16, color: '#666' },
   container: { padding: 16, paddingBottom: 30 },

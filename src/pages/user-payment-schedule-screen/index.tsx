@@ -128,13 +128,14 @@ export default function UserPaymentScheduleScreen() {
       ) : (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <Card mode="elevated" style={[styles.card, { backgroundColor: colors.surface }]}>
-            <Card.Title
-              title="Pagamento via Pix"
-              titleStyle={[styles.title, { color: colors.primary }]}
-              subtitle="Pagamento instantâneo e seguro"
-              subtitleStyle={{ color: colors.onSurfaceVariant }}
-              left={(props) => <MaterialCommunityIcons {...props} name="qrcode-scan" size={24} color={colors.primary} />}
-            />
+           <Card.Title
+  title="Pagamento via Pix"
+  subtitle="Escaneie o QR Code ou copie o código abaixo para pagar."
+  titleStyle={[styles.title, { color: colors.primary }]}
+  subtitleStyle={[styles.subtitle, { color: colors.onSurfaceVariant }]}
+  left={props => <MaterialCommunityIcons {...props} name="qrcode-scan" size={28} color={colors.primary} />}
+  titleContainerStyle={styles.titleContainer} // Add custom container style
+/>
             
             <Card.Content style={styles.content}>
               <View style={styles.valueContainer}>
@@ -231,11 +232,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
   },
-  title: {
-    fontWeight: '800',
-    fontSize: 22,
-    marginLeft: -8,
-  },
+  title: { fontWeight: '800', fontSize: 22, textAlign: 'center' }, // Removed marginLeft: -8
+  subtitle: { textAlign: 'center', fontSize: 16 }, // Adjust fontSize as needed
   content: {
     paddingVertical: 16,
   },
@@ -269,6 +267,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
   },
+  titleContainer: {
+  justifyContent: 'center',
+  alignItems: 'center',
+  flexDirection: 'row', // Ensure icon and text are aligned properly
+},
   qrCode: {
     width: 220,
     height: 220,

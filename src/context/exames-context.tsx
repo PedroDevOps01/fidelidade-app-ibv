@@ -55,7 +55,7 @@ export const ExamesProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (selectedExams.some(item => item.id_procedimento_tpr === exam.id_procedimento_tpr)) {
         throw new Error('Exame já adicionado no carrinho');
       }
-      toast.success(`Procedimento ${exam.des_descricao_tpr} adicionado ao carrinho!`, { position: 'bottom-center', close: true });
+      toast.success(`Procedimento ${exam.des_grupo_tpr} adicionado ao carrinho!`, { position: 'bottom-center', close: true });
 
       const updatedItems = [...selectedExams, exam];
       setSelectedExamsState(updatedItems);
@@ -65,17 +65,25 @@ export const ExamesProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
-  const removeSelectedExam = async (id: string) => {
-    try {
-      const updatedItems = selectedExams.filter(e => e.cod_procedimento != id);
-      setSelectedExamsState(updatedItems);
+ const removeSelectedExam = async (id: number | string) => {
+  try {
+    console.log('ID recebido para remover:', id);
+    console.log('IDs atuais:', selectedExams.map(e => e.id_procedimento_tpr));
 
-      await AsyncStorage.setItem('selected_exams', JSON.stringify(updatedItems));
-      toast.success(`Procedimento removido do carrinho!`, { position: 'bottom-center' });
-    } catch (err) {
-      console.error('Erro ao remover item:', err);
-    }
-  };
+    const updatedItems = selectedExams.filter(
+      e => String(e.id_procedimento_tpr) !== String(id)
+    );
+    console.log('Updated Items:', updatedItems);
+
+    setSelectedExamsState(updatedItems);
+    await AsyncStorage.setItem('selected_exams', JSON.stringify(updatedItems));
+    toast.success(`Procedimento removido do carrinho!`, { position: 'bottom-center' });
+  } catch (err) {
+    console.error('Erro ao remover item:', err);
+  }
+};
+
+
 
   const setScheduleRequestData = (sheduleRequest: ScheduleRequest) => {
     setScheduleRequestState(sheduleRequest);

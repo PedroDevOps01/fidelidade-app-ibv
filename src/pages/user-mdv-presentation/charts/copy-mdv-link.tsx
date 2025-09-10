@@ -13,7 +13,7 @@ export default function CopyMdvLink({ id, codigoPromocional }: Props) {
     const baseURL = codigoPromocional
       ? `http://3.215.147.199/${codigoPromocional}`
       : 'http://3.215.147.199';
-    const linkCompartilhado = `${baseURL}/fidelidade-ibv/planos/${id}`;
+    const linkCompartilhado = `${baseURL}/fidelidade-ajudda/planos/${id}`;
 
     try {
       const result = await Share.share({
@@ -33,7 +33,7 @@ export default function CopyMdvLink({ id, codigoPromocional }: Props) {
   return (
     <View style={{ width: '100%', paddingVertical: 20, borderRadius: 12, padding: 12, overflow: 'hidden', backgroundColor: colors.surface }}>
       <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.onSurface, marginBottom: 10 }}>
-        Meu link de venda
+        Link de venda:
       </Text>
 
       <Button key={'get_all_money'} mode="contained" onPress={shareMessage}>

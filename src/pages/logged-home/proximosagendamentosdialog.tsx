@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { View, StyleSheet, Animated, ScrollView } from 'react-native';
 import { Dialog, Portal, Button, Text, useTheme, Divider } from 'react-native-paper';
@@ -6,10 +7,11 @@ import { formatDateToDDMMYYYY } from '../../utils/app-utils';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 interface UserSchedule {
-  nome_procedimento: string | string[];
+  agenda_exames_id: string;
+  nome_procedimento?: string | string[];
   nome_profissional?: string;
-  data: string;
-  inicio: string;
+  data?: string;
+  inicio?: string;
   fachada_profissional?: string;
 }
 
@@ -32,7 +34,9 @@ const ProximosAgendamentosDialog = ({ schedules, visible, navigation, handlePres
     }).start();
   }, [visible]);
 
-  const getDaysUntil = (scheduleDate: string): string => {
+  const getDaysUntil = (scheduleDate?: string): string => {
+    if (!scheduleDate) return 'Data inválida';
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -50,11 +54,13 @@ const ProximosAgendamentosDialog = ({ schedules, visible, navigation, handlePres
     return `${diffDays} dias`;
   };
 
-  const getDaysUntilColor = (scheduleDate: string) => {
+  const getDaysUntilColor = (scheduleDate?: string) => {
+    if (!scheduleDate) return colors.error;
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const [year, month, day] = scheduleDate.split('-').map(Number);
+    const [year, month, day] = scheduleDate.split('T')[0].split('-').map(Number);
     const schedule = new Date(year, month - 1, day);
     schedule.setHours(0, 0, 0, 0);
 
@@ -67,13 +73,15 @@ const ProximosAgendamentosDialog = ({ schedules, visible, navigation, handlePres
     return colors.onSurfaceVariant;
   };
 
-  // Ordena os agendamentos por data e horário
+  // Ordena os agendamentos por data e horário, filtrando null/undefined
   const sortedSchedules = schedules
-    ? [...schedules].sort((a, b) => {
-        const dateA = new Date(`${a.data}T${a.inicio}`);
-        const dateB = new Date(`${b.data}T${b.inicio}`);
-        return dateA.getTime() - dateB.getTime();
-      })
+    ? [...schedules]
+        .filter(schedule => schedule != null && schedule.agenda_exames_id && schedule.data)
+        .sort((a, b) => {
+          const dateA = new Date(`${a.data}T${a.inicio ?? '00:00'}`);
+          const dateB = new Date(`${b.data}T${b.inicio ?? '00:00'}`);
+          return dateA.getTime() - dateB.getTime();
+        })
     : [];
 
   return (
@@ -88,8 +96,9 @@ const ProximosAgendamentosDialog = ({ schedules, visible, navigation, handlePres
           },
         ]}
         dismissable
-        onDismiss={() => handlePress(false)}>
-        <Dialog.Title style={[styles.title]}>
+        onDismiss={() => handlePress(false)}
+      >
+        <Dialog.Title style={styles.title}>
           <View style={styles.titleContainer}>
             <Text variant="titleLarge" style={[styles.titleText, { color: colors.onSurface }]}>
               Agendamentos Marcados
@@ -104,7 +113,7 @@ const ProximosAgendamentosDialog = ({ schedules, visible, navigation, handlePres
             {sortedSchedules.length ? (
               sortedSchedules.map((schedule, index) => (
                 <View
-                  key={index}
+                  key={schedule.agenda_exames_id ?? `schedule-${index}`}
                   style={[
                     styles.scheduleItem,
                     {
@@ -113,25 +122,41 @@ const ProximosAgendamentosDialog = ({ schedules, visible, navigation, handlePres
                       backgroundColor: colors.onSecondary,
                       marginBottom: index === sortedSchedules.length - 1 ? 0 : 12,
                     },
-                  ]}>
+                  ]}
+                >
                   <View style={styles.scheduleHeader}>
                     <MaterialIcons name="medical-services" size={20} color={colors.primary} />
-                    <Text variant="bodyLarge" style={[styles.procedureText, { color: colors.onSurface }]}>
-                      {Array.isArray(schedule.nome_procedimento) ? schedule.nome_procedimento.join(', ') : schedule.nome_procedimento}
+                    <Text
+                      variant="bodyLarge"
+                      style={[styles.procedureText, { color: colors.onSurface }]}
+                    >
+                      {schedule.nome_procedimento
+                        ? Array.isArray(schedule.nome_procedimento)
+                          ? schedule.nome_procedimento.join(', ')
+                          : schedule.nome_procedimento
+                        : 'Sem procedimento'}
                     </Text>
                   </View>
 
                   <View style={styles.scheduleDetailRow}>
                     <MaterialIcons name="person" size={16} color={colors.primary} />
-                    <Text variant="bodyMedium" style={[styles.detailText, { color: colors.onSurfaceVariant }]}>
-                      {schedule.nome_profissional || 'Profissional não informado'}
+                    <Text
+                      variant="bodyMedium"
+                      style={[styles.detailText, { color: colors.onSurfaceVariant }]}
+                    >
+                      {schedule.nome_profissional ?? 'Profissional não informado'}
                     </Text>
                   </View>
 
                   <View style={styles.scheduleDetailRow}>
                     <MaterialIcons name="event" size={16} color={colors.primary} />
-                    <Text variant="bodyMedium" style={[styles.detailText, { color: colors.onSurfaceVariant }]}>
-                      {formatDateToDDMMYYYY(schedule.data)} às {schedule.inicio.slice(0, 5)}
+                    <Text
+                      variant="bodyMedium"
+                      style={[styles.detailText, { color: colors.onSurfaceVariant }]}
+                    >
+                      {schedule.data
+                        ? `${formatDateToDDMMYYYY(schedule.data)} às ${schedule.inicio?.slice(0, 5) ?? 'Sem horário'}`
+                        : 'Sem data'}
                     </Text>
                     <View style={[styles.daysBadge, { backgroundColor: getDaysUntilColor(schedule.data) }]}>
                       <Text style={styles.daysText}>{getDaysUntil(schedule.data)}</Text>
@@ -155,7 +180,8 @@ const ProximosAgendamentosDialog = ({ schedules, visible, navigation, handlePres
             mode="outlined"
             style={[styles.button, { borderColor: colors.primary }]}
             labelStyle={[styles.buttonLabel, { color: colors.primary }]}
-            contentStyle={styles.buttonContent}>
+            contentStyle={styles.buttonContent}
+          >
             Agora não
           </Button>
           <Button
@@ -167,7 +193,8 @@ const ProximosAgendamentosDialog = ({ schedules, visible, navigation, handlePres
             style={[styles.button, { backgroundColor: colors.primary }]}
             labelStyle={[styles.buttonLabel, { color: colors.onPrimary }]}
             contentStyle={styles.buttonContent}
-            icon="calendar-arrow-right">
+            icon="calendar-arrow-right"
+          >
             Agendamentos
           </Button>
         </Dialog.Actions>
@@ -185,7 +212,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    maxHeight: '80%', // Limita a altura do diálogo
+    maxHeight: '80%',
   },
   title: {
     paddingBottom: 0,
@@ -205,7 +232,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   schedulesContainer: {
-    maxHeight: 300, // Define uma altura máxima para o ScrollView
+    maxHeight: 300,
   },
   scrollContent: {
     paddingVertical: 8,

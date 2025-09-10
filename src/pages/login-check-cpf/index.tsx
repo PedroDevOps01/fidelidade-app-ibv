@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Image, Platform, ImageBackground, Dimensions } from 'react-native';
+import { View, StyleSheet, Alert, Image, TouchableWithoutFeedback, Keyboard, Platform, ImageBackground, Dimensions } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { TextInput, Button, Card, Text, useTheme } from 'react-native-paper';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,7 +17,7 @@ import CustomToast from '../../components/custom-toast';
 import ModalContainer from '../../components/modal';
 import EsqueceuSenhaForm from './esqueceu-senha-form';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Animated } from 'react-native';
+import { Animated } from 'react-native'; // Adicione esta importação no topo
 
 const { width } = Dimensions.get('window');
 const LAST_LOGGED_CPF_KEY = 'last_logged_cpf';
@@ -112,24 +112,18 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
       });
 
       if (token) {
-        try {
-          const deviceData = {
-            id_pessoa_tdu: loginData.dados?.id_pessoa_pda,
-            dispositivo_token_tdu: token,
-            platforma_tdu: Platform.OS,
-          };
-          await api.post('/usuarioDevice', deviceData, generateRequestHeader(loginData.authorization.access_token));
-        } catch (err) {
-          console.error('Erro ao registrar dispositivo:', err);
-          CustomToast('Erro ao registrar dispositivo. Continuando...', colors);
-        }
+        const deviceData = {
+          id_pessoa_tdu: loginData.dados?.id_pessoa_pda,
+          dispositivo_token_tdu: token,
+          platforma_tdu: Platform.OS,
+        };
+        await api.post('/usuarioDevice', deviceData, generateRequestHeader(loginData.authorization.access_token));
       }
 
       await AsyncStorage.setItem(LAST_LOGGED_CPF_KEY, dataToSent.cpf);
-      console.log('Login bem-sucedido, redirecionando para:', routeAfterLogin);
       reset([{ name: routeAfterLogin }]);
     } catch (err) {
-      console.error('Erro ao realizar login:', err);
+      console.log(err);
       CustomToast('Erro ao consultar dados. Tente novamente mais tarde.', colors);
     } finally {
       setLoading(false);
@@ -137,26 +131,27 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
   };
 
   return (
-    <ImageBackground source={require('../../assets/images/fundologin.png')} style={styles.background} resizeMode="cover">
-      <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.container}>
+    <ImageBackground source={require('../../assets/images/fundologin.jpeg')} style={styles.background} resizeMode="cover">
+<KeyboardAwareScrollView
+  keyboardShouldPersistTaps="handled"
+  contentContainerStyle={styles.container}
+  scrollEnabled={false} // 🔹 impede scroll ao segurar no iOS
+>
         <ModalContainer visible={isRecoverPassworrdModalVisible} handleVisible={() => setIsRecoverPassworrdModalVisible(false)}>
           <EsqueceuSenhaForm />
         </ModalContainer>
 
         <View style={styles.contentWrapper}>
           <View style={styles.logoContainer}>
-            <Image
-              source={require('../../assets/images/logonova1.png')}
-              style={Platform.OS === 'ios' && width >= 768 ? { width: width * 0.3, height: width * 0.3, resizeMode: 'contain' } : { width: 150, height: 150, resizeMode: 'contain' }}
-            />
+            <Image source={require('../../assets/images/fidelidade_logo.png')} style={{ width: width * 0.6, height: width * 0.2 }} />
           </View>
 
           <Card style={[styles.card, { backgroundColor: colors.onSecondary }]} elevation={3}>
             <Card.Content>
-              <Text variant={Platform.OS === 'ios' && width >= 768 ? "headlineMedium" : "headlineSmall"} style={[styles.title, { color: colors.primary }]}>
+              <Text variant="headlineSmall" style={[styles.title, { color: colors.primary }]}>
                 Bem-vindo de volta!
               </Text>
-              <Text variant={Platform.OS === 'ios' && width >= 768 ? "bodyLarge" : "bodyMedium"} style={[styles.subtitle, { color: colors.onSurfaceVariant }]}>
+              <Text variant="bodyMedium" style={[styles.subtitle, { color: colors.onSurfaceVariant }]}>
                 Entre com seus dados para acessar sua conta
               </Text>
 
@@ -176,7 +171,6 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
                       outlineColor={colors.outline}
                       activeOutlineColor={colors.primary}
                       left={<TextInput.Icon icon="account" />}
-                      style={Platform.OS === 'ios' && width >= 768 ? { marginBottom: 24 } : { marginBottom: 16 }}
                       theme={{
                         colors: {
                           primary: colors.primary,
@@ -215,7 +209,6 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
                       activeOutlineColor={colors.primary}
                       left={<TextInput.Icon icon="lock" />}
                       right={<TextInput.Icon icon={secureTextEntry ? 'eye-off' : 'eye'} onPress={toggleSecureEntry} color={colors.onSurfaceVariant} />}
-                      style={Platform.OS === 'ios' && width >= 768 ? { marginBottom: 24 } : { marginBottom: 16 }}
                       theme={{
                         colors: {
                           primary: colors.primary,
@@ -244,21 +237,14 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
                   onPress={handleSubmit(handleLogin)}
                   loading={loading}
                   style={[styles.button, { backgroundColor: colors.primary }]}
-                  labelStyle={Platform.OS === 'ios' && width >= 768 ? { color: colors.onPrimary, fontSize: 18 } : { color: colors.onPrimary }}
-                  contentStyle={Platform.OS === 'ios' && width >= 768 ? { height: 56 } : { height: 48 }}
-                  disabled={!isConnected || loading}
-                >
+                  labelStyle={{ color: colors.onPrimary }}
+                  contentStyle={styles.buttonContent}
+                  disabled={!isConnected || loading}>
                   {loading ? 'Acessando...' : 'Entrar'}
                 </Button>
 
                 <View style={styles.linksContainer}>
-                  <Button
-                    mode="text"
-                    onPress={() => setIsRecoverPassworrdModalVisible(true)}
-                    style={styles.linkButton}
-                    labelStyle={Platform.OS === 'ios' && width >= 768 ? { color: colors.primary, fontSize: 16 } : { color: colors.primary }}
-                    compact
-                  >
+                  <Button mode="text" onPress={() => setIsRecoverPassworrdModalVisible(true)} style={styles.linkButton} labelStyle={{ color: colors.primary }} compact>
                     Esqueci minha senha
                   </Button>
                   <Text style={[styles.dividerText, { color: colors.onSurfaceVariant }]}>|</Text>
@@ -266,9 +252,8 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
                     mode="text"
                     onPress={() => navigation.navigate('register-step-one', { tipo: 'NEW_USER' })}
                     style={styles.linkButton}
-                    labelStyle={Platform.OS === 'ios' && width >= 768 ? { color: colors.primary, fontSize: 16 } : { color: colors.primary }}
-                    compact
-                  >
+                    labelStyle={{ color: colors.primary }}
+                    compact>
                     Criar conta
                   </Button>
                 </View>

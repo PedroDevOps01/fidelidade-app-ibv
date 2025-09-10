@@ -16,6 +16,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 import { maskBrazilianCurrency } from '../../utils/app-utils';
+import { Alert } from 'react-native';
 
 dayjs.locale('pt-br');
 
@@ -121,6 +122,27 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
     return;
   }
 
+  // 🚨 Verificação de assinatura antes de seguir
+  if (assinante && !dadosUsuarioData.pessoaAssinatura?.assinatura_liberada) {
+    Alert.alert(
+      'Torne-se um Assinante!',
+      'Não é assinante? Venha agora e aproveite descontos exclusivos para agendar seus procedimentos com preços especiais!',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Assinar Agora',
+          onPress: () => navigate('user-contracts-stack'),
+          style: 'default',
+        },
+      ],
+      { cancelable: true }
+    );
+    return;
+  }
+
   let schedule: ScheduleRequest = {
     data_agenda: selectedDate!,
     cod_agenda: Number(procedure.cod_agenda),
@@ -129,21 +151,36 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
     cod_paciente: Number(dadosUsuarioData.pessoaDados?.id_pessoa_pes),
 
     cod_pessoa_pes: Number(dadosUsuarioData.pessoaDados?.id_pessoa_pes),
-    cod_procedimento: assinante ? Number(procedure.cod_procedimento_assinatura) : Number(procedure.cod_procedimento_particular),
+    cod_procedimento: assinante
+      ? Number(procedure.cod_procedimento_assinatura)
+      : Number(procedure.cod_procedimento_particular),
     cod_profissional: Number(procedure.cod_profissional),
     cod_sala: Number(procedure.cod_sala),
-    hora_agenda: procedure.selected_time.split(':').slice(0, 2).join(':'), // Normaliza para HH:MM
+    hora_agenda: procedure.selected_time.split(':').slice(0, 2).join(':'), // Normaliza HH:MM
     payment_method: null,
     token_paciente: dadosUsuarioData.pessoaDados?.cod_token_pes!,
-    vlr_procedimento: assinante ? convertStringToNumber(procedure.vlr_procedimento_assinatura) : convertStringToNumber(procedure.vlr_procedimento_particular),
-    cod_parceiro: Number(route.params.procedimento.cod_parceiro), // Add cod_parceiro
+    vlr_procedimento: assinante
+      ? convertStringToNumber(procedure.vlr_procedimento_assinatura)
+      : convertStringToNumber(procedure.vlr_procedimento_particular),
+    cod_parceiro: Number(route.params.procedimento.cod_parceiro),
   };
 
   navigate('user-select-payment-method', schedule);
 };
 
-  const handleTimeSelect = (time: string, professional: any) => {
-  const normalizedTime = time.split(':').slice(0, 2).join(':'); // Remove os segundos
+const handleTimeSelect = (time: string, professional: any) => {
+  const normalizedTime = time.split(':').slice(0, 2).join(':'); // HH:mm
+  const selectedDateTime = dayjs(`${selectedDate} ${normalizedTime}`, "YYYY-MM-DD HH:mm");
+
+  // 🚨 Verifica se a data/hora selecionada já passou
+  if (selectedDateTime.isBefore(dayjs())) {
+    Alert.alert(
+      "Horário inválido",
+      "Esse horário já passou. Por favor, selecione um horário válido."
+    );
+    return;
+  }
+
   setSelectedProfessional({
     ...professional,
     selected_time: normalizedTime,
@@ -152,10 +189,10 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
 };
 
   const getFilteredProcedures = () => {
-  const procedures = procedureTimeDetailsData.procedureTimeDetails;
-  if (!procedures || !selectedDate) return [];
-  return procedures[selectedDate] || [];
-};
+    const procedures = procedureTimeDetailsData.procedureTimeDetails;
+    if (!procedures || !selectedDate) return [];
+    return procedures[selectedDate] || [];
+  };
 
   return (
     <>
@@ -244,8 +281,8 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
 
                     {/* Horários disponíveis */}
                     {selectedDate &&
-                      getFilteredProcedures().map(professional => (
-                        <View key={professional.cod_profissional} style={styles.professionalContainer}>
+                      getFilteredProcedures().map((professional, profIndex) => (
+                        <View key={`${professional.cod_profissional}-${professional.cod_agenda}-${profIndex}`} style={styles.professionalContainer}>
                           <View style={styles.professionalHeader}>
                             <MaterialIcons name="person" size={20} color={colors.onSurface} />
                             <Text variant="bodyLarge" style={[styles.professionalName, { color: colors.onSurface }]}>
@@ -253,20 +290,16 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
                             </Text>
                           </View>
 
-                          {/* <Text variant="bodySmall" style={[styles.professionalInfo, { color: colors.onSurfaceVariant }]}>
-                          {professional.conselho_profissional} - {professional.sigla_conselho}
-                        </Text> */}
-
                           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.timesScrollView}>
                             <View style={styles.timesContainer}>
-                              {professional.horarios_list.map((time: string) => (
+                              {professional.horarios_list.map((time: string, timeIndex: number) => (
                                 <Button
-                                  key={time}
+                                  key={`${professional.cod_profissional}-${time}-${timeIndex}`}
                                   mode="outlined"
                                   onPress={() => handleTimeSelect(time, professional)}
                                   style={[styles.timeButton, { borderColor: colors.primary }]}
                                   labelStyle={[styles.timeButtonLabel, { color: colors.primary }]}>
-                                  {time.slice(0, 5)} {/* exibe só "08:00" */}
+                                  {time.slice(0, 5)}
                                 </Button>
                               ))}
                             </View>
@@ -352,7 +385,7 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
                       </Text>
                     </View> */}
 
-                     <Button
+                    <Button
   mode="contained"
   icon="star"
   contentStyle={styles.buttonContent}
@@ -363,30 +396,27 @@ export default function UserProcedureTime({ navigation, route }: UserProcedureTi
       marginTop: 20,
     },
   ]}
-  disabled={!dadosUsuarioData.pessoaAssinatura?.assinatura_liberada}
   onPress={() => getScheduleRequestData(true, selectedProfessional)}
   labelStyle={styles.buttonLabel}
 >
   {`Assinante - R$ ${selectedProfessional.vlr_procedimento_assinatura}`}
 </Button>
 
-
                     <Button
-  mode="outlined"
-  icon="account-circle"
-  contentStyle={styles.buttonContent}
-  style={[
-    styles.button,
-    {
-      borderColor: colors.primary,
-      marginTop: 12,
-    },
-  ]}
-  onPress={() => getScheduleRequestData(false, selectedProfessional)}
-  labelStyle={[styles.buttonLabel, { color: colors.primary }]}
->
-  {`Particular - R$ ${selectedProfessional.vlr_procedimento_particular}`}
-</Button>
+                      mode="outlined"
+                      icon="account-circle"
+                      contentStyle={styles.buttonContent}
+                      style={[
+                        styles.button,
+                        {
+                          borderColor: colors.primary,
+                          marginTop: 12,
+                        },
+                      ]}
+                      onPress={() => getScheduleRequestData(false, selectedProfessional)}
+                      labelStyle={[styles.buttonLabel, { color: colors.primary }]}>
+                      {`Particular - R$ ${selectedProfessional.vlr_procedimento_particular}`}
+                    </Button>
                   </View>
                 </>
               ) : (

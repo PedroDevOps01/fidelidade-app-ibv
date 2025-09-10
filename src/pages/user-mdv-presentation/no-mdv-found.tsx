@@ -25,7 +25,7 @@ export default function NoMdvFound() {
 
   return (
     <ImageBackground
-      source={require('../../assets/images/welcome.png')}
+      source={require('../../assets/images/welcome.jpeg')}
       style={styles.backgroundImage}
       resizeMode="cover"
     >
@@ -47,7 +47,7 @@ export default function NoMdvFound() {
   labelStyle={styles.buttonLabel}
   contentStyle={styles.buttonContent}
 >
-  Quero Ser um Vendedor!
+  Quero ser um vendedor!
 </Button>
         </View>
       </KeyboardAwareScrollView>

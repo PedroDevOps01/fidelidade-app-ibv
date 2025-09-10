@@ -43,28 +43,36 @@ export default function UserProcedureDetailsScreen({ navigation, route }: { navi
       // Verificar se a resposta é válida
       if (Array.isArray(data)) {
         const newData = data
-          .filter((item: any): item is NonNullable<any> => item !== null && item !== undefined)
-          .map(item => ({
-            cod_procedimento_assinatura: item.cod_procedimento_assinatura || '',
-            valor_assinatura: item.valor_assinatura || '',
-            convenio_assinatura: item.convenio_assinatura || '',
-            cod_procedimento_particular: item.cod_procedimento_particular || '',
-            valor_particular: item.valor_particular || '',
-            convenio_particular: item.convenio_particular || '',
-            nome: item.nome || '',
-            cod_procedimento_rpi: item.cod_procedimento || '',
-            cod_procedimento: id, 
-            empresa: item.empresa || '',
-            cod_empresa: item.cod_empresa || '',
-            endereco: item.endereco || '',
-            numero: item.numero || '',
-            bairro: item.bairro || '',
-            cidade: item.cidade || '',
-            estado: item.estado || '',
-            fachada_empresa: item.fachada_empresa || '',
-            cod_parceiro: item.cod_parceiro || '',
-          }));
-        setProceduresDetails(newData);
+  .filter((item: any): item is NonNullable<any> => item !== null && item !== undefined)
+  .map(item => ({
+    cod_procedimento_assinatura: item.cod_procedimento_assinatura || '',
+    valor_assinatura: item.valor_assinatura || '',
+    convenio_assinatura: item.convenio_assinatura || '',
+    cod_procedimento_particular: item.cod_procedimento_particular || '',
+    valor_particular: item.valor_particular || '',
+    convenio_particular: item.convenio_particular || '',
+    nome: item.nome || '',
+    des_descricao_tpr: route.params.procedimento.des_descricao_tpr || '',
+    cod_procedimento_rpi: item.cod_procedimento || '',
+    cod_procedimento: id,
+    empresa: item.empresa || '',
+    cod_empresa: item.cod_empresa || '',
+    endereco: item.endereco || '',
+    numero: item.numero || '',
+    bairro: item.bairro || '',
+    cidade: item.cidade || '',
+    estado: item.estado || '',
+    fachada_empresa: item.fachada_empresa || '',
+    cod_parceiro: item.cod_parceiro || '',
+  }))
+  .sort((a, b) => {
+    const valA = parseFloat(a.valor_particular || a.valor_assinatura || '0');
+    const valB = parseFloat(b.valor_particular || b.valor_assinatura || '0');
+    return valA - valB; // menor para maior
+  });
+
+setProceduresDetails(newData);
+
 
         Animated.parallel([
           Animated.timing(fadeAnim, {

@@ -1,154 +1,127 @@
-import {
-  ScrollView,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-} from "react-native";
-import { LineChart } from "react-native-gifted-charts";
-import {
-  ActivityIndicator,
-  Button, Icon, Menu,
-  Text,
-  useTheme
-} from "react-native-paper";
-import { navigate } from "../../../router/navigationRef";
-import { useState } from "react";
+import { ScrollView, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { BarChart } from 'react-native-gifted-charts';
+import { ActivityIndicator, Button, Icon, Menu, Text, useTheme } from 'react-native-paper';
+import { navigate } from '../../../router/navigationRef';
+import { useState } from 'react';
+import { StyleSheet } from 'react-native';
+import { maskBrazilianCurrency } from '../../../utils/app-utils';
 
-const SalesChart = ({
-  salesData,
-  loading,
-}: {
-  salesData: Sale[];
-  loading: boolean;
-}) => {
+const SalesChart = ({ salesData, loading }: { salesData: Sale[]; loading: boolean }) => {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
-
-
+  const [menuVisible, setMenuVisible] = useState(false);
 
   // Se `salesData` estiver vazio, mostrar um gráfico com valores padrão
   const isEmpty = salesData.length === 0;
 
-  // Criar um conjunto de dados padrão vazio para o gráfico
-  const emptyChartData = [{ value: 0, label: "" }];
-
   // Agrupar vendas por data
   const dateMap: Record<string, number> = salesData.reduce((acc, item) => {
-    acc[item.dta_pagamento_cpp] =
-      (acc[item.dta_pagamento_cpp] || 0) + item.vlr_parcela_ppg;
+    acc[item.dta_pagamento_cpp] = (acc[item.dta_pagamento_cpp] || 0) + item.vlr_parcela_ppg;
     return acc;
   }, {} as Record<string, number>);
 
   const labels = Object.keys(dateMap);
-  const valores = Object.values(dateMap).map((valor: any) => valor / 100);
+  const valores = Object.values(dateMap);
 
-  // Estruturando os dados para Gifted Charts
-  const chartData = isEmpty
-    ? emptyChartData
-    : labels.map((date, index) => ({
-        value: valores[index],
-        label: date.split("-")[2], // Exibir a data no eixo X
+  // Formatar datas para exibição (DD/MM)
+  const formattedLabels = labels.map(date => {
+    const [year, month, day] = date.split('-');
+    return `${day}/${month}`;
+  });
+
+  // Estruturando os dados para o gráfico de barras
+  const barChartData = isEmpty
+    ? []
+    : valores.map((value, index) => ({
+        value: value,
+        label: formattedLabels[index],
+        frontColor: index % 2 === 0 ? colors.primary : colors.secondary,
+        topLabelComponent: () => <Text style={[styles.topLabel, { color: colors.onSurface }]}>{maskBrazilianCurrency(value)}</Text>,
       }));
 
   return (
-    <View
-      style={{
-        height: "auto",
-        paddingVertical: 20,
-        borderRadius: 12,
-        padding: 12,
-        overflow: "hidden",
-        backgroundColor: colors.surface,
-      }}
-    >
+    <View style={[styles.card, { backgroundColor: colors.surface }]}>
       {loading ? (
-        <ActivityIndicator />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" />
+        </View>
       ) : (
         <>
-          {/* Título do gráfico */}
-          <View
-            style={{
-              marginBottom: 10,
-              flexDirection: "row",
-              justifyContent: "space-between",
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 18,
-                fontWeight: "bold",
-                color: colors.onSurface,
-              }}
-            >
-              {isEmpty
-                ? "Sem vendas registradas!"
-                : `Total de vendas: ${salesData.length}`}
-            </Text>
+          {/* Cabeçalho do gráfico */}
+          <View style={styles.header}>
+            <Text style={[styles.title, { color: colors.onSurface }]}>{isEmpty ? 'Sem vendas registradas!' : `Vendas por Data - Total: ${salesData.length}`}</Text>
 
-            {/* <Menu
-              visible={menuVisible}
-              onDismiss={() => setMenuVisible(false)}
-              anchor={
-                <TouchableOpacity onPress={() => setMenuVisible(true)}>
-                  <Icon source={"menu"} size={30} />
-                </TouchableOpacity>
-              }
-            >
-              <Menu.Item onPress={() => {
-                setMenuVisible(false)
-              }} title="Período" />
-            </Menu> */}
+            {/* {!isEmpty && (
+              <Menu
+                visible={menuVisible}
+                onDismiss={() => setMenuVisible(false)}
+                anchor={
+                  <TouchableOpacity onPress={() => setMenuVisible(true)} style={[styles.menuButton, { backgroundColor: colors.primaryContainer }]}>
+                    <Icon source="dots-vertical" size={24} color={colors.onPrimaryContainer} />
+                  </TouchableOpacity>
+                }
+                contentStyle={{ backgroundColor: colors.surface }}>
+                <Menu.Item
+                  onPress={() => {
+                    setMenuVisible(false);
+                    navigate('user-mdv-sales-details', { sales: salesData });
+                  }}
+                  title="Ver Detalhes"
+                  titleStyle={{ color: colors.onSurface }}
+                />
+                <Menu.Item 
+                  onPress={() => {
+                    setMenuVisible(false);
+                  }} 
+                  title="Exportar Dados" 
+                  titleStyle={{ color: colors.onSurface }}
+                />
+              </Menu>
+            )} */}
           </View>
 
-          {/* 📌 ScrollView para evitar que o gráfico estoure o limite da View */}
-          <ScrollView
-            horizontal
-            contentContainerStyle={{ flexGrow: 1 }}
-            showsHorizontalScrollIndicator={false}
-          >
-            <View style={{ width: width * 0.9, overflow: "hidden" }}>
-              {isEmpty ? (
-                <></>
-              ) : (
-                <LineChart
-                  data={chartData}
-                  noOfSections={4}
-                  spacing={60}
-                  curved
-                  thickness={3}
-                  hideRules
-                  showVerticalLines
-                  color={isEmpty ? colors.onSurfaceDisabled : colors.primary} // Cinza quando não houver dados
-                  startFillColor={
-                    isEmpty ? "transparent" : colors.primaryContainer
-                  }
-                  endFillColor={
-                    isEmpty ? "transparent" : colors.secondaryContainer
-                  }
-                  startOpacity={isEmpty ? 0 : 0.3}
-                  endOpacity={isEmpty ? 0 : 0.1}
-                  yAxisTextStyle={{ color: colors.onSurface, fontSize: 12 }}
-                  xAxisLabelTextStyle={{
-                    color: colors.onSurface,
-                    fontSize: 12,
-                    marginTop: 0,
-                  }}
-                  animationDuration={800}
-                  isAnimated
-                />
-              )}
+          {/* Gráfico de Barras */}
+          {!isEmpty && (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chartScrollView}>
+              <BarChart
+                data={barChartData}
+                barWidth={22}
+                spacing={20}
+                roundedTop
+                roundedBottom
+                hideRules
+                xAxisThickness={0}
+                yAxisThickness={0}
+                yAxisTextStyle={{ color: colors.onSurface, fontSize: 9 }}
+                xAxisLabelTextStyle={{ color: colors.onSurface, fontSize: 10 }}
+                noOfSections={4}
+                maxValue={Math.max(...valores) * 1.2}
+                showFractionalValues
+                showYAxisIndices
+                yAxisIndicesColor={colors.outline}
+                yAxisIndicesWidth={0.5}
+                formatYLabel={value => maskBrazilianCurrency(Number(value))}
+              />
+            </ScrollView>
+          )}
+
+          {isEmpty && (
+            <View style={styles.emptyState}>
+              <Icon source="chart-line" size={48} color={colors.onSurfaceDisabled} />
+              <Text style={[styles.emptyText, { color: colors.onSurfaceDisabled }]}>Nenhuma venda encontrada para o período selecionado</Text>
             </View>
-          </ScrollView>
+          )}
 
           {!isEmpty && (
-            <View style={{ marginTop: 10 }}>
+            <View style={styles.footer}>
               <Button
                 onPress={() => {
-                  navigate("user-mdv-sales-details", { sales: salesData });
+                  navigate('user-mdv-sales-details', { sales: salesData });
                 }}
-                key={"sales_report"}
-                mode="contained"
-              >
+                mode="outlined"
+                style={[styles.detailsButton, { borderColor: colors.primary }]}
+                labelStyle={{ color: colors.primary }}
+                icon="chart-bar">
                 Ver detalhes
               </Button>
             </View>
@@ -158,5 +131,63 @@ const SalesChart = ({
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  card: {
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    
+  },
+  loadingContainer: {
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+        textAlign:'center',
+
+    flex: 1,
+  },
+  menuButton: {
+    padding: 8,
+    borderRadius: 20,
+  },
+  chartScrollView: {
+    paddingHorizontal: 8,
+    paddingBottom: 16,
+  },
+  topLabel: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    top: -6,
+  },
+  emptyState: {
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyText: {
+    marginTop: 12,
+    textAlign: 'center',
+    fontSize: 14,
+  },
+  footer: {
+    marginTop: 16,
+  },
+  detailsButton: {
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+});
 
 export default SalesChart;
