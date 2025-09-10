@@ -301,8 +301,8 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   logoContainer: {
-    marginBottom: Platform.OS === 'ios' && width >= 768 ? 48 : 15,
-    alignItems: 'center'
+    marginBottom: Platform.OS === 'ios' && width >= 768 ? 48 : 32,
+    alignItems: 'center',
   },
   card: {
     width: '100%',
@@ -319,11 +319,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
     marginBottom: Platform.OS === 'ios' && width >= 768 ? 12 : 8,
-    marginTop: Platform.OS === 'ios' && width >= 768 ? 12 : -5,
+    marginTop: Platform.OS === 'ios' && width >= 768 ? 12 : 8,
   },
   subtitle: {
     textAlign: 'center',
-    marginBottom: Platform.OS === 'ios' && width >= 768 ? 32 : 1,
+    marginBottom: Platform.OS === 'ios' && width >= 768 ? 32 : 24,
   },
   formContainer: {
     marginTop: Platform.OS === 'ios' && width >= 768 ? 24 : 16,

@@ -2,50 +2,36 @@ import { Text, TouchableRipple, useTheme } from 'react-native-paper';
 import { StyleSheet, View, Animated } from 'react-native';
 import { maskBrazilianCurrency } from '../../utils/app-utils';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 
 interface ContractDetailCardProps {
   contract: Plano;
   onPress: () => void;
-} 
+}
 
 export default function ContractDetailCard({ contract, onPress }: ContractDetailCardProps) {
   const { colors } = useTheme();
-  const isPopular = contract.id_plano_pla === 5;
+  const isPopular = contract.id_plano_pla === 72;
   const scaleValue = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = () => {
-    Animated.spring(scaleValue, {
-      toValue: 0.98,
-      useNativeDriver: true,
-    }).start();
+    Animated.spring(scaleValue, { toValue: 0.98, useNativeDriver: true }).start();
   };
 
   const handlePressOut = () => {
-    Animated.spring(scaleValue, {
-      toValue: 1,
-      friction: 3,
-      tension: 40,
-      useNativeDriver: true,
-    }).start();
+    Animated.spring(scaleValue, { toValue: 1, friction: 3, tension: 40, useNativeDriver: true }).start();
   };
 
   return (
     <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
-      <TouchableRipple 
+      <TouchableRipple
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        style={[
-          styles.touchable,
-          isPopular && styles.popularTouchable
-        ]}
+        style={[styles.touchable, isPopular && styles.popularTouchable]}
         rippleColor="rgba(255, 255, 255, 0.2)"
       >
-        <View style={[
-          styles.card,
-          isPopular && styles.popularCard
-        ]}>
+        <View style={[styles.card, isPopular && styles.popularCard]}>
           {isPopular && (
             <View style={styles.popularBadge}>
               <Icon name="star" size={14} color="#FFF" />
@@ -54,89 +40,72 @@ export default function ContractDetailCard({ contract, onPress }: ContractDetail
           )}
 
           <View style={styles.cardHeader}>
-            <Text style={[
-              styles.planName,
-              { color: isPopular ? '#FFF' : colors.primary }
-            ]}>
+            <Text style={[styles.planName, { color: isPopular ? '#FFF' : colors.primary }]}>
               {contract.des_nome_pla}
             </Text>
-            {isPopular && (
-              <Icon name="whatshot" size={24} color="#FFD700" />
-            )}
+            {isPopular && <Icon name="whatshot" size={24} color="#FFD700" />}
           </View>
 
           <View style={styles.priceContainer}>
-            <Text style={[
-              styles.priceText,
-              { color: isPopular ? '#FFF' : colors.primary }
-            ]}>
+            <Text style={[styles.priceText, { color: isPopular ? '#FFF' : colors.primary }]}>
               {maskBrazilianCurrency(contract.vlr_adesao_pla!)}
             </Text>
-            <Text style={[
-              styles.priceLabel,
-              { color: isPopular ? 'rgba(255,255,255,0.8)' : '#666' }
-            ]}>
+            <Text style={[styles.priceLabel, { color: isPopular ? 'rgba(255,255,255,0.8)' : '#666' }]}>
               /mês
             </Text>
           </View>
 
-          <View style={[styles.divider, { 
-            backgroundColor: isPopular ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)' 
-          }]} />
+          <View
+            style={[
+              styles.divider,
+              { backgroundColor: isPopular ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)' },
+            ]}
+          />
 
           <View style={styles.featuresContainer}>
-            {contract.des_descricao_pla?.split('\n').map((feature, index) => (
-              <View key={index} style={styles.featureItem}>
-                <Icon 
-                  name="check-circle" 
-                  size={16} 
-                  color={isPopular ? '#FFD700' : colors.primary} 
-                  style={styles.featureIcon} 
-                />
-                <Text style={[
-                  styles.featureText,
-                  { color: isPopular ? '#FFF' : colors.text }
-                ]}>
-                  {feature}
-                </Text>
-              </View>
-            ))}
+            {contract.des_descricao_pla
+              ?.split(/\n|\|/) // quebra por linha OU barra
+              .map((feature, index) => (
+                <View key={index} style={styles.featureItem}>
+                  <Icon
+                    name="check-circle"
+                    size={16}
+                    color={isPopular ? '#FFD700' : colors.primary}
+                    style={styles.featureIcon}
+                  />
+                  <Text
+                    style={[styles.featureText, { color: isPopular ? '#FFF' : colors.text }]}
+                  >
+                    {feature.trim()}
+                  </Text>
+                </View>
+              ))}
           </View>
 
           {Number(contract.qtd_max_dependentes_pla) > 0 && (
-            <View style={[
-              styles.dependentsContainer,
-              isPopular && styles.popularDependents
-            ]}>
-              <Icon 
-                name="account-multiple" 
-                size={18} 
-                color={isPopular ? '#FFD700' : colors.primary} 
+            <View style={[styles.dependentsContainer, isPopular && styles.popularDependents]}>
+              <Icon
+                name="account-multiple"
+                size={18}
+                color={isPopular ? '#FFD700' : colors.primary}
               />
-              <Text style={[
-                styles.dependentsText,
-                { color: isPopular ? '#FFF' : colors.text }
-              ]}>
-                {`Até ${contract.qtd_max_dependentes_pla} dependente${Number(contract.qtd_max_dependentes_pla) > 1 ? 's' : ''} inclusos`}
+              <Text style={[styles.dependentsText, { color: isPopular ? '#FFF' : colors.text }]}>
+                {`Até ${contract.qtd_max_dependentes_pla} dependente${
+                  Number(contract.qtd_max_dependentes_pla) > 1 ? 's' : ''
+                } inclusos`}
               </Text>
             </View>
           )}
 
-          <View style={[
-            styles.selectButton,
-            isPopular && styles.popularSelectButton
-          ]}>
-            <Text style={[
-              styles.selectButtonText,
-              isPopular && styles.popularSelectButtonText
-            ]}>
+          <View style={[styles.selectButton, isPopular && styles.popularSelectButton]}>
+            <Text style={[styles.selectButtonText, isPopular && styles.popularSelectButtonText]}>
               Selecionar Plano
             </Text>
-            <Icon 
-              name="arrow-right" 
-              size={18} 
-              color={isPopular ? colors.primary : '#FFF'} 
-              style={styles.arrowIcon} 
+            <Icon
+              name="arrow-right"
+              size={18}
+              color={isPopular ? colors.primary : '#FFF'}
+              style={styles.arrowIcon}
             />
           </View>
         </View>
@@ -155,14 +124,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
-    marginTop:15,
+    marginTop: 15,
     borderWidth: 1,
     borderColor: '#EEE',
   },
   popularTouchable: {
-    backgroundColor: '#644086',
+    backgroundColor: '#b183ff',
     borderColor: 'transparent',
-    shadowColor: '#644086',
+    shadowColor: '#b183ff',
     shadowOpacity: 0.3,
   },
   card: {
@@ -171,7 +140,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   popularCard: {
-    backgroundColor: '#644086',
+    backgroundColor: '#b183ff',
   },
   popularBadge: {
     position: 'absolute',
@@ -259,7 +228,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#644086',
+    backgroundColor: '#b183ff',
   },
   popularSelectButton: {
     backgroundColor: '#FFF',
@@ -270,7 +239,7 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   popularSelectButtonText: {
-    color: '#644086',
+    color: '#b183ff',
   },
   arrowIcon: {
     marginLeft: 8,

@@ -1026,8 +1026,8 @@ const styles = StyleSheet.create({
   purpleSection: {
     backgroundColor: '#644086',
     height: Platform.select({
-      ios: Platform.isPad ? SCREEN_HEIGHT * 0.20 : SCREEN_HEIGHT * 0.38,
-      android: Platform.isPad ? SCREEN_HEIGHT * 0.20 : SCREEN_HEIGHT * 0.38,
+      ios: Platform.isPad ? SCREEN_HEIGHT * 0.20 : SCREEN_HEIGHT * 0.27,
+      android: Platform.isPad ? SCREEN_HEIGHT * 0.20 : SCREEN_HEIGHT * 0.27,
     }),
     justifyContent: 'flex-start',
     alignItems: 'center',
