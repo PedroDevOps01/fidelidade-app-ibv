@@ -142,9 +142,13 @@ export default function LoginCheckCpf({ navigation, routeAfterLogin }: { navigat
         </ModalContainer>
 
         <View style={styles.contentWrapper}>
-          <View style={styles.logoContainer}>
-            <Image source={require('../../assets/images/fidelidade_logo.png')} style={{ width: width * 0.6, height: width * 0.2 }} />
-          </View>
+       <View style={styles.logoContainer}>
+  <Image
+    source={require('../../assets/images/logonova1.png')}
+    style={{ width: width * 1.0, height: width * 0.3 }} // tamanho menor
+    resizeMode="contain" // evita distorção
+  />
+</View>
 
           <Card style={[styles.card, { backgroundColor: colors.onSecondary }]} elevation={3}>
             <Card.Content>

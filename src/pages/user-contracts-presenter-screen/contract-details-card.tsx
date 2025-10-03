@@ -6,18 +6,20 @@ import { useRef } from 'react';
 
 interface ContractDetailCardProps {
   contract: Plano;
-  onPress: () => void;
+onPress: (contract: Plano) => void;
 }
 
 export default function ContractDetailCard({ contract, onPress }: ContractDetailCardProps) {
   const { colors } = useTheme();
-  const isPopular = contract.id_plano_pla === 72;
+
+  const isPopular = contract.id_plano_pla === 3 || contract.id_plano_pla === 5;
+
+
   const scaleValue = useRef(new Animated.Value(1)).current;
-  console.log(contract)
+
   const handlePressIn = () => {
     Animated.spring(scaleValue, { toValue: 0.98, useNativeDriver: true }).start();
   };
-
   const handlePressOut = () => {
     Animated.spring(scaleValue, { toValue: 1, friction: 3, tension: 40, useNativeDriver: true }).start();
   };
@@ -25,7 +27,7 @@ export default function ContractDetailCard({ contract, onPress }: ContractDetail
   return (
     <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
       <TouchableRipple
-        onPress={onPress}
+onPress={() => onPress(contract)}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         style={[styles.touchable, isPopular && styles.popularTouchable]}

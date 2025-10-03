@@ -680,6 +680,7 @@ async function fetchParceirosCredenciados(): Promise<void> {
         if (resp.status == 200) {
           const { data: content } = resp;
           setContracts(content.response.data);
+          console.log('Contratos fetched:', content.response.data);
           // Check if any contract has telemedicine active
           const hasTelemed = content.response.data.some((contract: Contrato) => contract.inclui_telemedicina_pla === 1);
           setHasTelemedicine(hasTelemed);
@@ -912,16 +913,7 @@ const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
             {error && <Text style={{ color: 'red', textAlign: 'center', marginVertical: 10 }}>{error}</Text>}
 
             {/* Telemedicine Card Section */}
-            {hasTelemedicine && (
-              <View style={styles.sectionContainer}>
-                <View style={styles.sectionHeader}>
-                  <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary, marginBottom: 10 }]}>
-                    Telemedicina
-                  </Text>
-                </View>
-                <TelemedicineCard onPress={handleTelemedicinePress} />
-              </View>
-            )}
+           
 
             <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
@@ -968,6 +960,16 @@ const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
                 <Text style={{ textAlign: 'center', color: colors.onSurfaceVariant, marginTop: 10 }}>Nenhum parceiro disponível no momento.</Text>
               )}
             </View>
+             {hasTelemedicine && (
+              <View style={styles.sectionContainer}>
+                <View style={styles.sectionHeader}>
+                  <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary, marginBottom: 10 }]}>
+                    Telemedicina
+                  </Text>
+                </View>
+                <TelemedicineCard onPress={handleTelemedicinePress} />
+              </View>
+            )}
 {/* Seção de Credenciados */}
             <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
@@ -1004,7 +1006,7 @@ const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
               )}
             </View>
 
-            {/* <View style={styles.sectionContainer}>
+            <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
                 <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
                   Marcar Consultas
@@ -1018,7 +1020,6 @@ const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={{
                     marginTop: 16,
-                    paddingVertical: 8,
                     width: '100%',
                   }}
                   onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollXPromo } } }], { useNativeDriver: true })}
@@ -1026,10 +1027,10 @@ const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
                 />
                 {renderPromoIndicator()}
               </View>
-            </View> */}
+            </View>
 
             {/* Próximos Agendamentos */}
-            {/* <View style={styles.sectionContainer}>
+            <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
                 <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
                   Próximos Agendamentos
@@ -1046,10 +1047,10 @@ const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
               ) : (
                 <AppointmentCard appointment={userSchedules[0]} onPress={() => navigate('user-schedules')} type="next" />
               )}
-            </View> */}
+            </View>
 
             {/* Histórico de Agendamentos */}
-            {/* <View style={styles.sectionContainer}>
+            <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
                 <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
                   Histórico de Agendamentos
@@ -1064,7 +1065,7 @@ const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
               ) : (
                 <EmptyAppointmentCard type="history" onPress={() => navigate('user-shcdules-history-screen')} />
               )}
-            </View> */}
+            </View>
 
             <Portal>
               <PagarmeErrorsDialog
@@ -1163,17 +1164,7 @@ const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
               Descrição: {selectedParceiro.des_parceiro_prc || 'N/A'}
             </Text>
           </View>
-          <Button
-            mode="contained"
-            onPress={() => {
-              setModalCredenciadosVisible(false);
-              navigation.navigate('ParceirosScreen', { partnerType: 'accredited' });
-            }}
-            style={styles.modalButton}
-            labelStyle={styles.modalButtonText}
-          >
-            Ver mais detalhes
-          </Button>
+
           <Button
             mode="outlined"
             onPress={() => setModalCredenciadosVisible(false)}
@@ -1229,16 +1220,7 @@ const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
                                 {selectedParceiro.des_parceiro_prc || 'N/A'}
                               </Text>
                             </View>
-                            <Button
-                              mode="contained"
-                              onPress={() => {
-                                setModalVisible(false);
-                                navigation.navigate('ParceirosScreen', { partnerType: 'regular' });
-                              }}
-                              style={styles.modalButton}
-                              labelStyle={styles.modalButtonText}>
-                              Ver mais detalhes
-                            </Button>
+                           
                             <Button mode="outlined" onPress={() => setModalVisible(false)} style={styles.modalCloseButton} labelStyle={styles.modalCloseButtonText}>
                               Fechar
                             </Button>

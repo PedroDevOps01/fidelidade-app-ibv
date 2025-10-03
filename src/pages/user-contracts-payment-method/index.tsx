@@ -16,7 +16,7 @@ export default function UserContractsPaymentMethod() {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [formasPagamento, setFormasPagamento] = useState<FormaPagamento[]>([]);
-
+  
   async function getPaymentMethods() {
     setLoading(true);
     try {

@@ -403,14 +403,20 @@ const styles = StyleSheet.create({
 // Funções auxiliares mantidas iguais
 const formatarNome = (nomeCompleto?: string): string => {
   if (!nomeCompleto) return '';
+  
   const partes = nomeCompleto.trim().split(/\s+/);
-  if (partes.length === 1) return partes[0].toUpperCase();
-  const primeiro = partes[0];
-  const segundo = partes.length > 1 ? partes[1] : '';
-  const ultimo = partes[partes.length - 1];
-  return `${primeiro} ${segundo} ${ultimo}`.toUpperCase();
+  
+  if (partes.length === 1) {
+    // Apenas uma palavra
+    return partes[0].toUpperCase();
+  } else if (partes.length === 2) {
+    // Dois nomes
+    return `${partes[0]} ${partes[1]}`.toUpperCase();
+  } else {
+    // Mais de dois nomes, mostrar primeiro e último
+    return `${partes[0]} ${partes[partes.length - 1]}`.toUpperCase();
+  }
 };
-
 const formatarCPF = (cpf?: string | number): string => {
   if (!cpf) return '';
   const apenasNumeros = cpf.toString().replace(/\D/g, '').padStart(11, '0');

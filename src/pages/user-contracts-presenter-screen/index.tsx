@@ -19,8 +19,8 @@ export default function ContractsPresenterScreen() {
   const [loading, setLoading] = useState<boolean>(false);
   const [plans, setPlans] = useState<Plano[]>([]);
   const orderedPlans = [...plans].sort((a, b) => {
-    if (a.id_plano_pla === 72) return -1; // Popular primeiro
-    if (b.id_plano_pla === 72) return 1;
+    if (a.id_plano_pla === 3 || a.id_plano_pla === 5) return -1; // Popular primeiro
+    if (b.id_plano_pla === 3 || b.id_plano_pla === 5) return 1;
     return a.vlr_adesao_pla - b.vlr_adesao_pla;
   });
 
@@ -56,8 +56,10 @@ export default function ContractsPresenterScreen() {
           renderItem={({ item }) => (
             <ContractDetailCard
               contract={item}
+              
               onPress={() => {
                 setPlano(item);
+                console.log('Plano selecionado no presenter:', item.des_nome_pla);
                 navigate('user-contracts-payment-method');
               }}
             />

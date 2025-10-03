@@ -11,9 +11,9 @@ export default function CopyMdvLink({ id, codigoPromocional }: Props) {
 
   const shareMessage = async () => {
     const baseURL = codigoPromocional
-      ? `http://3.215.147.199/${codigoPromocional}`
-      : 'http://3.215.147.199';
-    const linkCompartilhado = `${baseURL}/fidelidade-ajudda/planos/${id}`;
+      ? `https://fidelidadegees.com.br/${codigoPromocional}`
+      : 'https://fidelidadegees.com.br';
+    const linkCompartilhado = `${baseURL}/ibv/planos/${id}`;
 
     try {
       const result = await Share.share({
