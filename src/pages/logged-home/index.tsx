@@ -24,8 +24,9 @@ import { WebView } from 'react-native-webview';
 import CustomToast from '../../components/custom-toast';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { ImageBackground } from 'react-native';
-
+import { Linking } from 'react-native';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+import { Alert } from 'react-native';
 
 interface UserSchedule {
   agenda_exames_id: string;
@@ -123,7 +124,7 @@ const TelemedicineCard: React.FC<{ onPress: () => void }> = ({ onPress }) => {
 const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   const { colors } = useTheme();
   const { dadosUsuarioData, userCreditCards, setCreditCards, userContracts, setContracts, setDadosUsuarioData } = useDadosUsuario();
-// console.log(JSON.stringify(dadosUsuarioData, null, 2));
+  // console.log(JSON.stringify(dadosUsuarioData, null, 2));
   const { authData } = useAuth();
   const { setUserSchedulesData, userSchedules } = useConsultas();
   const [lastHistoricSchedule, setLastHistoricSchedule] = useState<UserSchedule | null>(null);
@@ -134,11 +135,11 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
   const [inadimplenciasDialogVisible, setInadimplenciasDialogVisible] = useState<boolean>(false);
   const [agendamentosDialogVisible, setAgendamentosDialogVisible] = useState<boolean>(false);
   const [schedulesLoading, setSchedulesLoading] = useState<boolean>(false);
-    const [parceirosCredenciados, setParceirosCredenciados] = useState<Parceiro[]>([]);
+  const [parceirosCredenciados, setParceirosCredenciados] = useState<Parceiro[]>([]);
+
   const scrollXCredenciados = useRef(new Animated.Value(0)).current;
   const [modalCredenciadosVisible, setModalCredenciadosVisible] = useState(false);
   const [selectedParceiroCredenciadoId, setSelectedParceiroCredenciadoId] = useState<number | null>(null);
-
   const [loading, setLoading] = useState<boolean>(false);
   const [partnersLoading, setPartnersLoading] = useState<boolean>(true);
   const [hasTelemedicine, setHasTelemedicine] = useState<boolean>(false); // New state for telemedicine
@@ -235,144 +236,144 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
     };
 
     return (
-    <Animated.View style={{ transform: [{ scale: scaleValue }], marginVertical: 8 }}>
-      <TouchableOpacity onPress={onPress} onPressIn={handlePressIn} onPressOut={handlePressOut} activeOpacity={0.9}>
-        <Card style={[styles.card, type === 'next' ? styles.nextAppointmentCard : styles.historyCard]}>
-      <View style={{ overflow: 'hidden', borderRadius: 16 }}>
-            <Card.Content style={styles.cardContent}>
-              {/* Header */}
-              <View style={styles.cardHeader}>
-                <View style={styles.statusContainer}>
-                  <Icon name={status.icon} size={16} color={status.color} />
-                  <Text variant={type === 'next' ? 'labelSmall' : 'bodyMedium'} style={[styles.statusText, { color: status.color }]}>
-                    {status.text}
-                  </Text>
-                </View>
-                {type === 'next' ? (
-                  <IconButton icon="chevron-right" size={20} iconColor={colors.onSurfaceVariant} style={styles.chevron} />
-                ) : (
-                  status.isRecent && <Badge style={[styles.recentBadge, { backgroundColor: colors.primary }]}>Recente</Badge>
-                )}
-              </View>
-
-              {/* Main Content */}
-              <View style={styles.mainContent}>
-                <Image
-                  source={appointment.fachada_profissional ? { uri: appointment.fachada_profissional } : require('../../assets/images/fallback_image.png')}
-                  style={styles.professionalImage}
-                  resizeMode="cover"
-                  onError={() => console.log('Image load error')}
-                />
-                <View style={styles.infoContainer}>
-                  <Text variant="titleMedium" style={[styles.procedureName, { color: colors.onSurface }]} numberOfLines={2}>
-                    {Array.isArray(appointment.nome_procedimento) ? appointment.nome_procedimento.join(', ') : appointment.nome_procedimento}
-                  </Text>
-                  <View style={styles.professionalInfo}>
-                    <Icon name="person" size={14} color={colors.primary} />
-                    <Text variant="bodyMedium" style={[styles.professionalName, { color: colors.primary }]} numberOfLines={1}>
-                      {appointment.nome_profissional || 'Profissional não especificado'}
+      <Animated.View style={{ transform: [{ scale: scaleValue }], marginVertical: 8 }}>
+        <TouchableOpacity onPress={onPress} onPressIn={handlePressIn} onPressOut={handlePressOut} activeOpacity={0.9}>
+          <Card style={[styles.card, type === 'next' ? styles.nextAppointmentCard : styles.historyCard]}>
+            <View style={{ overflow: 'hidden', borderRadius: 16 }}>
+              <Card.Content style={styles.cardContent}>
+                {/* Header */}
+                <View style={styles.cardHeader}>
+                  <View style={styles.statusContainer}>
+                    <Icon name={status.icon} size={16} color={status.color} />
+                    <Text variant={type === 'next' ? 'labelSmall' : 'bodyMedium'} style={[styles.statusText, { color: status.color }]}>
+                      {status.text}
                     </Text>
                   </View>
-                  <View style={styles.detailsRow}>
-                    <View style={styles.detailItem}>
-                      <Icon name="access-time" size={14} color={colors.onSurfaceVariant} />
-                      <Text variant="bodySmall" style={[styles.detailText, { color: colors.onSurfaceVariant }]}>
-                        {String(appointment.inicio).substring(0, 5)}
+                  {type === 'next' ? (
+                    <IconButton icon="chevron-right" size={20} iconColor={colors.onSurfaceVariant} style={styles.chevron} />
+                  ) : (
+                    status.isRecent && <Badge style={[styles.recentBadge, { backgroundColor: colors.primary }]}>Recente</Badge>
+                  )}
+                </View>
+
+                {/* Main Content */}
+                <View style={styles.mainContent}>
+                  <Image
+                    source={appointment.fachada_profissional ? { uri: appointment.fachada_profissional } : require('../../assets/images/fallback_image.png')}
+                    style={styles.professionalImage}
+                    resizeMode="cover"
+                    onError={() => console.log('Image load error')}
+                  />
+                  <View style={styles.infoContainer}>
+                    <Text variant="titleMedium" style={[styles.procedureName, { color: colors.onSurface }]} numberOfLines={2}>
+                      {Array.isArray(appointment.nome_procedimento) ? appointment.nome_procedimento.join(', ') : appointment.nome_procedimento}
+                    </Text>
+                    <View style={styles.professionalInfo}>
+                      <Icon name="person" size={14} color={colors.primary} />
+                      <Text variant="bodyMedium" style={[styles.professionalName, { color: colors.primary }]} numberOfLines={1}>
+                        {appointment.nome_profissional || 'Profissional não especificado'}
                       </Text>
                     </View>
-                    <View style={styles.detailItem}>
-                      <Icon name={type === 'next' ? 'location-on' : 'location-on'} size={14} color={colors.onSurfaceVariant} />
-                      <Text variant="bodySmall" style={[styles.detailText, { color: colors.onSurfaceVariant }]} numberOfLines={1}>
-                        {appointment.nome_unidade}
-                      </Text>
+                    <View style={styles.detailsRow}>
+                      <View style={styles.detailItem}>
+                        <Icon name="access-time" size={14} color={colors.onSurfaceVariant} />
+                        <Text variant="bodySmall" style={[styles.detailText, { color: colors.onSurfaceVariant }]}>
+                          {String(appointment.inicio).substring(0, 5)}
+                        </Text>
+                      </View>
+                      <View style={styles.detailItem}>
+                        <Icon name={type === 'next' ? 'location-on' : 'location-on'} size={14} color={colors.onSurfaceVariant} />
+                        <Text variant="bodySmall" style={[styles.detailText, { color: colors.onSurfaceVariant }]} numberOfLines={1}>
+                          {appointment.nome_unidade}
+                        </Text>
+                      </View>
                     </View>
                   </View>
                 </View>
-              </View>
 
-              {/* Footer */}
-              <View style={[styles.cardFooter, { backgroundColor: `${colors.onSecondary}15`, borderTopWidth: 0 }]}>
-                {type === 'next' ? (
-                  <>
-                    <View style={[styles.priorityIndicator, { backgroundColor: status.color }]} />
-                    <Text variant="bodySmall" style={[styles.footerText, { color: colors.onSurfaceVariant }]}>
-                      Confirme sua presença com antecedência
-                    </Text>
-                  </>
-                ) : (
-                  <>
-                    <Icon name="check-circle" size={16} color={colors.primary} />
-                    <Text variant="bodySmall" style={[styles.footerText, { color: colors.onSurfaceVariant }]}>
-                      Consulta realizada
-                    </Text>
-                  </>
-                )}
-              </View>
-            </Card.Content>
-          </View>
-        </Card>
-      </TouchableOpacity>
-    </Animated.View>
-  );
-};
-
- const EmptyAppointmentCard = ({ type = 'next', onPress }: { type?: 'next' | 'history'; onPress: () => void }) => {
-  const { colors } = useTheme();
-  const scaleValue = useRef(new Animated.Value(1)).current;
-
-  const config = {
-    next: {
-      title: 'Nenhum agendamento',
-      subtitle: 'Toque para agendar uma nova consulta',
-      icon: 'event-available',
-      color: colors.primary,
-    },
-    history: {
-      title: 'Nenhum histórico',
-      subtitle: 'Seus agendamentos aparecerão aqui',
-      icon: 'history',
-      color: colors.primary,
-    },
+                {/* Footer */}
+                <View style={[styles.cardFooter, { backgroundColor: `${colors.onSecondary}15`, borderTopWidth: 0 }]}>
+                  {type === 'next' ? (
+                    <>
+                      <View style={[styles.priorityIndicator, { backgroundColor: status.color }]} />
+                      <Text variant="bodySmall" style={[styles.footerText, { color: colors.onSurfaceVariant }]}>
+                        Confirme sua presença com antecedência
+                      </Text>
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="check-circle" size={16} color={colors.primary} />
+                      <Text variant="bodySmall" style={[styles.footerText, { color: colors.onSurfaceVariant }]}>
+                        Consulta realizada
+                      </Text>
+                    </>
+                  )}
+                </View>
+              </Card.Content>
+            </View>
+          </Card>
+        </TouchableOpacity>
+      </Animated.View>
+    );
   };
 
-  const { title, subtitle, icon, color } = config[type];
+  const EmptyAppointmentCard = ({ type = 'next', onPress }: { type?: 'next' | 'history'; onPress: () => void }) => {
+    const { colors } = useTheme();
+    const scaleValue = useRef(new Animated.Value(1)).current;
 
-  const handlePressIn = () => {
-    Animated.spring(scaleValue, {
-      toValue: 0.98,
-      useNativeDriver: true,
-    }).start();
+    const config = {
+      next: {
+        title: 'Nenhum agendamento',
+        subtitle: 'Toque para agendar uma nova consulta',
+        icon: 'event-available',
+        color: colors.primary,
+      },
+      history: {
+        title: 'Nenhum histórico',
+        subtitle: 'Seus agendamentos aparecerão aqui',
+        icon: 'history',
+        color: colors.primary,
+      },
+    };
+
+    const { title, subtitle, icon, color } = config[type];
+
+    const handlePressIn = () => {
+      Animated.spring(scaleValue, {
+        toValue: 0.98,
+        useNativeDriver: true,
+      }).start();
+    };
+
+    const handlePressOut = () => {
+      Animated.spring(scaleValue, {
+        toValue: 1,
+        friction: 3,
+        tension: 40,
+        useNativeDriver: true,
+      }).start();
+    };
+
+    return (
+      <Animated.View style={{ transform: [{ scale: scaleValue }], marginVertical: 8 }}>
+        <TouchableOpacity onPress={onPress} onPressIn={handlePressIn} onPressOut={handlePressOut} activeOpacity={0.8}>
+          <Card style={[styles.card, styles.emptyCard]}>
+            <View style={{ overflow: 'hidden', borderRadius: 16 }}>
+              <Card.Content style={styles.emptyCardContent}>
+                <Icon name={icon} size={48} color={`${color}40`} style={styles.emptyIcon} />
+                <Text variant="titleMedium" style={[styles.emptyTitle, { color: colors.onSurface }]}>
+                  {title || 'Nenhum agendamento'}
+                </Text>
+                <Text variant="bodyMedium" style={[styles.emptySubtitle, { color: colors.onSurfaceVariant }]}>
+                  {subtitle || 'Toque para continuar'}
+                </Text>
+              </Card.Content>
+            </View>
+          </Card>
+        </TouchableOpacity>
+      </Animated.View>
+    );
   };
-
-  const handlePressOut = () => {
-    Animated.spring(scaleValue, {
-      toValue: 1,
-      friction: 3,
-      tension: 40,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  return (
-    <Animated.View style={{ transform: [{ scale: scaleValue }], marginVertical: 8 }}>
-      <TouchableOpacity onPress={onPress} onPressIn={handlePressIn} onPressOut={handlePressOut} activeOpacity={0.8}>
-        <Card style={[styles.card, styles.emptyCard]}>
-      <View style={{ overflow: 'hidden', borderRadius: 16 }}>
-            <Card.Content style={styles.emptyCardContent}>
-              <Icon name={icon} size={48} color={`${color}40`} style={styles.emptyIcon} />
-              <Text variant="titleMedium" style={[styles.emptyTitle, { color: colors.onSurface }]}>
-                {title || 'Nenhum agendamento'}
-              </Text>
-              <Text variant="bodyMedium" style={[styles.emptySubtitle, { color: colors.onSurfaceVariant }]}>
-                {subtitle || 'Toque para continuar'}
-              </Text>
-            </Card.Content>
-          </View>
-        </Card>
-      </TouchableOpacity>
-    </Animated.View>
-  );
-};
   useEffect(() => {
     if (maisConsultasData.length <= 1) return;
 
@@ -577,17 +578,18 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
       setPartnersLoading(false);
     }
   }
-async function fetchParceirosCredenciados(): Promise<void> {
+  async function fetchParceirosCredenciados(): Promise<void> {
     try {
       setLoading(true);
-      const headers = isLogged && authData.access_token
-        ? generateRequestHeader(authData.access_token)
-        : {
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
-            },
-          };
+      const headers =
+        isLogged && authData.access_token
+          ? generateRequestHeader(authData.access_token)
+          : {
+              headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+              },
+            };
       const response = await api.get('/parceiro/appcred', headers);
       const dataApi = response.data;
       if (dataApi && dataApi.response && dataApi.response.data && dataApi.response.data.length > 0) {
@@ -608,7 +610,6 @@ async function fetchParceirosCredenciados(): Promise<void> {
       fetchParceirosCredenciados();
     }, []),
   );
-
 
   useFocusEffect(
     useCallback(() => {
@@ -700,8 +701,7 @@ async function fetchParceirosCredenciados(): Promise<void> {
       fetchSchedules(authData.access_token),
       fetchLastHistoricSchedule(),
       fetchParceiros(),
-            fetchParceirosCredenciados(),
-
+      fetchParceirosCredenciados(),
     ])
       .then(_ => {})
       .catch(err => {
@@ -711,7 +711,7 @@ async function fetchParceirosCredenciados(): Promise<void> {
         setLoading(false);
       });
   }
-const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
+  const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
     return (
       <TouchableOpacity
         activeOpacity={0.8}
@@ -719,7 +719,7 @@ const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
           setSelectedParceiroCredenciadoId(item.id_parceiro_prc);
           setModalCredenciadosVisible(true);
         }}
-        style={[styles.credenciadoCard, { backgroundColor: "#f7f7f7" }]}>
+        style={[styles.credenciadoCard, { backgroundColor: '#f7f7f7' }]}>
         <View style={styles.credenciadoContent}>
           <Image
             source={item.img_parceiro_prc ? { uri: `${item.img_parceiro_prc}` } : require('../../assets/images/logonova.png')}
@@ -738,12 +738,7 @@ const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
               </Text>
             </View>
           </View>
-          <IconButton 
-            icon="chevron-right" 
-            size={24} 
-            iconColor={colors.primary} 
-            style={styles.credenciadoArrow}
-          />
+          <IconButton icon="chevron-right" size={24} iconColor={colors.primary} style={styles.credenciadoArrow} />
         </View>
       </TouchableOpacity>
     );
@@ -913,7 +908,6 @@ const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
             {error && <Text style={{ color: 'red', textAlign: 'center', marginVertical: 10 }}>{error}</Text>}
 
             {/* Telemedicine Card Section */}
-           
 
             <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
@@ -960,7 +954,7 @@ const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
                 <Text style={{ textAlign: 'center', color: colors.onSurfaceVariant, marginTop: 10 }}>Nenhum parceiro disponível no momento.</Text>
               )}
             </View>
-             {hasTelemedicine && (
+            {hasTelemedicine && (
               <View style={styles.sectionContainer}>
                 <View style={styles.sectionHeader}>
                   <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary, marginBottom: 10 }]}>
@@ -970,27 +964,26 @@ const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
                 <TelemedicineCard onPress={handleTelemedicinePress} />
               </View>
             )}
-{/* Seção de Credenciados */}
+            {/* Seção de Credenciados */}
             <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
                 <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
                   Nossos Credenciados
                 </Text>
-                <Button 
-                  mode="text" 
-                  compact 
-                  labelStyle={{ fontSize: 12, color: colors.primary }} 
-                  onPress={() => navigation.navigate('ParceirosScreen', { partnerType: 'accredited' })}
-                >
+                <Button
+                  mode="text"
+                  compact
+                  labelStyle={{ fontSize: 12, color: colors.primary }}
+                  onPress={() => navigation.navigate('ParceirosScreen', { partnerType: 'accredited' })}>
                   Ver todos
                 </Button>
               </View>
-              
+
               {parceirosCredenciados.length > 0 ? (
                 <FlatList
                   data={parceirosCredenciados}
                   renderItem={renderCredenciadosItem}
-                  keyExtractor={(item) => item.id_parceiro_prc.toString()}
+                  keyExtractor={item => item.id_parceiro_prc.toString()}
                   scrollEnabled={false}
                   contentContainerStyle={styles.credenciadosList}
                   ListFooterComponent={<View style={{ height: 10 }} />}
@@ -1087,99 +1080,130 @@ const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
                 handlePress={status => setAgendamentosDialogVisible(status)}
               />
             </Portal>
- <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalCredenciadosVisible}
-            onRequestClose={() => {
-              setModalCredenciadosVisible(false);
-            }}>
-            <TouchableWithoutFeedback onPress={() => setModalCredenciadosVisible(false)}>
-              <View style={styles.modalOverlay} />
-            </TouchableWithoutFeedback>
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={modalCredenciadosVisible}
+              onRequestClose={() => {
+                setModalCredenciadosVisible(false);
+              }}>
+              <TouchableWithoutFeedback onPress={() => setModalCredenciadosVisible(false)}>
+                <View style={styles.modalOverlay} />
+              </TouchableWithoutFeedback>
 
-            <View style={styles.modalContainer}>
-              {selectedParceiroCredenciadoId && (
-  (() => {
-    const selectedParceiro = parceirosCredenciados.find(
-      p => p.id_parceiro_prc === selectedParceiroCredenciadoId
-    );
+              <View style={styles.modalContainer}>
+  {selectedParceiroCredenciadoId &&
+    (() => {
+      const selectedParceiro = parceirosCredenciados.find(
+        p => p.id_parceiro_prc === selectedParceiroCredenciadoId
+      );
 
-    if (!selectedParceiro) return null;
+      if (!selectedParceiro) return null;
 
-    return (
-      <>
-        <Image
-          source={
-            selectedParceiro.img_parceiro_prc
-              ? { uri: `${selectedParceiro.img_parceiro_prc}` }
-              : require('../../assets/images/logonova.png')
-          }
-          style={styles.modalImage}
-        />
-        <View style={styles.modalContent}>
-          <Text variant="titleLarge" style={styles.modalTitle}>
-            {selectedParceiro.des_nome_fantasia_prc}
-          </Text>
-          <Text variant="bodyMedium" style={styles.modalDescription}>
-            {selectedParceiro.des_razao_social_prc} - {selectedParceiro.des_endereco_prc},{' '}
-            {selectedParceiro.des_bairro_prc}, {selectedParceiro.des_municipio_mun}
-          </Text>
-          <Text variant="titleSmall" style={styles.modalSectionTitle}>
-            Contato:
-          </Text>
-          <View style={styles.benefitItem}>
-            <IconButton
-              icon="email"
-              size={16}
-              iconColor={colors.primary}
-              style={styles.benefitIcon}
-            />
-            <Text variant="bodyMedium" style={styles.benefitText}>
-              {selectedParceiro.des_email_responsavel_prc}
+      const openWhatsApp = () => {
+        const phone = selectedParceiro.num_celular_prc?.replace(/\D/g, ''); // remove caracteres não numéricos
+        if (!phone) {
+          Alert.alert('Número de WhatsApp não disponível');
+          return;
+        }
+
+        const message = encodeURIComponent(
+  `Olá, quero fazer um agendamento com ${selectedParceiro.des_nome_fantasia_prc}. Pode me informar as opções disponíveis?`
+);
+        const url = `https://wa.me/55${phone}?text=${message}`;
+        Linking.openURL(url);
+      };
+
+      return (
+        <>
+          <Image
+            source={
+              selectedParceiro.img_parceiro_prc
+                ? { uri: `${selectedParceiro.img_parceiro_prc}` }
+                : require('../../assets/images/logonova.png')
+            }
+            style={styles.modalImage}
+          />
+          <View style={styles.modalContent}>
+            <Text variant="titleLarge" style={styles.modalTitle}>
+              {selectedParceiro.des_nome_fantasia_prc}
             </Text>
-          </View>
-          <View style={styles.benefitItem}>
-            <IconButton
-              icon="phone"
-              size={16}
-              iconColor={colors.primary}
-              style={styles.benefitIcon}
-            />
-            <Text variant="bodyMedium" style={styles.benefitText}>
-              {selectedParceiro.num_celular_prc || selectedParceiro.num_telefone_prc}
+            <Text variant="bodyMedium" style={styles.modalDescription}>
+              {selectedParceiro.des_razao_social_prc} -{' '}
+              {selectedParceiro.des_endereco_prc}, {selectedParceiro.des_bairro_prc},{' '}
+              {selectedParceiro.des_municipio_mun}
             </Text>
-          </View>
-          <Text variant="titleSmall" style={styles.modalSectionTitle}>
-            Dados:
-          </Text>
-          <View style={styles.benefitItem}>
-            <IconButton
-              icon="card-text"
-              size={16}
-              iconColor={colors.primary}
-              style={styles.benefitIcon}
-            />
-            <Text variant="bodyMedium" style={styles.benefitText}>
-              Descrição: {selectedParceiro.des_parceiro_prc || 'N/A'}
-            </Text>
-          </View>
 
-          <Button
-            mode="outlined"
-            onPress={() => setModalCredenciadosVisible(false)}
-            style={styles.modalCloseButton}
-            labelStyle={styles.modalCloseButtonText}
-          >
-            Fechar
-          </Button>
-        </View>
-      </>
-    );
-  })()
-)}
+            <Text variant="titleSmall" style={styles.modalSectionTitle}>
+              Contato:
+            </Text>
+            <View style={styles.benefitItem}>
+              <IconButton
+                icon="email"
+                size={16}
+                iconColor={colors.primary}
+                style={styles.benefitIcon}
+              />
+              <Text variant="bodyMedium" style={styles.benefitText}>
+                {selectedParceiro.des_email_responsavel_prc}
+              </Text>
             </View>
-          </Modal>
+            <View style={styles.benefitItem}>
+              <IconButton
+                icon="phone"
+                size={16}
+                iconColor={colors.primary}
+                style={styles.benefitIcon}
+              />
+              <Text variant="bodyMedium" style={styles.benefitText}>
+                {selectedParceiro.num_celular_prc || selectedParceiro.num_telefone_prc}
+              </Text>
+            </View>
+
+            {/* NOVO BOTÃO DE AGENDAMENTO */}
+            <Button
+              mode="contained"
+              icon="whatsapp"
+              onPress={openWhatsApp}
+              style={{
+                marginTop: 12,
+                backgroundColor: '#25D366', // verde WhatsApp
+                borderRadius: 8,
+              }}
+              labelStyle={{ color: '#fff', fontWeight: 'bold' }}
+            >
+              Fazer um agendamento
+            </Button>
+
+            <Text variant="titleSmall" style={styles.modalSectionTitle}>
+              Dados:
+            </Text>
+            <View style={styles.benefitItem}>
+              <IconButton
+                icon="card-text"
+                size={16}
+                iconColor={colors.primary}
+                style={styles.benefitIcon}
+              />
+              <Text variant="bodyMedium" style={styles.benefitText}>
+                Descrição: {selectedParceiro.des_parceiro_prc || 'N/A'}
+              </Text>
+            </View>
+
+            <Button
+              mode="outlined"
+              onPress={() => setModalCredenciadosVisible(false)}
+              style={styles.modalCloseButton}
+              labelStyle={styles.modalCloseButtonText}
+            >
+              Fechar
+            </Button>
+          </View>
+        </>
+      );
+    })()}
+</View>
+            </Modal>
             <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
               <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
                 <View style={styles.modalOverlay} />
@@ -1220,7 +1244,7 @@ const renderCredenciadosItem = ({ item }: { item: Parceiro }) => {
                                 {selectedParceiro.des_parceiro_prc || 'N/A'}
                               </Text>
                             </View>
-                           
+
                             <Button mode="outlined" onPress={() => setModalVisible(false)} style={styles.modalCloseButton} labelStyle={styles.modalCloseButtonText}>
                               Fechar
                             </Button>
@@ -1247,8 +1271,8 @@ const styles = StyleSheet.create({
   purpleSection: {
     backgroundColor: '#644086',
     height: Platform.select({
-      ios: Platform.isPad ? SCREEN_HEIGHT * 0.20 : SCREEN_HEIGHT * 0.27,
-      android: Platform.isPad ? SCREEN_HEIGHT * 0.20 : SCREEN_HEIGHT * 0.27,
+      ios: Platform.isPad ? SCREEN_HEIGHT * 0.2 : SCREEN_HEIGHT * 0.27,
+      android: Platform.isPad ? SCREEN_HEIGHT * 0.2 : SCREEN_HEIGHT * 0.27,
     }),
     justifyContent: 'flex-start',
     alignItems: 'center',
@@ -1304,15 +1328,15 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
 
- emptyCard: {
-  justifyContent: 'center',       // centraliza verticalmente
-  alignItems: 'center',           // centraliza horizontalmente
-  minHeight: 140,                 // altura mínima
-  borderColor: '#644086',         // cor da borda
-  borderWidth: 1,                  // largura da borda
-  borderRadius: 12,                // cantos arredondados (opcional)
-  padding: 16,                     // espaçamento interno
-},
+  emptyCard: {
+    justifyContent: 'center', // centraliza verticalmente
+    alignItems: 'center', // centraliza horizontalmente
+    minHeight: 140, // altura mínima
+    borderColor: '#644086', // cor da borda
+    borderWidth: 1, // largura da borda
+    borderRadius: 12, // cantos arredondados (opcional)
+    padding: 16, // espaçamento interno
+  },
 
   scheduleCardContent: {
     flexDirection: 'row',
@@ -1326,7 +1350,7 @@ const styles = StyleSheet.create({
   scheduleInfo: {
     flex: 1,
   },
-   parceirosList: {
+  parceirosList: {
     paddingHorizontal: (SCREEN_WIDTH - SCREEN_WIDTH * 0.98) / 2, // Ajustado para menos padding
   },
   credenciadosList: {

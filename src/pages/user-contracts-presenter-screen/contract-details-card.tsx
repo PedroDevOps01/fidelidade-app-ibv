@@ -35,7 +35,7 @@ interface Plano {
 
 export default function ContractDetailCard({ contract, onPress }: ContractDetailCardProps) {
   const { colors } = useTheme();
-  const isPopular = contract.id_plano_pla === 72;
+  const isPopular = contract.id_plano_pla === 3 || contract.id_plano_pla === 5;
   const scaleValue = useRef(new Animated.Value(1)).current;
   const [formasPagamento, setFormasPagamento] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -43,7 +43,7 @@ export default function ContractDetailCard({ contract, onPress }: ContractDetail
   const { authData } = useAuth();
   const [selectingPlan, setSelectingPlan] = useState(false);
 
-// console.log(JSON.stringify(dadosUsuarioData, null, 2));
+console.log(JSON.stringify(dadosUsuarioData, null, 2));
   const handlePressIn = () => {
     Animated.spring(scaleValue, {
       toValue: 0.98,
@@ -143,7 +143,7 @@ export default function ContractDetailCard({ contract, onPress }: ContractDetail
         rippleColor="rgba(255, 255, 255, 0.3)"
       >
         <CardContainer
-          colors={isPopular ? ['#ea7c5bc2', '#AF91F9'] : ['#FFF', '#FFF']}
+          colors={isPopular ? ['#644086', '#644086'] : ['#FFF', '#FFF']}
           style={[styles.card, isPopular && styles.popularCard]}
         >
           <View style={styles.cardHeader}>
@@ -240,7 +240,7 @@ export default function ContractDetailCard({ contract, onPress }: ContractDetail
           {Number(contract.qtd_max_dependentes_pla) > 0 && (
             <View style={[styles.dependentsContainer, isPopular && styles.popularDependents]}>
               <Icon
-                name="family_restroom"
+                name="person"
                 size={18}
                 color={isPopular ? '#FFD700' : colors.primary}
               />
@@ -252,7 +252,7 @@ export default function ContractDetailCard({ contract, onPress }: ContractDetail
 
          <View style={[styles.selectButton, isPopular && styles.popularSelectButton]}>
   {selectingPlan ? (
-    <ActivityIndicator size="small" color={isPopular ? '#AF91F9' : '#FFF'} />
+    <ActivityIndicator size="small" color={isPopular ? '#644086' : '#FFF'} />
   ) : (
     <>
       <Text style={[styles.selectButtonText, isPopular && styles.popularSelectButtonText]}>
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   popularTouchable: {
-    shadowColor: '#ea7c5bc2',
+    shadowColor: '#644086',
     shadowOpacity: 0.3,
     shadowRadius: 20,
   },
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
   firstPaymentMethod: {
     backgroundColor: 'rgba(175, 145, 249, 0.1)',
     borderLeftWidth: 3,
-    borderLeftColor: '#AF91F9',
+    borderLeftColor: '#644086',
   },
   paymentMethodIcon: {
     marginRight: 8,
@@ -433,8 +433,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#AF91F9',
-    shadowColor: '#AF91F9',
+    backgroundColor: '#644086',
+    shadowColor: '#644086',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   popularSelectButtonText: {
-    color: '#ea7c5bc2',
+    color: '#644086',
   },
   arrowIcon: {
     marginLeft: 8,
