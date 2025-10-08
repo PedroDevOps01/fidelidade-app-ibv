@@ -1108,7 +1108,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
         }
 
         const message = encodeURIComponent(
-  `Olá, quero fazer um agendamento com ${selectedParceiro.des_nome_fantasia_prc}. Pode me informar as opções disponíveis?`
+  `Olá! Sou assinante do IBV Card e gostaria de agendar um atendimento com ${selectedParceiro.des_nome_fantasia_prc}. Pode me informar as opções disponíveis?`
 );
         const url = `https://wa.me/55${phone}?text=${message}`;
         Linking.openURL(url);
@@ -1282,9 +1282,9 @@ const styles = StyleSheet.create({
     }),
   },
   logo: {
-    width: 120, // Reduzido para evitar dominância visual
-    height: 120,
-    marginTop: 20, // Reduzido para mais equilíbrio
+    width: 140, // Reduzido para evitar dominância visual
+    height: 140,
+    marginTop: 0, // Reduzido para mais equilíbrio
   },
   welcomeContainer: {
     alignItems: 'center',
