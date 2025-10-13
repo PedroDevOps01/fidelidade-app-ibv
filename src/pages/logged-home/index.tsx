@@ -1445,7 +1445,7 @@ const styles = StyleSheet.create({
   termsHeader: {
     backgroundColor: '#644086',
     padding: 25,
-    paddingTop: 15,
+    paddingTop: Platform.OS === 'android' ? 40 : 15, // Topo maior no Android
     borderBottomLeftRadius: 15,
     borderBottomRightRadius: 15,
     elevation: 4,
@@ -1454,6 +1454,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
+
   webViewContainer: {
     flex: 1,
     margin: 15,

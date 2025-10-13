@@ -201,7 +201,7 @@ const RegisterStepFour = ({ route, navigation }: { route: any; navigation: any }
         )}
       />
 
-      <Controller
+      {/* <Controller
         control={control}
         name="num_telefone_pes"
         render={({ field: { onChange, value } }) => (
@@ -217,7 +217,7 @@ const RegisterStepFour = ({ route, navigation }: { route: any; navigation: any }
             error={!!errors.num_telefone_pes}
           />
         )}
-      />
+      /> */}
 
       <View>
         <Button mode="contained" loading={loading} disabled={loading} onPress={handleSubmit(onSubmit, onError)}>
