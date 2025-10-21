@@ -156,12 +156,28 @@ const RegisterStepThree = ({ route, navigation }: { route: any; navigation: any 
 
       {/* Número RG */}
       <Controller
-        control={control}
-        name="cod_rg_pda"
-        render={({ field: { onChange, value } }) => (
-          <TextInput inputMode="numeric" label="Número do RG" value={value} onChangeText={onChange} mode="outlined" style={styles.input} error={!!errors.cod_rg_pda} />
-        )}
+  control={control}
+  name="cod_rg_pda"
+  render={({ field: { onChange, value } }) => (
+    <>
+      <TextInput
+        label="Número do RG"
+        inputMode="numeric"
+        value={value}
+        onChangeText={text => {
+          const onlyNumbers = text.replace(/\D/g, ''); // só números
+          onChange(onlyNumbers.slice(0, 20)); // limite 20 dígitos
+        }}
+        mode="outlined"
+        style={styles.input}
+        error={!!errors.cod_rg_pda}
       />
+      {errors.cod_rg_pda && (
+        <Text style={styles.errorText}>{errors.cod_rg_pda.message}</Text>
+      )}
+    </>
+  )}
+/>
 
       {/* Data de Emissão RG
       <Controller
@@ -186,13 +202,26 @@ const RegisterStepThree = ({ route, navigation }: { route: any; navigation: any 
       /> */}
 
       {/* Email */}
-      <Controller
-        control={control}
-        name="des_email_pda"
-        render={({ field: { onChange, value } }) => (
-          <TextInput label="Email" value={value} onChangeText={onChange} mode="outlined" keyboardType="email-address" style={styles.input} error={!!errors.des_email_pda} />
-        )}
+    <Controller
+  control={control}
+  name="des_email_pda"
+  render={({ field: { onChange, value } }) => (
+    <>
+      <TextInput
+        label="Email"
+        value={value}
+        onChangeText={onChange}
+        mode="outlined"
+        keyboardType="email-address"
+        style={styles.input}
+        error={!!errors.des_email_pda}
       />
+      {errors.des_email_pda && (
+        <Text style={styles.errorText}>{errors.des_email_pda.message}</Text>
+      )}
+    </>
+  )}
+/>
 
       {/* mae */}
       <Controller
@@ -281,6 +310,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 20,
   },
+  errorText: {
+  color: '#d32f2f',
+  fontSize: 13,
+  marginBottom: 8,
+},
   button: {
     marginTop: 16,
     justifyContent: 'center',
