@@ -157,7 +157,7 @@ const RegisterStepTwo = ({ route, navigation }: { route: any; navigation: any })
               color={theme.colors.primary}
               uncheckedColor={theme.colors.onSurface}
             />
-            <Text style={styles.checkboxLabel}>Não sei meu CEP</Text>
+            <Text style={styles.checkboxLabel}>Sem CEP automático</Text>
           </View>
 
           <Controller

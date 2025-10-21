@@ -27,6 +27,7 @@ import { ImageBackground } from 'react-native';
 import { Linking } from 'react-native';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 import { Alert } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 
 interface UserSchedule {
   agenda_exames_id: string;
@@ -174,6 +175,15 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
     }
   }, [dadosUsuarioData, authData.access_token]);
 
+  useEffect(() => {
+    const inadimplencias = dadosUsuarioData?.pessoaAssinatura?.inadimplencia;
+
+    if (Array.isArray(inadimplencias) && inadimplencias.length > 0) {
+      setInadimplenciasDialogVisible(true);
+    } else {
+      setInadimplenciasDialogVisible(false);
+    }
+  }, [dadosUsuarioData?.pessoaAssinatura?.inadimplencia]);
   useEffect(() => {
     navigation.setOptions({
       tabBarStyle: showTerms
@@ -723,7 +733,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
         <View style={styles.credenciadoContent}>
           <Image
             source={item.img_parceiro_prc ? { uri: `${item.img_parceiro_prc}` } : require('../../assets/images/logonova.png')}
-            style={[styles.credenciadoImage, { width: 80, height: 80 }]}
+            style={[styles.credenciadoImage, { width: 100, height: 100 }]}
           />
           <View style={styles.credenciadoInfo}>
             <Text variant="titleMedium" style={[styles.credenciadoTitle, { color: colors.primary }]}>
@@ -891,7 +901,22 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
         <LoadingFull title="Carregando..." />
       ) : (
         <View style={styles.container}>
-          <View style={styles.purpleSection}>
+          <LinearGradient
+            colors={['#644086', '#644086']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              height: Platform.select({
+                ios: Platform.isPad ? SCREEN_HEIGHT * 0.2 : SCREEN_HEIGHT * 0.35,
+                android: Platform.isPad ? SCREEN_HEIGHT * 0.5 : SCREEN_HEIGHT * 0.35,
+              }),
+              justifyContent: 'flex-start',
+              alignItems: 'center',
+              paddingTop: Platform.select({
+                ios: Platform.isPad ? 10 : 0,
+                android: Platform.isPad ? 10 : 0,
+              }),
+            }}>
             <Image source={require('../../assets/images/logotransparente.png')} style={styles.logo} resizeMode="contain" />
             <View style={styles.welcomeContainer}>
               <Text style={styles.welcomeText}>Olá {dadosUsuarioData.pessoaDados?.des_genero_pes || ''}!!</Text>
@@ -903,24 +928,36 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                   : 'Seja Bem Vindo(a).'}
               </Text>
             </View>
-          </View>
+          </LinearGradient>
+
           <ScrollView style={styles.whiteSection} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
             {error && <Text style={{ color: 'red', textAlign: 'center', marginVertical: 10 }}>{error}</Text>}
 
             {/* Telemedicine Card Section */}
 
+            {/* Seção de Parceiros */}
             <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
-                <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
-                  Nossos Parceiros
-                </Text>
-                <Button mode="text" compact labelStyle={{ fontSize: 12, color: colors.primary }} onPress={() => navigation.navigate('ParceirosScreen', { partnerType: 'regular' })}>
+                <View style={styles.sectionTitleContainer}>
+                  <Icon name="store" size={20} color={colors.primary} />
+                  <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
+                    Nossos Parceiros
+                  </Text>
+                </View>
+                <Button
+                  mode="text"
+                  compact
+                  labelStyle={[styles.seeAllButton, { color: colors.primary }]}
+                  onPress={() => navigation.navigate('ParceirosScreen', { partnerType: 'regular' })}
+                  icon="arrow-right">
                   Ver todos
                 </Button>
               </View>
+
               {partnersLoading ? (
                 <View style={styles.loadingContainer}>
                   <ActivityIndicator animating={true} size="small" color={colors.primary} />
+                  <Text style={[styles.loadingText, { color: colors.onSurfaceVariant }]}>Carregando parceiros...</Text>
                 </View>
               ) : parceiros.length > 0 ? (
                 <>
@@ -932,9 +969,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                     showsHorizontalScrollIndicator={false}
                     snapToInterval={SCREEN_WIDTH * 0.8}
                     decelerationRate="fast"
-                    contentContainerStyle={{
-                      paddingHorizontal: (SCREEN_WIDTH - SCREEN_WIDTH * 0.99) / 2,
-                    }}
+                    contentContainerStyle={styles.partnersListContainer}
                     onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollXConsultas } } }], { useNativeDriver: true })}
                     scrollEventThrottle={16}
                     removeClippedSubviews={true}
@@ -951,47 +986,116 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                   {renderConsultasIndicator()}
                 </>
               ) : (
-                <Text style={{ textAlign: 'center', color: colors.onSurfaceVariant, marginTop: 10 }}>Nenhum parceiro disponível no momento.</Text>
+                <Card style={styles.emptyStateCard}>
+                  <Card.Content style={styles.emptyStateContent}>
+                    <Icon name="store-mall-directory" size={48} color="#ccc" />
+                    <Text variant="bodyMedium" style={[styles.emptyStateText, { color: colors.onSurfaceVariant }]}>
+                      Nenhum parceiro disponível no momento
+                    </Text>
+                  </Card.Content>
+                </Card>
               )}
             </View>
             {hasTelemedicine && (
               <View style={styles.sectionContainer}>
                 <View style={styles.sectionHeader}>
-                  <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary, marginBottom: 10 }]}>
-                    Telemedicina
-                  </Text>
+                  <View style={styles.sectionTitleAndIcon}> {/* Agrupando ícone e texto */}
+                    <Icon name="monitor-heart" size={22} color={colors.primary} style={styles.sectionIcon} /> {/* Exemplo de ícone para telemedicina */}
+                    <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary, marginBottom: 0 }]}> {/* Removi o marginBottom do título para alinhar melhor */}
+                      Telemedicina
+                    </Text>
+                  </View>
+                  {/* Se houver um botão "Ver mais" ou seta aqui, ele iria neste ponto */}
                 </View>
                 <TelemedicineCard onPress={handleTelemedicinePress} />
               </View>
             )}
             {/* Seção de Credenciados */}
+       
             <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
-                <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
-                  Nossos Credenciados
-                </Text>
+                <View style={styles.sectionTitleContainer}>
+                  <Icon name="verified" size={20} color="#644086" />
+                  <Text variant="titleMedium" style={[styles.sectionTitle, { color: '#644086' }]}>
+                    Nossos Credenciados
+                  </Text>
+                </View>
                 <Button
                   mode="text"
                   compact
-                  labelStyle={{ fontSize: 12, color: colors.primary }}
-                  onPress={() => navigation.navigate('ParceirosScreen', { partnerType: 'accredited' })}>
+                  labelStyle={[styles.seeAllButton, { color: '#644086' }]}
+                  onPress={() => navigation.navigate('ParceirosScreen', { partnerType: 'accredited' })}
+                  icon="arrow-right">
                   Ver todos
                 </Button>
               </View>
 
-              {parceirosCredenciados.length > 0 ? (
-                <FlatList
-                  data={parceirosCredenciados}
-                  renderItem={renderCredenciadosItem}
-                  keyExtractor={item => item.id_parceiro_prc.toString()}
-                  scrollEnabled={false}
-                  contentContainerStyle={styles.credenciadosList}
-                  ListFooterComponent={<View style={{ height: 10 }} />}
-                />
+              {loading ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator animating={true} size="small" color="#644086" />
+                  <Text style={[styles.loadingText, { color: colors.onSurfaceVariant }]}>Carregando credenciados...</Text>
+                </View>
+              ) : parceirosCredenciados.length > 0 ? (
+                <View style={styles.credenciadosList}>
+                  {parceirosCredenciados.slice(0, 4).map(item => (
+                    <TouchableOpacity
+                      key={item.id_parceiro_prc}
+                      activeOpacity={0.8}
+                      onPress={() => {
+                        setSelectedParceiroCredenciadoId(item.id_parceiro_prc);
+                        setModalCredenciadosVisible(true);
+                      }}
+                      style={styles.credenciadoCard}>
+                      <LinearGradient colors={['#fff', '#fff']} style={styles.credenciadoGradient}>
+                        {/* Badge de Credenciado */}
+                        {/* <View style={styles.credenciadoBadge}>
+              <Icon name="verified" size={12} color="#fff" />
+              <Text style={styles.credenciadoBadgeText}>Credenciado</Text>
+            </View> */}
+
+                        {/* Conteúdo do Card */}
+                        <View style={styles.credenciadoContent}>
+                          {/* Imagem do Parceiro */}
+                          <Image
+                            source={item.img_parceiro_prc ? { uri: `${item.img_parceiro_prc}` } : require('../../assets/images/logonova.png')}
+                            style={styles.credenciadoImage}
+                          />
+
+                          {/* Informações */}
+                          <View style={styles.credenciadoInfo}>
+                            <Text variant="titleSmall" style={styles.credenciadoTitle} numberOfLines={2}>
+                              {item.des_nome_fantasia_prc}
+                            </Text>
+                            <View style={styles.credenciadoLocation}>
+                              <Icon name="location-on" size={14} color="#644086" />
+                              <Text variant="bodySmall" style={styles.credenciadoLocationText} numberOfLines={1}>
+                                {item.des_municipio_mun}
+                              </Text>
+                            </View>
+
+                            {/* Indicador de Status */}
+                            {item.cred_ativo_prc === '1' && (
+                              <View style={styles.activeIndicator}>
+                                <View style={styles.activeDot} />
+                                <Text style={styles.activeText}>Ativo</Text>
+                              </View>
+                            )}
+                          </View>
+
+                          {/* Botão de Ação */}
+                          <View style={styles.credenciadoAction}>
+                            <Icon name="chevron-right" size={18} color="#644086" />
+                          </View>
+                        </View>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               ) : (
-                <Card mode="elevated" style={[styles.card, { backgroundColor: colors.surface }]}>
-                  <Card.Content style={styles.emptyCardContent}>
-                    <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant, textAlign: 'center' }}>
+                <Card style={styles.emptyStateCard}>
+                  <Card.Content style={styles.emptyStateContent}>
+                    <Icon name="verified-user" size={48} color="#ccc" />
+                    <Text variant="bodyMedium" style={[styles.emptyStateText, { color: colors.onSurfaceVariant }]}>
                       Nenhum credenciado disponível no momento
                     </Text>
                   </Card.Content>
@@ -1001,9 +1105,13 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
 
             <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
-                <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
-                  Marcar Consultas
-                </Text>
+                <View style={styles.sectionTitleAndIcon}>
+                  <Icon name="event-available" size={22} color={colors.primary} style={styles.sectionIcon} />
+                  <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
+                    Marcar Consultas
+                  </Text>
+                </View>
+                {/* Aqui não haverá seta nem botão */}
               </View>
               <View>
                 <Animated.FlatList
@@ -1012,7 +1120,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={{
-                    marginTop: 16,
+                    marginTop: 0,
                     width: '100%',
                   }}
                   onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollXPromo } } }], { useNativeDriver: true })}
@@ -1024,11 +1132,20 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
 
             {/* Próximos Agendamentos */}
             <View style={styles.sectionContainer}>
-              <View style={styles.sectionHeader}>
-                <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
-                  Próximos Agendamentos
-                </Text>
-                <Button mode="text" compact labelStyle={{ fontSize: 12, color: colors.primary }} onPress={() => navigate('user-schedules')}>
+              <View style={styles.sectionHeader}> {/* Este View agora será o container flex com justify-content: 'space-between' */}
+                <View style={styles.sectionTitleAndIcon}>
+                  <Icon name="event" size={22} color={colors.primary} style={styles.sectionIcon} />
+                  <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
+                    Próximos Agendamentos
+                  </Text>
+                </View>
+                {/* Botão "Ver todos" com ícone de seta */}
+                <Button
+                  mode="text"
+                  compact
+                  labelStyle={[styles.seeAllButton, { color: colors.primary }]}
+                  onPress={() => navigate('user-schedules')}
+                  icon="arrow-right"> {/* Use 'arrow-right' ou 'chevron-right' */}
                   Ver todos
                 </Button>
               </View>
@@ -1044,12 +1161,21 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
 
             {/* Histórico de Agendamentos */}
             <View style={styles.sectionContainer}>
-              <View style={styles.sectionHeader}>
-                <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
-                  Histórico de Agendamentos
-                </Text>
-                <Button mode="text" compact labelStyle={{ fontSize: 12, color: colors.primary }} onPress={() => navigate('user-shcdules-history-screen')}>
-                  Ver histórico
+              <View style={styles.sectionHeader}> {/* Este View agora será o container flex com justify-content: 'space-between' */}
+                <View style={styles.sectionTitleAndIcon}>
+                  <Icon name="history" size={22} color={colors.primary} style={styles.sectionIcon} />
+                  <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.primary }]}>
+                    Histórico de Agendamentos
+                  </Text>
+                </View>
+                {/* Botão "Ver histórico" com ícone de seta */}
+                <Button
+                  mode="text"
+                  compact
+                  labelStyle={[styles.seeAllButton, { color: colors.primary }]}
+                  onPress={() => navigate('user-shcdules-history-screen')}
+                  icon="arrow-right"> {/* Use 'arrow-right' ou 'chevron-right' */}
+                  Ver todos
                 </Button>
               </View>
 
@@ -1080,42 +1206,180 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                 handlePress={status => setAgendamentosDialogVisible(status)}
               />
             </Portal>
-            <Modal
-              animationType="slide"
-              transparent={true}
-              visible={modalCredenciadosVisible}
-              onRequestClose={() => {
-                setModalCredenciadosVisible(false);
-              }}>
+            <Modal animationType="slide" transparent={true} visible={modalCredenciadosVisible} onRequestClose={() => setModalCredenciadosVisible(false)}>
               <TouchableWithoutFeedback onPress={() => setModalCredenciadosVisible(false)}>
                 <View style={styles.modalOverlay} />
               </TouchableWithoutFeedback>
 
               <View style={styles.modalContainer}>
-  {selectedParceiroCredenciadoId &&
-    (() => {
-      const selectedParceiro = parceirosCredenciados.find(
-        p => p.id_parceiro_prc === selectedParceiroCredenciadoId
-      );
+                {selectedParceiroCredenciadoId &&
+                  (() => {
+                    const selectedParceiro = parceirosCredenciados.find(p => p.id_parceiro_prc === selectedParceiroCredenciadoId);
+
+                    if (!selectedParceiro) return null;
+
+                    const openWhatsApp = () => {
+                      const phone = selectedParceiro.num_celular_prc?.replace(/\D/g, '');
+                      if (!phone) {
+                        Alert.alert('Atenção', 'Número de WhatsApp não disponível');
+                        return;
+                      }
+
+                      const message = encodeURIComponent(`Olá, quero fazer um agendamento com ${selectedParceiro.des_nome_fantasia_prc}. Pode me informar as opções disponíveis?`);
+                      const url = `https://wa.me/55${phone}?text=${message}`;
+                      Linking.openURL(url);
+                    };
+
+                    return (
+                      <>
+                        {/* Header do Modal */}
+                        <View style={styles.modalHeader}>
+                          <View style={styles.modalHeaderContent}>
+                            <Text variant="titleLarge" style={styles.modalTitle}>
+                              {selectedParceiro.des_nome_fantasia_prc}
+                            </Text>
+                            <View style={styles.credentialStatus}>
+                              <Icon name="verified" size={16} color="#644086" />
+                              <Text style={styles.credentialStatusText}>Parceiro Credenciado</Text>
+                            </View>
+                          </View>
+                          <IconButton icon="close" size={24} onPress={() => setModalCredenciadosVisible(false)} style={styles.modalCloseIcon} />
+                        </View>
+
+                        {/* Imagem */}
+                        <Image
+                          source={selectedParceiro.img_parceiro_prc ? { uri: `${selectedParceiro.img_parceiro_prc}` } : require('../../assets/images/logonova.png')}
+                          style={styles.modalImage}
+                        />
+
+                        {/* Conteúdo */}
+                        <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+                          {/* Informações Básicas */}
+                          <Card style={styles.infoCard}>
+                            <Card.Content>
+                              <View style={styles.infoItem}>
+                                <Icon name="business" size={20} color={colors.primary} />
+                                <View style={styles.infoText}>
+                                  <Text variant="labelSmall" style={styles.infoLabel}>
+                                    Razão Social
+                                  </Text>
+                                  <Text variant="bodyMedium" style={styles.infoValue}>
+                                    {selectedParceiro.des_razao_social_prc}
+                                  </Text>
+                                </View>
+                              </View>
+
+                              <View style={styles.infoItem}>
+                                <Icon name="location-on" size={20} color={colors.primary} />
+                                <View style={styles.infoText}>
+                                  <Text variant="labelSmall" style={styles.infoLabel}>
+                                    Endereço
+                                  </Text>
+                                  <Text variant="bodyMedium" style={styles.infoValue}>
+                                    {selectedParceiro.des_endereco_prc}, {selectedParceiro.des_bairro_prc}
+                                  </Text>
+                                  <Text variant="bodySmall" style={styles.infoSubValue}>
+                                    {selectedParceiro.des_municipio_mun}
+                                  </Text>
+                                </View>
+                              </View>
+                            </Card.Content>
+                          </Card>
+
+                          {/* Contato */}
+                          <Card style={styles.infoCard}>
+                            <Card.Content>
+                              <Text variant="titleSmall" style={styles.sectionTitleModal}>
+                                Contato
+                              </Text>
+
+                              {selectedParceiro.des_email_responsavel_prc && (
+                                <TouchableOpacity style={styles.contactItem}>
+                                  <Icon name="email" size={20} color={colors.primary} />
+                                  <Text variant="bodyMedium" style={styles.contactText}>
+                                    {selectedParceiro.des_email_responsavel_prc}
+                                  </Text>
+                                </TouchableOpacity>
+                              )}
+
+                              {(selectedParceiro.num_celular_prc || selectedParceiro.num_telefone_prc) && (
+                                <TouchableOpacity style={styles.contactItem}>
+                                  <Icon name="phone" size={20} color={colors.primary} />
+                                  <Text variant="bodyMedium" style={styles.contactText}>
+                                    {selectedParceiro.num_celular_prc || selectedParceiro.num_telefone_prc}
+                                  </Text>
+                                </TouchableOpacity>
+                              )}
+                            </Card.Content>
+                          </Card>
+
+                          {/* Descrição */}
+                          {selectedParceiro.des_parceiro_prc && (
+                            <Card style={styles.infoCard}>
+                              <Card.Content>
+                                <Text variant="titleSmall" style={styles.sectionTitleModal}>
+                                  Descrição
+                                </Text>
+                                <Text variant="bodyMedium" style={styles.descriptionText}>
+                                  {selectedParceiro.des_parceiro_prc}
+                                </Text>
+                              </Card.Content>
+                            </Card>
+                          )}
+
+                          {/* Botão de WhatsApp para assinantes */}
+                          {dadosUsuarioData.pessoaAssinatura?.assinatura_liberada && (
+                            <Button mode="contained" icon="whatsapp" onPress={openWhatsApp} style={styles.whatsappButton} labelStyle={styles.whatsappButtonLabel}>
+                              Fazer Agendamento via WhatsApp
+                            </Button>
+                          )}
+                        </ScrollView>
+                      </>
+                    );
+                  })()}
+              </View>
+            </Modal>
+            <Modal 
+  animationType="slide" 
+  transparent={true} 
+  visible={modalVisible} 
+  onRequestClose={() => setModalVisible(false)}
+>
+  <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+    <View style={styles.modalOverlay} />
+  </TouchableWithoutFeedback>
+
+  <View style={styles.modalContainer}>
+    {selectedParceiroId && (() => {
+      const selectedParceiro = parceiros.find(p => p.id_parceiro_prc === selectedParceiroId);
 
       if (!selectedParceiro) return null;
 
-      const openWhatsApp = () => {
-        const phone = selectedParceiro.num_celular_prc?.replace(/\D/g, ''); // remove caracteres não numéricos
-        if (!phone) {
-          Alert.alert('Número de WhatsApp não disponível');
-          return;
-        }
-
-        const message = encodeURIComponent(
-  `Olá! Sou assinante do IBV Card e gostaria de agendar um atendimento com ${selectedParceiro.des_nome_fantasia_prc}. Pode me informar as opções disponíveis?`
-);
-        const url = `https://wa.me/55${phone}?text=${message}`;
-        Linking.openURL(url);
-      };
-
       return (
         <>
+          {/* Header do Modal */}
+          <View style={styles.modalHeader}>
+            <View style={styles.modalHeaderContent}>
+              <Text variant="titleLarge" style={styles.modalTitle}>
+                {selectedParceiro.des_nome_fantasia_prc}
+              </Text>
+        
+              <View style={styles.credentialStatus}>
+                <Icon name="store" size={16} color={colors.primary} />
+                <Text style={[styles.credentialStatusText, { color: colors.primary }]}>
+                  Parceiro
+                </Text>
+              </View>
+            </View>
+            <IconButton 
+              icon="close" 
+              size={24} 
+              onPress={() => setModalVisible(false)} 
+              style={styles.modalCloseIcon} 
+            />
+          </View>
+
+          {/* Imagem */}
           <Image
             source={
               selectedParceiro.img_parceiro_prc
@@ -1124,138 +1388,110 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
             }
             style={styles.modalImage}
           />
-          <View style={styles.modalContent}>
-            <Text variant="titleLarge" style={styles.modalTitle}>
-              {selectedParceiro.des_nome_fantasia_prc}
-            </Text>
-            <Text variant="bodyMedium" style={styles.modalDescription}>
-              {selectedParceiro.des_razao_social_prc} -{' '}
-              {selectedParceiro.des_endereco_prc}, {selectedParceiro.des_bairro_prc},{' '}
-              {selectedParceiro.des_municipio_mun}
-            </Text>
 
-            <Text variant="titleSmall" style={styles.modalSectionTitle}>
-              Contato:
-            </Text>
-            <View style={styles.benefitItem}>
-              <IconButton
-                icon="email"
-                size={16}
-                iconColor={colors.primary}
-                style={styles.benefitIcon}
-              />
-              <Text variant="bodyMedium" style={styles.benefitText}>
-                {selectedParceiro.des_email_responsavel_prc}
-              </Text>
-            </View>
-            <View style={styles.benefitItem}>
-              <IconButton
-                icon="phone"
-                size={16}
-                iconColor={colors.primary}
-                style={styles.benefitIcon}
-              />
-              <Text variant="bodyMedium" style={styles.benefitText}>
-                {selectedParceiro.num_celular_prc || selectedParceiro.num_telefone_prc}
-              </Text>
-            </View>
+          {/* Conteúdo */}
+          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+            {/* Informações Básicas */}
+            
 
-            {/* NOVO BOTÃO DE AGENDAMENTO */}
-            <Button
-              mode="contained"
-              icon="whatsapp"
-              onPress={openWhatsApp}
-              style={{
-                marginTop: 12,
-                backgroundColor: '#25D366', // verde WhatsApp
-                borderRadius: 8,
-              }}
-              labelStyle={{ color: '#fff', fontWeight: 'bold' }}
-            >
-              Fazer um agendamento
-            </Button>
+            {/* Contato */}
+            <Card style={styles.infoCard}>
+              <Card.Content>
+                <Text variant="titleSmall" style={styles.sectionTitleModal}>
+                  Contato
+                </Text>
+                
+                {selectedParceiro.des_email_responsavel_prc && (
+                  <TouchableOpacity style={styles.contactItem}>
+                    <Icon name="email" size={20} color="#666" />
+                    <Text variant="bodyMedium" style={styles.contactText}>
+                      {selectedParceiro.des_email_responsavel_prc}
+                    </Text>
+                  </TouchableOpacity>
+                )}
 
-            <Text variant="titleSmall" style={styles.modalSectionTitle}>
-              Dados:
-            </Text>
-            <View style={styles.benefitItem}>
-              <IconButton
-                icon="card-text"
-                size={16}
-                iconColor={colors.primary}
-                style={styles.benefitIcon}
-              />
-              <Text variant="bodyMedium" style={styles.benefitText}>
-                Descrição: {selectedParceiro.des_parceiro_prc || 'N/A'}
-              </Text>
-            </View>
+                {(selectedParceiro.num_celular_prc || selectedParceiro.num_telefone_prc) && (
+                  <TouchableOpacity style={styles.contactItem}>
+                    <Icon name="phone" size={20} color="#666" />
+                    <Text variant="bodyMedium" style={styles.contactText}>
+                      {selectedParceiro.num_celular_prc || selectedParceiro.num_telefone_prc}
+                    </Text>
+                  </TouchableOpacity>
+                )}
 
-            <Button
-              mode="outlined"
-              onPress={() => setModalCredenciadosVisible(false)}
-              style={styles.modalCloseButton}
-              labelStyle={styles.modalCloseButtonText}
+                {selectedParceiro.des_endereco_web_prc && (
+                  <TouchableOpacity style={styles.contactItem}>
+                    <Icon name="language" size={20} color="#666" />
+                    <Text variant="bodyMedium" style={styles.contactText}>
+                      {selectedParceiro.des_endereco_web_prc}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </Card.Content>
+            </Card>
+
+            {/* Descrição */}
+            {selectedParceiro.des_parceiro_prc && (
+              <Card style={styles.infoCard}>
+                <Card.Content>
+                  <Text variant="titleSmall" style={styles.sectionTitleModal}>
+                    Sobre
+                  </Text>
+                  <Text variant="bodyMedium" style={styles.descriptionText}>
+                    {selectedParceiro.des_parceiro_prc}
+                  </Text>
+                </Card.Content>
+              </Card>
+            )}
+
+            {/* Informações Adicionais */}
+            {/* <Card style={styles.infoCard}>
+              <Card.Content>
+                <Text variant="titleSmall" style={styles.sectionTitleModal}>
+                  Informações Adicionais
+                </Text>
+                
+                <View style={styles.infoItem}>
+                  <Icon name="person" size={20} color={colors.primary} />
+                  <View style={styles.infoText}>
+                    <Text variant="labelSmall" style={styles.infoLabel}>
+                      Responsável
+                    </Text>
+                    <Text variant="bodyMedium" style={styles.infoValue}>
+                      {selectedParceiro.des_nome_responsavel_prc || 'Não informado'}
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.infoItem}>
+                  <Icon name="badge" size={20} color={colors.primary} />
+                  <View style={styles.infoText}>
+                    <Text variant="labelSmall" style={styles.infoLabel}>
+                      Documento
+                    </Text>
+                    <Text variant="bodyMedium" style={styles.infoValue}>
+                      {selectedParceiro.cod_documento_prc || 'Não informado'}
+                    </Text>
+                  </View>
+                </View>
+              </Card.Content>
+            </Card> */}
+
+            {/* Botão de Fechar */}
+            <Button 
+              mode="outlined" 
+              onPress={() => setModalVisible(false)} 
+              style={styles.closeButton}
+              labelStyle={styles.closeButtonLabel}
             >
               Fechar
             </Button>
-          </View>
+          </ScrollView>
         </>
       );
     })()}
-</View>
-            </Modal>
-            <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
-              <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-                <View style={styles.modalOverlay} />
-              </TouchableWithoutFeedback>
-              <View style={styles.modalContainer}>
-                {selectedParceiroId && (
-                  <>
-                    {(() => {
-                      const selectedParceiro = parceiros.find(p => p.id_parceiro_prc === selectedParceiroId);
-                      return selectedParceiro ? (
-                        <>
-                          <Image
-                            source={selectedParceiro.img_parceiro_prc ? { uri: `${selectedParceiro.img_parceiro_prc}` } : require('../../assets/images/logonova.png')}
-                            style={styles.modalImage}
-                          />
-                          <View style={styles.modalContent}>
-                            <Text variant="titleLarge" style={styles.modalTitle}>
-                              {selectedParceiro.des_nome_fantasia_prc}
-                            </Text>
-                            <Text variant="bodyMedium" style={styles.modalDescription}>
-                              {selectedParceiro.des_razao_social_prc} - {selectedParceiro.des_endereco_prc}, {selectedParceiro.des_bairro_prc}, {selectedParceiro.des_municipio_mun}
-                            </Text>
-                            <Text variant="titleSmall" style={styles.modalSectionTitle}>
-                              Contato:
-                            </Text>
-                            <View style={styles.benefitItem}>
-                              <IconButton icon="email" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
-                              <Text variant="bodyMedium" style={styles.benefitText}>
-                                {selectedParceiro.des_email_responsavel_prc}
-                              </Text>
-                            </View>
-                            <Text variant="titleSmall" style={styles.modalSectionTitle}>
-                              Descrição:
-                            </Text>
-                            <View style={styles.benefitItem}>
-                              <IconButton icon="card-text" size={16} iconColor={colors.primary} style={styles.benefitIcon} />
-                              <Text variant="bodyMedium" style={styles.benefitText}>
-                                {selectedParceiro.des_parceiro_prc || 'N/A'}
-                              </Text>
-                            </View>
-
-                            <Button mode="outlined" onPress={() => setModalVisible(false)} style={styles.modalCloseButton} labelStyle={styles.modalCloseButtonText}>
-                              Fechar
-                            </Button>
-                          </View>
-                        </>
-                      ) : null;
-                    })()}
-                  </>
-                )}
-              </View>
-            </Modal>
+  </View>
+</Modal>
           </ScrollView>
         </View>
       )}
@@ -1284,7 +1520,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 140, // Reduzido para evitar dominância visual
     height: 140,
-    marginTop: 0, // Reduzido para mais equilíbrio
+    marginTop: 5, // Reduzido para mais equilíbrio
   },
   welcomeContainer: {
     alignItems: 'center',
@@ -1301,11 +1537,28 @@ const styles = StyleSheet.create({
     color: '#fff',
     opacity: 0.9,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between', // Para alinhar o título/ícone à esquerda e a seta à direita
+    marginBottom: 8,
+},
+sectionTitleAndIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+},
+sectionIcon: {
+    marginRight: 8,
+},
+actionIcon: { // Estilo para a seta
+    marginLeft: 8, // Pode ajustar o espaçamento se necessário
+},
   whiteSection: {
     flex: 1,
     backgroundColor: '#f7f7f7',
-    marginTop: -15, // Ajustado para menor sobreposição
-    borderTopLeftRadius: 20, // Mantido para consistência
+    marginTop: Platform.OS === 'ios' ? -100 : -95, // 20 para iOS, 10 para Android
+
+    borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
   scrollContent: {
@@ -1313,15 +1566,10 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   sectionContainer: {
-    marginTop: 25,
-    marginBottom: 10,
+    marginTop: 15,
+    marginBottom: 15,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
+  
   sectionTitle: {
     fontWeight: '700',
     fontSize: 18,
@@ -1350,72 +1598,6 @@ const styles = StyleSheet.create({
   scheduleInfo: {
     flex: 1,
   },
-  parceirosList: {
-    paddingHorizontal: (SCREEN_WIDTH - SCREEN_WIDTH * 0.98) / 2, // Ajustado para menos padding
-  },
-  credenciadosList: {
-    paddingTop: 8, // Reduzido para equilíbrio
-  },
-  card: {
-    borderRadius: 12, // Reduzido para proporção
-    elevation: 2, // Reduzido para sombra mais suave
-    marginBottom: 12, // Reduzido para espaço adequado
-    padding: 10, // Adicionado padding interno para exibir botões
-  },
-  indicator: {
-    width: 6, // Reduzido para visibilidade sem excesso
-    height: 6,
-    borderRadius: 3, // Reduzido para consistência
-    marginHorizontal: 3, // Reduzido para equilíbrio
-  },
-  credenciadoCard: {
-    borderRadius: 10, // Reduzido para proporção
-    marginBottom: 10, // Reduzido para espaço adequado
-    elevation: 2, // Reduzido para sombra mais suave
-    overflow: 'hidden',
-    backgroundColor: '#f8f8f8',
-    padding: 10, // Adicionado padding interno para exibir botões
-  },
-  credenciadoContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10, // Reduzido para equilíbrio
-  },
-  credenciadoImage: {
-    width: 50, // Reduzido para evitar dominância
-    height: 50,
-    borderRadius: 8, // Reduzido para consistência
-    marginRight: 10, // Reduzido para equilíbrio
-  },
-  credenciadoInfo: {
-    flex: 1,
-  },
-  credenciadoTitle: {
-    fontWeight: '600',
-    fontSize: 14, // Reduzido para legibilidade sem zoom
-    marginBottom: 4, // Reduzido para equilíbrio
-  },
-  credenciadoLocation: {
-    marginBottom: 6, // Reduzido para harmonia
-    color: '#666',
-  },
-  credenciadoBadge: {
-    alignSelf: 'flex-start',
-    borderRadius: 4, // Reduzido para proporção
-    paddingHorizontal: 6, // Reduzido para equilíbrio
-    paddingVertical: 4, // Reduzido para equilíbrio
-  },
-  credenciadoBadgeText: {
-    fontWeight: '500',
-    fontSize: 12, // Reduzido para harmonia
-  },
-  credenciadoArrow: {
-    margin: 0,
-    marginLeft: 8, // Reduzido para equilíbrio
-  },
-  emptyCardContent: {
-    paddingVertical: 15, // Reduzido para equilíbrio
-  },
   professionalContainer: {
     marginVertical: 4,
   },
@@ -1423,6 +1605,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 8,
+  },
+   closeButton: {
+    marginTop: 16,
+    marginBottom: 20,
+    borderColor: '#644086',
+    borderRadius: 12,
+  },
+  closeButtonLabel: {
+    color: '#644086',
+    fontWeight: '600',
+    fontSize: 14,
   },
   dateBadge: {
     borderRadius: 8,
@@ -1454,7 +1647,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
-
   webViewContainer: {
     flex: 1,
     margin: 15,
@@ -1483,11 +1675,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
 
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -1495,10 +1682,7 @@ const styles = StyleSheet.create({
   modalContainer: {
     position: 'absolute',
     bottom: 0,
-    width: Platform.select({
-      ios: Platform.isPad ? '100%' : '100%',
-      android: Platform.isPad ? '100%' : '100%',
-    }),
+    width: '100%', // Simplificado para '100%'
     alignSelf: 'center',
     backgroundColor: 'white',
     borderTopLeftRadius: 20,
@@ -1507,10 +1691,9 @@ const styles = StyleSheet.create({
       ios: Platform.isPad ? 10 : 25,
       android: Platform.isPad ? 10 : 15,
     }),
-    maxHeight: Platform.select({
-      ios: Platform.isPad ? '100%' : '100%',
-      android: Platform.isPad ? '100%' : '100%',
-    }),
+    // ✅ Mude de 'maxHeight' para 'height' com um valor fixo ou porcentual
+    height: '85%', // <-- Defina uma altura fixa, por exemplo, 85% da tela.
+    // Remova as chaves de width, pois já estão em '100%'
   },
   modalImage: {
     width: '100%',
@@ -1518,14 +1701,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginBottom: 15,
   },
-  modalContent: {
-    paddingHorizontal: 10,
-  },
-  modalTitle: {
-    fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
+
   modalDescription: {
     marginBottom: 15,
     textAlign: 'center',
@@ -1759,6 +1935,223 @@ const styles = StyleSheet.create({
   emptySubtitle: {
     textAlign: 'center',
     fontSize: 14,
+  },
+
+  credenciadoAction: {
+    marginRight: 10, // Reduzido para equilíbrio
+  },
+
+  partnersListContainer: {
+    paddingHorizontal: (SCREEN_WIDTH - SCREEN_WIDTH * 0.99) / 2,
+  },
+
+  // Estilos do Modal melhorado
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  modalHeaderContent: {
+    flex: 1,
+  },
+  modalTitle: {
+    fontWeight: 'bold',
+    color: '#2d3748',
+    marginBottom: 4,
+  },
+  credentialStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  credentialStatusText: {
+    color: '#644086',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  modalCloseIcon: {
+    margin: -8,
+  },
+  modalContent: {
+    maxHeight: SCREEN_HEIGHT * 0.6,
+  },
+  infoCard: {
+    borderRadius: 12,
+    marginBottom: 12,
+    elevation: 2,
+  },
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    marginBottom: 12,
+  },
+  infoText: {
+    flex: 1,
+  },
+  infoLabel: {
+    color: '#666',
+    marginBottom: 2,
+  },
+  infoValue: {
+    color: '#2d3748',
+    fontWeight: '500',
+  },
+  infoSubValue: {
+    color: '#666',
+    marginTop: 2,
+  },
+  sectionTitleModal: {
+    fontWeight: '600',
+    color: '#2d3748',
+    marginBottom: 12,
+  },
+  contactItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 8,
+  },
+  contactText: {
+    color: '#2d3748',
+  },
+  descriptionText: {
+    color: '#4a5568',
+    lineHeight: 20,
+  },
+  whatsappButton: {
+    backgroundColor: '#25D366',
+    borderRadius: 12,
+    marginTop: 8,
+    marginBottom: 20,
+  },
+  whatsappButtonLabel: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  credenciadosList: {
+    gap: 0,
+    paddingBottom: 0,
+  },
+ credenciadoCard: {
+    borderRadius: 16,
+    marginBottom: 12,
+
+},
+credenciadoGradient: {
+    borderRadius: 16,
+    paddingTop: 10,
+    paddingBottom: 5,
+        paddingLeft: 5,
+
+height: Platform.OS === 'ios' ? 110 : 90,
+    width: '100%',
+    // Sem propriedades de sombra aqui
+},
+
+credenciadoContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 5, // Como você especificou
+},
+credenciadoImage: {
+    width: 60, // Ajustei o tamanho da imagem para caber melhor
+    height: 60,
+    borderRadius: 12,
+    marginRight: 10,
+},
+  credenciadoBadge: { // Este é o badge que vai no topo do card
+    position: 'absolute',
+    top: 12,
+    right: 22,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#644086', // Use colors.corpadrao se preferir
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+    zIndex: 1, // Garante que o badge fique por cima
+},
+credenciadoBadgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
+},
+  
+  credenciadoInfo: {
+    flex: 1,
+  },
+  credenciadoTitle: {
+    fontWeight: '600',
+    color: '#2d3748',
+    marginBottom: 4, // Ajustei a margem
+    fontSize: 16,
+},
+credenciadoLocation: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 4, // Ajustei a margem
+},
+credenciadoLocationText: {
+    color: '#666',
+    fontSize: 14,
+},
+  activeIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  activeDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#644086',
+  },
+  activeText: {
+    fontSize: 12,
+    color: '#644086',
+    fontWeight: '500',
+  },
+
+
+  // Estilos para estados vazios
+  emptyStateCard: {
+    borderRadius: 12,
+    backgroundColor: '#f8f9fa',
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+    borderStyle: 'dashed',
+  },
+  emptyStateContent: {
+    alignItems: 'center',
+    paddingVertical: 32,
+  },
+  emptyStateText: {
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  loadingText: {
+    marginTop: 8,
+    fontSize: 12,
+  },
+
+  // Estilos da seção
+  sectionTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  seeAllButton: {
+    fontSize: 12,
+    fontWeight: '600',
   },
 });
 
