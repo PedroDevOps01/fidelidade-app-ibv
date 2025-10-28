@@ -4,13 +4,13 @@ import { useAccquirePlan } from '../../context/accquirePlanContext';
 import { api } from '../../network/api';
 import { formatDateToDDMMYYYY, generateRequestHeader, maskBrazilianCurrency } from '../../utils/app-utils';
 import { ActivityIndicator, Clipboard, Image, StyleSheet, TouchableOpacity, View, ScrollView } from 'react-native';
-import dayjs from 'dayjs';
 import { Button, Card, Text, useTheme, Chip } from 'react-native-paper';
 import { toast } from 'sonner-native';
-import { goBack, navigate } from '../../router/navigationRef';
+import { navigate, goBack } from '../../router/navigationRef';
 import { useDadosUsuario } from '../../context/pessoa-dados-context';
 import LoadingFull from '../../components/loading-full';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import dayjs from 'dayjs';
 
 interface PixResponse {
   vlr_parcela_cpp: number;
@@ -20,14 +20,25 @@ interface PixResponse {
   dta_pagamento_cpp: string;
 }
 
+interface PlanoPagamento {
+  id_plano_pagamento_ppg: number;
+  num_parcelas_ppg: number;
+  vlr_parcela_ppg: number;
+  is_anual: boolean;
+}
+
+interface Plano {
+  id_plano_pla: number;
+  vlr_adesao_pla: number | null;
+}
+
 export default function PaymentPix() {
   const { authData } = useAuth();
   const { colors } = useTheme();
   const { dadosUsuarioData, setDadosUsuarioData } = useDadosUsuario();
+  const { idFormaPagamento, contratoParcela, contratoCreated, plano, isAnual, planoPagamento } = useAccquirePlan();
   const [pixResponse, setPixResponse] = useState<PixResponse>();
-  
   const [loading, setLoading] = useState(true);
-  const { idFormaPagamento, contratoParcela, contratoCreated, plano } = useAccquirePlan();
   const [errorMessage, setErrorMessage] = useState<string>('');
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -38,10 +49,7 @@ export default function PaymentPix() {
 
   async function getSignatureDataAfterPixPaid() {
     try {
-      const response = await api.get(
-        `/pessoa/${dadosUsuarioData.pessoaDados?.id_pessoa_pes}/signature`,
-        generateRequestHeader(authData.access_token)
-      );
+      const response = await api.get(`/pessoa/${dadosUsuarioData.pessoaDados?.id_pessoa_pes}/signature`, generateRequestHeader(authData.access_token));
       if (response.status == 200) {
         setDadosUsuarioData({
           ...dadosUsuarioData,
@@ -58,11 +66,8 @@ export default function PaymentPix() {
   async function checkPaid(cod_pagamento: string) {
     setErrorMessage('');
     console.log('Verificando pagamento...');
-    const response = await api.get(
-      `/integracaoPagarMe/verificarPagamento?cod_pedido_pgm=${cod_pagamento}`,
-      generateRequestHeader(authData.access_token)
-    );
-console.log(response);
+    const response = await api.get(`/integracaoPagarMe/verificarPagamento?cod_pedido_pgm=${cod_pagamento}`, generateRequestHeader(authData.access_token));
+    console.log(response);
     if (response.status == 200) {
       const status = response.data.response[0]?.des_status_pgm;
       if (status === 'paid') await getSignatureDataAfterPixPaid();
@@ -74,13 +79,13 @@ console.log(response);
   }
 
   async function requestPayment() {
-
-    if (!idFormaPagamento || !contratoParcela || !plano) {
+    if (!idFormaPagamento || !contratoParcela || !plano || !planoPagamento) {
       setErrorMessage(
         `Dados de pagamento inválidos. Faltando: ${[
           !idFormaPagamento && 'Forma de Pagamento',
           !contratoParcela && 'Parcela do Contrato',
           !plano && 'Plano',
+          !planoPagamento && 'Plano de Pagamento',
         ]
           .filter(Boolean)
           .join(', ')}`
@@ -90,26 +95,32 @@ console.log(response);
       return;
     }
     setErrorMessage('');
-    if (!idFormaPagamento) return;
     setLoading(true);
     console.log('Solicitando pagamento...');
     try {
-          const { vlr_adesao_pla = 0 } = plano;
+      const vlrTotalAnual = isAnual && planoPagamento 
+        ? planoPagamento.num_parcelas_ppg * planoPagamento.vlr_parcela_ppg 
+        : plano.vlr_adesao_pla || 0;
 
       const baseData = {
         id_origem_pagamento_cpp: 7,
         cod_origem_pagamento_cpp: contratoParcela?.id_contrato_parcela_config_cpc,
         num_cod_externo_cpp: 0,
-              vlr_adesao_pla,
-
+        vlr_adesao_pla: vlrTotalAnual,
         dta_pagamento_cpp: dayjs().format('YYYY-MM-DD'),
         id_origem_cpp: 7,
         id_forma_pagamento_cpp: idFormaPagamento,
+        is_anual: isAnual ? 1 : 0,
       };
       const response = await api.post(`/pagamento-parcela`, baseData, generateRequestHeader(authData.access_token));
       console.log(response);
-      if (response.status === 200) setPixResponse(response.data.response);
-    } catch {
+if (response.status === 200) {
+      // ✅ CORREÇÃO: FORCE O VALOR CORRETO
+      setPixResponse({
+        ...response.data.response,
+        vlr_parcela_cpp: vlrTotalAnual  // ← 12000 ao invés de 1000
+      });
+    }    } catch {
       setErrorMessage('Erro ao realizar checagem de pagamento');
     } finally {
       setLoading(false);
@@ -164,17 +175,12 @@ console.log(response);
                   Valor:
                 </Text>
                 <Text variant="headlineMedium" style={[styles.value, { color: colors.primary }]}>
-                  {maskBrazilianCurrency(pixResponse?.vlr_parcela_cpp! ?? 0)}
+                  {maskBrazilianCurrency(pixResponse?.vlr_parcela_cpp ?? 0)}
                 </Text>
               </View>
 
               <View style={styles.qrContainer}>
-                <Chip
-                  icon="information-outline"
-                  mode="outlined"
-                  style={[styles.chip, { borderColor: colors.primaryContainer }]}
-                  textStyle={{ color: colors.onSurface }}
-                >
+                <Chip icon="information-outline" mode="outlined" style={[styles.chip, { borderColor: colors.primaryContainer }]} textStyle={{ color: colors.onSurface }}>
                   Escaneie o QR Code
                 </Chip>
 
@@ -188,8 +194,7 @@ console.log(response);
                 icon="content-copy"
                 onPress={copyToClipboard}
                 style={[styles.copyButton, { backgroundColor: colors.primaryContainer }]}
-                labelStyle={[styles.buttonLabel, { color: colors.onPrimaryContainer }]}
-              >
+                labelStyle={[styles.buttonLabel, { color: colors.onPrimaryContainer }]}>
                 Copiar código Pix
               </Button>
             </Card.Content>
