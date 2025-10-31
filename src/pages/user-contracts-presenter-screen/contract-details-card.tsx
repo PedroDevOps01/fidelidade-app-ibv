@@ -43,8 +43,8 @@ interface ContractDetailCardProps {
 
 export default function ContractDetailCard({ contract, onPress }: ContractDetailCardProps) {
   const { colors } = useTheme();
-  const isPopular = contract.id_plano_pla === 72;
-  const scaleValue = useRef(new Animated.Value(1)).current;
+  const isPopular = contract.id_plano_pla === 3 || contract.id_plano_pla === 5;
+    const scaleValue = useRef(new Animated.Value(1)).current;
   const [formasPagamento, setFormasPagamento] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { dadosUsuarioData } = useDadosUsuario();

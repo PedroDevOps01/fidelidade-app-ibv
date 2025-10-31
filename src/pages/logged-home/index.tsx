@@ -1045,7 +1045,7 @@ const LoggedHome = ({ route, navigation }: { route: any; navigation: any }) => {
                 </View>
               ) : parceirosCredenciados.length > 0 ? (
                 <View style={styles.credenciadosList}>
-                  {parceirosCredenciados.slice(0, 4).map(item => (
+                  {parceirosCredenciados.slice(0, 15).map(item => (
                     <TouchableOpacity
                       key={item.id_parceiro_prc}
                       activeOpacity={0.8}
@@ -1528,7 +1528,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 140, // Reduzido para evitar dominância visual
     height: 140,
-    marginTop: 5, // Reduzido para mais equilíbrio
+    marginTop: 10, // Reduzido para mais equilíbrio
   },
   welcomeContainer: {
     alignItems: 'center',
@@ -1564,7 +1564,7 @@ actionIcon: { // Estilo para a seta
   whiteSection: {
     flex: 1,
     backgroundColor: '#f7f7f7',
-    marginTop: Platform.OS === 'ios' ? -100 : -95, // 20 para iOS, 10 para Android
+    marginTop: Platform.OS === 'ios' ? -88 : -95, // 20 para iOS, 10 para Android
 
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
